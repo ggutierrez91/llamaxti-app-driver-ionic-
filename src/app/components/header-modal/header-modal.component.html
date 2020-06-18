@@ -1,0 +1,15 @@
+<ion-header no-border>
+    <ion-toolbar [color]="hedColor">
+        <ion-avatar slot="start" style="padding: 10px;">
+            <img [src]="srcAvatar" />
+        </ion-avatar>
+        <ion-title>{{titleModal}}</ion-title>
+
+        <ion-buttons slot="end">
+            <ion-button color="light" (click)="onHideModal()">
+                <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+                Salir
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>

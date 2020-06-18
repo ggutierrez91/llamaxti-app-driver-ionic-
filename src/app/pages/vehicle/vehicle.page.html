@@ -1,0 +1,122 @@
+<ion-header no-border>
+    <ion-toolbar color="dark">
+        <ion-buttons slot="start">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons>
+        <ion-title>Mis veh&iacute;culos</ion-title>
+
+        <ion-buttons slot="end">
+            <ion-back-button color="light">
+                <!-- <ion-icon slot="start" name="arrow-back-outline"></ion-icon> -->
+                <!-- Salir -->
+            </ion-back-button>
+        </ion-buttons>
+
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-list *ngIf="!loading">
+        <ion-list-header>
+            <ion-label>Vehiculos registrados</ion-label>
+            <ion-button (click)="onShowModalAdd()">Nuevo</ion-button>
+        </ion-list-header>
+
+        <ion-card *ngFor="let vh of dataVehicle">
+            <ion-card-header>
+                <ion-card-subtitle>
+                    <ion-item>
+                        <ion-label>{{ vh.nameBrand || 'Pendiente' }} - {{ vh.numberPlate }}</ion-label>
+
+                        <ion-button slot="end" fill="clear" shape="round">
+                            Edit
+                        </ion-button>
+
+                        <ion-button slot="end" fill="clear" shape="round" *ngIf="!vh.driverUsing">
+                            Del
+                        </ion-button>
+                    </ion-item>
+
+                </ion-card-subtitle>
+                <!-- <ion-card-title>Awesome Title</ion-card-title> -->
+            </ion-card-header>
+
+            <ion-card-content>
+                <ion-grid fixed>
+                    <ion-row>
+                        <ion-col size="5">
+                            <img [src]=" pathImg + vh.pkVehicle + '/' + vh.imgTaxiFrontal + '?token=' + st.token + '&idDriver=' + st.pkDriver " alt="Raised Image" class="rounded-circle img-raised" style="height: 80px;">
+                        </ion-col>
+                        <ion-col size="7">
+                            <div class="row">
+                                <div class="col-12">
+                                    A&ntilde;o: {{ vh.year }}
+                                </div>
+
+                                <div class="col-12">
+                                    Categor&iacute;a: {{ vh.nameCategory || 'Pendiente' }}
+                                </div>
+
+                                <div class="col-12">
+                                    Color: {{ vh.color | color }}
+                                </div>
+
+                                <div class="col-12 text-right" *ngIf="vh.verified">
+                                    <ion-button fill="clear" shape="round" (click)="onShowConfirm( vh.pkVehicle )">
+                                        Seleccionar
+                                    </ion-button>
+                                </div>
+
+                            </div>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-card-content>
+        </ion-card>
+
+    </ion-list>
+
+    <ion-list *ngIf="loading">
+
+        <ion-card *ngFor="let item of [1,1,1]">
+            <ion-card-header>
+                <ion-card-subtitle>
+                    <ion-item>
+                        <ion-skeleton-text animated style="width: 70%"></ion-skeleton-text>
+
+                        <ion-skeleton-text slot="end" animated style="width: 20%"></ion-skeleton-text>
+                    </ion-item>
+
+                </ion-card-subtitle>
+                <!-- <ion-card-title>Awesome Title</ion-card-title> -->
+            </ion-card-header>
+
+            <ion-card-content>
+                <ion-grid fixed>
+                    <ion-row>
+                        <ion-col size="6">
+                            <ion-skeleton-text animated style="width:50%; height: 80px;" class="rounded-circle img-raised"></ion-skeleton-text>
+
+                        </ion-col>
+                        <ion-col size="6">
+                            <div class="row">
+                                <div class="col-12">
+                                    <ion-skeleton-text animated style="width:50%;"></ion-skeleton-text>
+                                </div>
+
+                                <div class="col-12">
+                                    <ion-skeleton-text animated style="width:50%;"></ion-skeleton-text>
+                                </div>
+
+                                <div class="col-12">
+                                    <ion-skeleton-text animated style="width:50%;"></ion-skeleton-text>
+                                </div>
+                            </div>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-card-content>
+        </ion-card>
+
+    </ion-list>
+</ion-content>

@@ -1,0 +1,54 @@
+ion-radio-group {
+    ion-item {
+        margin-top: 0px !important;
+        // --background: rgba(10, 20, 50, 0.5) !important;
+        border-radius: 25px 25px 25px 25px !important;
+        margin: -9px !important;
+        --padding-end: 55px !important;
+        --background-hover-opacity: rgba(255, 255, 255, 0.5);
+        --background-focused: rgba(255, 255, 255, 0.5);
+        --background-activated: rgba(255, 255, 255, 0.5);
+        ion-radio {
+            margin: 9px !important;
+        }
+    }
+}
+
+.label {
+    color: #807e7e!important;
+    font-weight: 300;
+    font-size: 1rem!important;
+}
+
+.icon {
+    font-size: 18.5px;
+    margin-bottom: 5px;
+    color: var(--ion-color-primary) !important;
+}
+
+.itemSex {
+    --highlight-height: 0;
+    border: 1px solid var(--ion-color-primary) !important;
+    border-radius: 25px 25px 25px 25px !important;
+    margin: 12px;
+    --background-focused: var(--ion-color-primary) !important;
+    --background-activated: var(--ion-color-primary) !important;
+    --background-activated-opacity: 0.5px;
+}
+
+// .bgTexture {
+//     background-image: url('../../../assets/textures/texture-driver.png');
+//     background-size: cover;
+//     background-repeat: no-repeat;
+// }
+.iconFile {
+    position: relative;
+    top: -148px;
+    right: -53px;
+    font-size: 19px;
+}
+
+h2 {
+    color: #807e7e!important;
+    font-weight: 300;
+}

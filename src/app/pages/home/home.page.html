@@ -1,0 +1,39 @@
+<ion-header no-border>
+    <ion-toolbar color="dark">
+
+        <ion-buttons slot="start">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons>
+
+        <ion-title>Inicio</ion-title>
+
+        <ion-label slot="end">
+            <h3>
+                {{ st.category }}
+            </h3>
+            <p>
+                {{ st.brand }}-{{ st.numberPlate }}
+            </p>
+        </ion-label>
+
+        <ion-buttons slot="end">
+            <ion-button expand="block" fill="clear" shape="round" (click)="onRedirectServices()">
+                <ion-icon slot="icon-only" color="light" name="earth-outline"></ion-icon>
+            </ion-button>
+            <ion-badge *ngIf="totalServices > 0" color="danger" mode="ios" class="totalservices text-center">
+                {{totalServices}}
+            </ion-badge>
+        </ion-buttons>
+
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+    <div style="width: 100%; height: 100%;" #mapDriver>
+
+
+
+    </div>
+
+</ion-content>

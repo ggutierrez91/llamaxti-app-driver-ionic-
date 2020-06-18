@@ -1,0 +1,26 @@
+<ion-menu menuId="main-menu" contentId="main-content" side="start" type="overlay">
+    <ion-header>
+        <ion-toolbar>
+            <ion-title>Llamataxi APP</ion-title>
+        </ion-toolbar>
+        <ion-toolbar>
+            <ion-title>Bienvenido, lorem ipsum dolor</ion-title>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content>
+        <ion-list>
+            <ion-item>Menu Item</ion-item>
+            <ion-item>Menu Item</ion-item>
+            <ion-item (click)="onRedirect('vehicle')">Mis vehículos</ion-item>
+            <!-- <ion-item (click)="onRedirect('card')" detail>
+                <ion-icon slot="start" name="card-outline" color="primary"></ion-icon>
+                Mis tarjetas
+            </ion-item> -->
+            <ion-item (click)="onLogOut()" detail>
+                <ion-icon slot="start" name="power-outline" color="primary"></ion-icon>
+                Cerrar sesi&oacute;n
+                <ion-spinner *ngIf="loading" slot="end" name="bubbles" color="primary"></ion-spinner>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-menu>

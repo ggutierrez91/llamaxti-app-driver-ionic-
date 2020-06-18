@@ -1,0 +1,180 @@
+<ion-header no-border>
+    <ion-toolbar color="warning">
+        <ion-buttons slot="start">
+            <ion-back-button color="light">
+                <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+                Salir
+            </ion-back-button>
+        </ion-buttons>
+
+        <ion-avatar slot="start" style="padding: 10px;">
+            <img src="./assets/profession-avatars/png/taxi-driver.png" />
+        </ion-avatar>
+        <ion-title>Crear conductor</ion-title>
+
+    </ion-toolbar>
+</ion-header>
+
+<ion-content slot="fixed" fullscreen="true" #driverContent>
+
+    <ion-list class="animated fadeIn">
+
+        <ion-slides #driverSlide mode="ios" pager="ios" style="width: 100%; height: 100%;" [options]="optSlider">
+
+            <!-- Slide personal info start -->
+            <ion-slide>
+                <ion-grid fixed>
+                    <ion-row>
+                        <ion-col size="12">
+                            <app-form-info-driver [bodyDriver]="bodyDriver" [driverFiles]="driverFiles" (clickNext)="onNextInfo($event)"></app-form-info-driver>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-slide>
+            <!-- Slide personal info end -->
+
+            <!-- Slide driver info start -->
+            <ion-slide>
+                <ion-grid fixed>
+                    <ion-row>
+                        <ion-col size="12">
+                            <app-form-driver [bodyDriver]="bodyDriver" [driverFiles]="driverFiles" (clickFrmDriver)="onNextBackDriver($event)"></app-form-driver>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-slide>
+            <!-- Slide driver info end -->
+
+            <!-- Slide vehicle info start -->
+            <ion-slide>
+                <ion-grid fixed>
+                    <ion-row>
+                        <ion-col size="12">
+
+                            <app-form-vehicle [bodyDriver]="bodyDriver" [driverFiles]="driverFiles" (clickActionVehicle)="onNextBackVehicle($event)"></app-form-vehicle>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-slide>
+            <!-- Slide vehicle info start -->
+
+            <ion-slide>
+                <ion-grid fixed>
+                    <ion-row>
+                        <ion-col size="12">
+
+                            <app-form-vehicle-two [bodyDriver]="bodyDriver" [driverFiles]="driverFiles" (clickNextBackVehicleTwo)="onNextBackVehicleTwo($event)"></app-form-vehicle-two>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-slide>
+
+            <ion-slide>
+                <!-- <ion-list> -->
+                <div class="table">
+                    <div class="row">
+                        <div class="col-12">
+
+                            <br><br><br>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <h2>Credenciales de acceso</h2>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+
+                            <form #frmUserDriver="ngForm">
+
+                                <ion-item class="ionitem" [ngClass]="{
+                                          'is-invalid': 
+                                              (userName.errors?.required || userName.errors?.pattern || userName.errors?.minlength ) && userName.touched,
+                                          'is-valid': 
+                                              !userName.errors?.required && !userName.errors?.pattern && !userName.errors?.minlength && userName.touched      
+                                          }">
+                                    <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+
+                                    <span class="msgValidation" *ngIf="userName.errors?.required && userName.touched">
+                                      <small class="text-danger">*Requerido</small>
+                                  </span>
+
+                                    <span class="msgValidation" *ngIf="userName.errors?.pattern && userName.touched">
+                                      <small class="text-danger">*Letras, n&uacute;meros y @._-</small>
+                                  </span>
+
+                                    <span class="msgValidation" *ngIf="userName.errors?.minlength && userName.touched">
+                                      <small class="text-danger">*M&iacute;nimo 9 caracteres</small>
+                                  </span>
+
+                                    <ion-input mode="ios" type="text" placeholder="email o teléfono" class="ion-text-right" clearInput="true" inputmode="text" name="userName" #userName="ngModel" [(ngModel)]="bodyDriver.userName" pattern="^[a-zA-Z0-9@._-]{0,30}$" required="true" minlength="9"></ion-input>
+                                </ion-item>
+
+                                <ion-item class="ionitem" [ngClass]="{
+                                          'is-invalid': 
+                                              (psw.errors?.required || psw.errors?.pattern) && psw.touched,
+                                          'is-valid': 
+                                              !psw.errors?.required && !psw.errors?.pattern && psw.touched      
+                                          }">
+
+                                    <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+
+                                    <span class="msgValidation" *ngIf="psw.errors?.required && psw.touched">
+                                      <small class="text-danger">*Requerido</small>
+                                  </span>
+
+                                    <span class="msgValidation" *ngIf="psw.errors?.pattern && psw.touched">
+                                      <small class="text-danger">*Minuscula, mayuscula y un n&uacute;mero</small>
+                                  </span>
+
+                                    <ion-input mode="ios" type="password" placeholder="Contraseña" class="ion-text-right" clearInput="true" inputmode="text" name="psw" #psw="ngModel" [(ngModel)]="bodyDriver.userPassword" required="true" pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*"> </ion-input>
+
+                                </ion-item>
+
+                                <ion-item class="ionitem" [ngClass]="{
+                                          'is-invalid': 
+                                              (pswRepit.errors?.required || bodyDriver.userPassword != bodyDriver.userPassRepit) && pswRepit.touched,
+                                          'is-valid': 
+                                              !pswRepit.errors?.required && bodyDriver.userPassword === bodyDriver.userPassRepit && pswRepit.touched      
+                                          }">
+                                    <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+
+                                    <span class="msgValidation" *ngIf="pswRepit.errors?.required && pswRepit.touched">
+                                              <small class="text-danger">*Requerido</small>
+                                          </span>
+
+                                    <span class="msgValidation" *ngIf="bodyDriver.userPassword != bodyDriver.userPassRepit && pswRepit.touched">
+                                              <small class="text-danger">*No coincide</small>
+                                          </span>
+
+                                    <ion-input mode="ios" type="password" placeholder="Repita contraseña" class="ion-text-right" clearInput="true" inputmode="text" name="psw2" #pswRepit="ngModel" [(ngModel)]="bodyDriver.userPassRepit" required="true">
+                                    </ion-input>
+                                </ion-item>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <ion-button fill="clear" shape="round" (click)="onBackSlide( )">
+                                <ion-icon name="arrow-back-outline"></ion-icon>&nbsp; ATRÁS
+                            </ion-button>
+                        </div>
+                        <div class="col-6">
+                            <ion-button [disabled]="frmUserDriver.invalid || bodyDriver.userPassword != bodyDriver.userPassRepit" fill="clear" shape="round" (click)="onSingDriver(frmUserDriver)">
+                                CREAR CUENTA
+                            </ion-button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- </ion-list> -->
+            </ion-slide>
+
+        </ion-slides>
+    </ion-list>
+
+</ion-content>

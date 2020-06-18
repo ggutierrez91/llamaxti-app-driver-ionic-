@@ -1,0 +1,107 @@
+<div class="row">
+    <div class="col-12">
+        <h2>Datos del vehículo</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <form #frmVehicle="ngForm">
+            <ion-item class="ionitem" [ngClass]="{
+              'is-invalid': 
+              (plate.errors?.required || plate.errors?.pattern) && plate.touched,
+              'is-valid': 
+              !plate.errors?.required && !plate.errors?.pattern && plate.touched
+              }">
+                <ion-label>Nro. Placa
+                    <ion-text color="danger">*</ion-text>
+                </ion-label>
+
+                <span class="msgValidation" *ngIf="plate.errors?.required && plate.touched">
+                    <small class="text-danger">Requerido</small>
+                </span>
+
+                <span class="msgValidation" *ngIf="plate.errors?.pattern && plate.touched">
+                    <small class="text-danger">Placa inv&aacute;lida</small>
+                </span>
+
+                <ion-input mode="ios" type="text" placeholder="ABC-123" inputmode="numeric" class="ion-text-right" clearInput="true" name="plate" #plate="ngModel" class="toUpper" [(ngModel)]="bodyDriver.numberPlate" pattern="^([a-zA-Z0-9]{2,3}-+\d{3,4})$" required></ion-input>
+            </ion-item>
+
+
+            <ion-item class="ionitem" [ngClass]="{
+                'is-invalid': 
+                year.errors?.required  && year.touched,
+                'is-valid': 
+                !year.errors?.required && year.touched
+            }">
+                <ion-label>A&ntilde;o fabric.
+                    <ion-text color="danger">*</ion-text>
+                </ion-label>
+
+                <span class="msgValidation" *ngIf="year.errors?.required && year.touched">
+                    <small class="text-danger">Requerido</small>
+                </span>
+
+                <ion-select name="year" #year="ngModel" [(ngModel)]="bodyDriver.year" multiple="false" placeholder="0000" required>
+                    <ion-select-option *ngFor="let year of yearValues" [value]="year">
+                        {{year}}
+                    </ion-select-option>
+                </ion-select>
+            </ion-item>
+
+            <ion-item class="ionitem">
+                <ion-label>Color
+                    <ion-text color="danger">*</ion-text>
+                </ion-label>
+                <ion-select cancelText="Cerrar" okText="Aceptar" [interfaceOptions]="optColorOptions" name="colorVehicle" [(ngModel)]="bodyDriver.color" placeholder="Selec color">
+                    <ion-select-option value="BLUE">Azul</ion-select-option>
+                    <ion-select-option value="RED">Rojo</ion-select-option>
+                    <ion-select-option value="BLACK">Negro</ion-select-option>
+                    <ion-select-option value="WHITE">Blanco</ion-select-option>
+                    <ion-select-option value="GRAY">Gris</ion-select-option>
+                    <ion-select-option value="YELLOW">Amarillo</ion-select-option>
+                    <ion-select-option value="BROWN">Marrón</ion-select-option>
+                    <ion-select-option value="GREEN">Verde</ion-select-option>
+                </ion-select>
+            </ion-item>
+
+            <ion-item class="ionitem">
+                <ion-label>Auto propio</ion-label>
+                <ion-toggle name="isProper" [(ngModel)]="bodyDriver.isProper"></ion-toggle>
+            </ion-item>
+            
+            <div class="row">
+                <div class="col-12 text-center">
+                    <ion-text color="medium">
+                        <h3>Tarjeta de propiedad</h3>
+                    </ion-text>
+                    <ion-slides mode="ios" style="width: fit-content;" #slideProperty>
+                        <ion-slide>
+                            <ion-card style=" width: 60%; height:125px;" (click)="onShowSheetImg( 'PROPERTY_CARD', false )">
+                                <img [src]=" driverFiles.onGetSrc( 'PROPERTY_CARD' )  | imgDriver: 'PROPERTY_CARD' " style="width: 100%; height: 100%; " />
+                                <ion-icon class="iconFile" color="primary" name="ellipsis-vertical"></ion-icon>
+                            </ion-card>
+                        </ion-slide>
+                    </ion-slides>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <ion-button fill="clear" shape="round" (click)="onClickAction(frmVehicle, 'back')">
+                        <ion-icon name="arrow-back-outline"></ion-icon>&nbsp; ATRÁS
+                    </ion-button>
+                </div>
+                <div class="col-6">
+                    <!--  -->
+                    <ion-button fill="clear" shape="round" [disabled]="frmVehicle.invalid || !validFiles" (click)="onClickAction(frmVehicle, 'next')">
+                        SIGUIENTE&nbsp;
+                        <ion-icon name="arrow-forward-outline"></ion-icon>
+                    </ion-button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>

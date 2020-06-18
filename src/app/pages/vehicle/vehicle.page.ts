@@ -7,7 +7,6 @@ import { StorageService } from '../../services/storage.service';
 import IVehicle from '../../interfaces/vehicle.interface';
 import { environment } from '../../../environments/environment';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
-import { Router } from '@angular/router';
 
 const URI_SERVER = environment.URL_SERVER;
 @Component({
@@ -25,7 +24,7 @@ export class VehiclePage implements OnInit, OnDestroy {
   pathImg = URI_SERVER + '/Driver/Img/Get/vehicle/';
 
   // tslint:disable-next-line: max-line-length
-  constructor( private modalCtrl: ModalController, private vehicleSvc: VehicleService, public st: StorageService, private alertCtrl: AlertController, private ui: UiUtilitiesService, private router: Router ) { }
+  constructor( private modalCtrl: ModalController, private vehicleSvc: VehicleService, public st: StorageService, private alertCtrl: AlertController, private ui: UiUtilitiesService) { }
 
   ngOnInit() {
     this.loading = true;
@@ -50,10 +49,6 @@ export class VehiclePage implements OnInit, OnDestroy {
         this.onGetVehicles();
       }
     });
-  }
-
-  onRedirectAdd() {
-    this.router.navigateByUrl('/vehicle-add');
   }
 
   onGetVehicles() {

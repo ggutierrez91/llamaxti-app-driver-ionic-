@@ -105,6 +105,9 @@
     <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryUsageDescription">
         <string>Se necesita acceder a la galería de la cámara</string>
     </edit-config>
+    <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsage   Description">
+        <string>Se necesita acceder a la galería de la cámara</string>
+    </edit-config>
     <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryAddUsageDescription">
         <string>Se necesita acceder a la galería de la cámara para guardar fotos</string>
     </edit-config>

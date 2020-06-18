@@ -25,5 +25,9 @@ export class VehicleService {
   onGetUsing() {
     return this.http.get<IResApi>( URI_API + `/Usin/Get`, {headers: { Authorization: this.st.token }} );
   }
+  
+  onGetVehicle( pkDriver: number ) {
+    return this.http.get<IResApi>( URI_API + `/Driver/Vehicle/Get/${ pkDriver }`, {headers: { Authorization: this.st.token }} );
+  }
 
 }

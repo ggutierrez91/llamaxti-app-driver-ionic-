@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ModalController, PickerController, ActionSheetController, IonSlides, IonContent } from '@ionic/angular';
 import { VehicleModel } from '../../models/vehicle.model';
 import { VehicleFilesModel, ETypeFile } from '../../models/vehicle-files.model';
@@ -21,8 +21,8 @@ export class VehicleAddPage implements OnInit {
   @ViewChild('slideSoat', {static: true}) slideSoat: IonSlides;
   @ViewChild('slideVehicle', {static: true}) slideVehicle: IonSlides;
   @ViewChild('driverContent', {static: true}) content: IonContent;
-  @Input() loadData: boolean;
-
+  // @Input() loadData: boolean;
+  loadData = false;
   bodyVehicle: VehicleModel;
   filesVehicle: VehicleFilesModel;
 

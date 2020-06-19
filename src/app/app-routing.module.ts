@@ -34,6 +34,10 @@ const routes: Routes = [
     path: 'vehicle-add',
     loadChildren: () => import('./pages/vehicle-add/vehicle-add.module').then( m => m.VehicleAddPageModule)
   },
+  {
+    path: 'welcome',
+    loadChildren: () => import('./pages/welcome/welcome.module').then( m => m.WelcomePageModule)
+  },
 ];
 
 @NgModule({

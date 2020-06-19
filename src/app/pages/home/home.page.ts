@@ -164,14 +164,22 @@ export class HomePage implements OnInit, OnDestroy {
       this.st.pkVehicle = res.data.pkVehicle;
       this.st.fkCategory = res.data.pkCategory;
       this.st.category = res.data.aliasCategory;
+      this.st.codeCategory = res.data.codeCategory;
       this.st.brand = res.data.nameBrand;
       this.st.numberPlate = res.data.numberPlate;
 
       await this.st.onSetItem('pkVehicle', res.data.pkVehicle);
       await this.st.onSetItem('fkCategory', res.data.pkCategory);
       await this.st.onSetItem('category', res.data.aliasCategory);
+      await this.st.onSetItem('codeCategory', res.data.codeCategory);
       await this.st.onSetItem('brand', res.data.nameBrand);
       await this.st.onSetItem('numberPlate', res.data.numberPlate);
+
+      this.io.onEmit('change-category',
+                      { pkCategory: res.data.pkCategory, codeCategory: res.data.codeCategory },
+                      ( resSocket: IResSocket ) => {
+        console.log('Notificando a backend =>', resSocket);
+      });
 
     });
 

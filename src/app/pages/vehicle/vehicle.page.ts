@@ -7,6 +7,8 @@ import { StorageService } from '../../services/storage.service';
 import IVehicle from '../../interfaces/vehicle.interface';
 import { environment } from '../../../environments/environment';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
+import { SocketService } from '../../services/socket.service';
+import { IResSocket } from '../../interfaces/response-socket.interface';
 
 const URI_SERVER = environment.URL_SERVER;
 @Component({
@@ -24,7 +26,7 @@ export class VehiclePage implements OnInit, OnDestroy {
   pathImg = URI_SERVER + '/Driver/Img/Get/vehicle/';
 
   // tslint:disable-next-line: max-line-length
-  constructor( private modalCtrl: ModalController, private vehicleSvc: VehicleService, public st: StorageService, private alertCtrl: AlertController, private ui: UiUtilitiesService) { }
+  constructor( private modalCtrl: ModalController, private vehicleSvc: VehicleService, public st: StorageService, private alertCtrl: AlertController, private ui: UiUtilitiesService, private io: SocketService) { }
 
   ngOnInit() {
     this.loading = true;
@@ -103,7 +105,28 @@ export class VehiclePage implements OnInit, OnDestroy {
         await this.ui.onShowToast( this.onGetError(res.showError), 5000 );
 
         if (res.showError === 0) {
-          this.onGetUsing();
+          // this.onGetUsing();
+
+          this.st.pkVehicle = pkVehicle;
+          this.st.fkCategory = res.data.pkCategory;
+          this.st.category = res.data.category;
+          this.st.codeCategory = res.data.codeCategory;
+          this.st.brand = res.data.brand;
+          this.st.numberPlate = res.data.numberPlate;
+
+          await this.st.onSetItem('pkVehicle', res.data.pkVehicle);
+          await this.st.onSetItem('fkCategory', res.data.pkCategory);
+          await this.st.onSetItem('category', res.data.category);
+          await this.st.onSetItem('codeCategory', res.data.codeCategory);
+          await this.st.onSetItem('brand', res.data.brand);
+          await this.st.onSetItem('numberPlate', res.data.numberPlate);
+
+          this.io.onEmit('change-category',
+                      { pkCategory: res.data.pkCategory, codeCategory: res.data.codeCategory },
+                      ( resSocket: IResSocket ) => {
+            console.log('Notificando a backend =>', resSocket);
+          });
+
         }
 
       });
@@ -143,32 +166,6 @@ export class VehiclePage implements OnInit, OnDestroy {
 
     return arrError.join(', ');
 
-  }
-
-  onGetUsing() {
-    this.usingGetSbc = this.vehicleSvc.onGetUsing().subscribe( async ( res ) => {
-
-      if (!res.ok) {
-        throw new Error( res.error );
-      }
-
-      if (!res.data) {
-        return ;
-      }
-
-      this.st.pkVehicle = res.data.pkVehicle;
-      this.st.fkCategory = res.data.pkCategory;
-      this.st.category = res.data.aliasCategory;
-      this.st.brand = res.data.nameBrand;
-      this.st.numberPlate = res.data.numberPlate;
-
-      await this.st.onSetItem('pkVehicle', res.data.pkVehicle);
-      await this.st.onSetItem('fkCategory', res.data.pkCategory);
-      await this.st.onSetItem('category', res.data.aliasCategory);
-      await this.st.onSetItem('brand', res.data.nameBrand);
-      await this.st.onSetItem('numberPlate', res.data.numberPlate);
-
-    });
   }
 
   ngOnDestroy() {

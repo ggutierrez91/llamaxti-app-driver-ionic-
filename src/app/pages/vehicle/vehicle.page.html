@@ -61,7 +61,7 @@
                                     Color: {{ vh.color | color }}
                                 </div>
 
-                                <div class="col-12 text-right" *ngIf="vh.verified">
+                                <div class="col-12 text-right" *ngIf="vh.verified && !vh.driverUsing">
                                     <ion-button fill="clear" shape="round" (click)="onShowConfirm( vh.pkVehicle )">
                                         Seleccionar
                                     </ion-button>

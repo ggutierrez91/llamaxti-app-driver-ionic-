@@ -14,8 +14,11 @@ export class StorageService {
   public pkVehicle = 0;
   public fkCategory = 0;
   public category = '';
+  public codeCategory = '';
   public brand = '';
   public numberPlate = '';
+  public nameComplete = '';
+  public pkPerson = 0;
 
 
   constructor( private storage: Storage, private authSvc: AuthService ) { }
@@ -26,6 +29,9 @@ export class StorageService {
       this.dataUser = data;
       this.pkDriver = data.pkDriver || 0;
       this.role = data.role;
+      this.nameComplete = data.nameComplete;
+      this.pkPerson = data.pkPerson;
+
       await this.storage.set('token', token);
       await this.storage.set('dataUser', JSON.stringify( data ));
       return true;
@@ -43,6 +49,8 @@ export class StorageService {
     const value = await this.storage.get( 'dataUser' );
     this.dataUser =  JSON.parse( value );
     this.pkDriver = this.dataUser.pkDriver || 0 ;
+    this.pkPerson = this.dataUser.pkPerson || 0 ;
+    this.nameComplete = this.dataUser.nameComplete || 0 ;
   }
 
   async onGetItem(name: string, isJson = false) {

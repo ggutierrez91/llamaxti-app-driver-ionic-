@@ -204,7 +204,7 @@ export class SinginPage implements OnInit, OnDestroy {
       console.log('respuesta socket', resSocket);
     });
     await this.uiSvc.onHideLoading();
-    this.navCtrl.navigateRoot('welcome-driver', {animated: true});
+    this.navCtrl.navigateRoot('welcome', {animated: true});
   }
 
   onGetError( showError: number ) {

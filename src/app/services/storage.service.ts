@@ -11,6 +11,7 @@ export class StorageService {
   public dataUser: any = null;
   public role = '';
   public pkDriver = 0;
+  public pkUser = 0;
   public pkVehicle = 0;
   public fkCategory = 0;
   public category = '';
@@ -31,6 +32,7 @@ export class StorageService {
       this.role = data.role;
       this.nameComplete = data.nameComplete;
       this.pkPerson = data.pkPerson;
+      this.pkUser = data.pkUser;
 
       await this.storage.set('token', token);
       await this.storage.set('dataUser', JSON.stringify( data ));
@@ -48,9 +50,12 @@ export class StorageService {
     this.token = await this.storage.get('token') || '';
     const value = await this.storage.get( 'dataUser' );
     this.dataUser =  JSON.parse( value );
-    this.pkDriver = this.dataUser.pkDriver || 0 ;
-    this.pkPerson = this.dataUser.pkPerson || 0 ;
-    this.nameComplete = this.dataUser.nameComplete || 0 ;
+    if (value) {
+      this.pkDriver = this.dataUser.pkDriver || 0 ;
+      this.pkPerson = this.dataUser.pkPerson || 0 ;
+      this.pkUser = this.dataUser.pkUser || 0 ;
+      this.nameComplete = this.dataUser.nameComplete || 0 ;
+    }
   }
 
   async onGetItem(name: string, isJson = false) {

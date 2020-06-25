@@ -6,7 +6,7 @@ import { TaxiService } from '../../services/taxi.service';
 import { environment } from '../../../environments/environment';
 import { StorageService } from '../../services/storage.service';
 import { GeolocationOptions, Geolocation } from '@ionic-native/geolocation/ngx';
-import { IServices } from '../../interfaces/services.interface';
+import { IServices, IPolygons } from '../../interfaces/services.interface';
 import { Router } from '@angular/router';
 import { VehicleService } from '../../services/vehicle.service';
 import { AlertController } from '@ionic/angular';
@@ -18,11 +18,14 @@ import { AlertController } from '@ionic/angular';
 })
 export class HomePage implements OnInit, OnDestroy {
   @ViewChild('mapDriver', {static: true}) mapDriver: ElementRef;
-
+  @ViewChild('infoPolygon', {static: true}) infoPolygon: ElementRef;
+  
   geoSbc: Subscription;
   journalSbc: Subscription;
   serviceSbc: Subscription;
   usingSbc: Subscription;
+  demandSbc: Subscription;
+  socketServicesSbc: Subscription;
 
   map: google.maps.Map;
   marker: google.maps.Marker;
@@ -32,8 +35,15 @@ export class HomePage implements OnInit, OnDestroy {
   dataServices: IServices[] = [];
   totalServices = 0;
 
+  totalServicesZone = 0;
+  totalDriverZone = 0;
+
+  infoWindowPolygon: google.maps.InfoWindow;
+
   lat = -12.054825;
   lng = -77.040627;
+
+  demandColors = ['#FE685F', '#FE8F5F', '#FED75F', '#C2FE5F', '#5FFE60'];
 
   // tslint:disable-next-line: max-line-length
   constructor( private io: SocketService,  private geo: Geolocation,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController ) { }
@@ -49,6 +59,8 @@ export class HomePage implements OnInit, OnDestroy {
       this.onTotalServices();
       this.onGetVehicleUsing();
     });
+
+    this.infoWindowPolygon = new google.maps.InfoWindow();
 
   }
 
@@ -89,8 +101,9 @@ export class HomePage implements OnInit, OnDestroy {
                       {lat: position.coords.latitude, lng: position.coords.longitude },
                       (resSocket: IResSocket) => {
           console.log('Emitiendo ubicación conductor', resSocket.message);
+          
         });
-        console.log('cambio mi ubicación');
+        // console.log('cambio mi ubicación');
 
 
       },
@@ -124,6 +137,17 @@ export class HomePage implements OnInit, OnDestroy {
       this.marker.setMap( this.map );
       this.marker.setPosition(new google.maps.LatLng( geo.coords.latitude, geo.coords.longitude ));
 
+      this.io.onEmit('current-position-driver',
+                      {lat: geo.coords.latitude, lng: geo.coords.longitude },
+                      (resSocket: IResSocket) => {
+        console.log('Emitiendo ubicación conductor', resSocket.message);
+
+        setTimeout(() => {
+          this.onGetDemand();
+        }, 3000);
+
+      });
+
     });
   }
 
@@ -131,7 +155,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     const optMap: google.maps.MapOptions = {
       center: new google.maps.LatLng( -12.054825, -77.040627 ),
-      zoom: 7.5,
+      zoom: 4.5,
       streetViewControl: false,
       disableDefaultUI: true,
       mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -142,6 +166,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.marker = new google.maps.Marker({
       draggable: true
     });
+
   }
 
   onRedirectServices() {
@@ -206,10 +231,67 @@ export class HomePage implements OnInit, OnDestroy {
     await alertUsing.present();
   }
 
+  onGetDemand() {
+    this.demandSbc = this.taxiSvc.onGetDemand().subscribe( (res) => {
+      if (!res.ok) {
+        throw new Error( res.error );
+      }
+      const dataP: IPolygons[] = res.data;
+
+      let indexColor = 0;
+
+      dataP.forEach( dataPolygon => {
+        // const arrayCoords: any[] = dataPolygon.polygon;
+        const polygonCoords: google.maps.LatLng[] = [];
+        dataPolygon.polygon.forEach( (coords) => {
+          polygonCoords.push( new google.maps.LatLng( coords[0], coords[1] ) );
+        });
+
+        const demandPolygon = new google.maps.Polygon({
+          paths: polygonCoords,
+          strokeColor: this.demandColors[indexColor],
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: this.demandColors[indexColor],
+          fillOpacity: 0.35
+        });
+
+        demandPolygon.setMap( this.map );
+
+        // Add a listener for the click event.
+        demandPolygon.addListener('click', (data: any) => {
+          this.infoWindowPolygon.setContent(this.infoPolygon.nativeElement);
+          this.infoWindowPolygon.setPosition( new google.maps.LatLng( dataPolygon.center[0], dataPolygon.center[1] ) );
+
+          this.totalServicesZone = dataPolygon.total || 0;
+          this.totalDriverZone = dataPolygon.totalDrivers || 0;
+  
+          this.infoWindowPolygon.open(this.map);
+        });
+
+        if (indexColor <= 4) {
+          indexColor++;
+        }
+
+      });
+
+      console.log( 'poligonos', res );
+    });
+  }
+
+  onListenNewService() {
+    this.socketServicesSbc = this.io.onListen('new-service').subscribe( (resSocket: any) => {
+      // recibimos la data del nuevo servicio
+      this.onTotalServices();
+      // this.onGetServices(1);
+    });
+  }
+
   ngOnDestroy() {
     this.geoSbc.unsubscribe();
     this.journalSbc.unsubscribe();
     this.serviceSbc.unsubscribe();
+    this.demandSbc.unsubscribe();
   }
 
 }

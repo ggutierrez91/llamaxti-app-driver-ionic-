@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { OneSignal } from '@ionic-native/onesignal/ngx';
 import { StorageService } from './storage.service';
+import { environment } from '../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PushService {
   public osID = '';
-  constructor(private oneSignal: OneSignal, private st: StorageService) { }
+  constructor(private oneSignal: OneSignal, private st: StorageService, private http: HttpClient ) { }
 
   onLoadConfig() {
     console.log('iniciando one signal');
@@ -32,6 +34,18 @@ export class PushService {
       await this.st.onSetItem('osID', info.userId);
     });
 
+  }
+
+  onSendPushUser( odId: string, title: string, msg: string, data = {} ) {
+    const body = {
+      app_id: environment.OS_APP ,
+      // included_segments: ['Active Users', 'Inactive Users'],
+      contents: { es: msg, en: 'Your have a new message' },
+      headings: { es: title, en: 'Llamataxi app'  },
+      data,
+      include_player_ids: [ odId ]
+    };
+    return this.http.post( '/v1/notifications', body, {headers: { Authorization: `Basic ${ environment.OS_KEY }` }} );
   }
 
 }

@@ -31,9 +31,18 @@
 <ion-content>
 
     <div style="width: 100%; height: 100%;" #mapDriver>
+    </div>
 
-
-
+    <div #infoPolygon>
+        <div class="">
+            <h4 class="card-title">Zonas calientes</h4>
+            <h6 class="card-subtitle mb-2 text-muted">Oferta y demanda</h6>
+            <p class="card-text">
+                <b class="text-primary"> {{ totalServicesZone }} </b> servicios pendientes y <b class="text-secondary"> {{ totalDriverZone }} </b> conductores cercanos.
+            </p>
+            <!-- <a href="#" class="card-link">Card link</a>
+          <a href="#" class="card-link">Another link</a> -->
+        </div>
     </div>
 
 </ion-content>

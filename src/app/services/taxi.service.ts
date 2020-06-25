@@ -4,6 +4,7 @@ import { environment } from '../../environments/environment';
 import { StorageService } from './storage.service';
 import { IResApi } from '../interfaces/response-api.interface';
 import { ServiceModel } from '../models/service.model';
+import { OfferModel } from '../models/offer.model';
 
 const URI_API = environment.URL_SERVER;
 @Injectable({
@@ -48,6 +49,18 @@ export class TaxiService {
 
     return this.http.get<IResApi>( URI_API + `/Services/Driver/Total`, { headers: {Authorization: this.st.token} } );
 
+  }
+
+  onGetDemand() {
+    return this.http.get<IResApi>( URI_API + `/Demand`, { headers: {Authorization: this.st.token} } );
+  }
+
+  onNewOffer( body: OfferModel ) {
+    return this.http.post<IResApi>( URI_API + `/Service/NewOffer`, body, { headers: {Authorization: this.st.token} } );
+  }
+
+  onAcceptOffer( body: OfferModel ) {
+    return this.http.post<IResApi>( URI_API + `/Service/AcceptOffer`, body, { headers: { Authorization: this.st.token } } );
   }
 
 }

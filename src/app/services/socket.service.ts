@@ -24,16 +24,16 @@ export class SocketService {
   onListenStatus() {
     console.log('observando estado servidor!!');
     this.socket.on('connect', () => {
-      this.statusSocket = true;
       console.log('Online!!!');
 
-      if (this.st.token !== '') {
-        this.onSingUser().then( res => {
-          console.log(res.message);
-        }).catch(e => {
-          console.error(e);
-        });
-      }
+      // if (!this.statusSocket) {
+      this.onSingUser().then( res => {
+        console.log(res);
+      }).catch(e => {
+        console.error(e);
+      });
+      // }
+      this.statusSocket = true;
     });
 
     this.socket.on('disconnect', () => {
@@ -53,9 +53,9 @@ export class SocketService {
 
   async onLoadUser() {
     const data = await this.st.onGetItem('dataUser', true);
-    if (!data) {
-      return;
-    }
+    // if (!data) {
+    //   return;
+    // }
     this.usersocket.pkUser = data.pkUser || 0;
     this.usersocket.userName = data.userName || '';
     this.usersocket.role = data.role || '';
@@ -63,8 +63,9 @@ export class SocketService {
   }
 
   onSingUser(): Promise<IResSocket> {
-    return new Promise( async(resolve, reject) => {
+    return new Promise( async ( resolve, reject ) => {
       await this.onLoadUser();
+      // console.log('enviando socket user', this.usersocket);
       this.onEmit('sing-user', this.usersocket, (resSocket: IResSocket) => {
         console.log('autenticando usuario socket !!', resSocket);
         if (!resSocket.ok) {

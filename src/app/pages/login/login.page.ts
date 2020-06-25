@@ -45,7 +45,7 @@ export class LoginPage implements OnInit, OnDestroy {
           await this.storageSvc.onSaveCredentials( res.token, res.data );
           this.io.onSingUser().then( (resSocket) => {
 
-            console.log('rol', this.storageSvc.role);
+            // console.log('rol', this.storageSvc.role);
             this.navCtrl.navigateRoot('/home', {animated: true});
             // if (this.storageSvc.role === 'CLIENT_ROLE') {
             // } else {

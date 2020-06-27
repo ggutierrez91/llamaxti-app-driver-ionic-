@@ -3,6 +3,7 @@ export class OfferModel {
     pkOffer: number;
     rateOffer: number;
     isClient: boolean;
+    fkDriver: number;
 
     constructor() {
 
@@ -10,6 +11,7 @@ export class OfferModel {
         this.pkOffer = 0;
         this.rateOffer = 0;
         this.isClient = false;
+        this.fkDriver = 0;
 
     }
 }

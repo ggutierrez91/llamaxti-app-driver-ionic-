@@ -1,9 +1,12 @@
 export interface IUerSocket {
     pkUser: number;
     userName: string;
+    nameComplete: string;
     role: string;
     osID: string;
     device: string;
+    pkCategory: number;
+    codeCategory: string;
 }
 
 

@@ -3,13 +3,14 @@ import { OneSignal } from '@ionic-native/onesignal/ngx';
 import { StorageService } from './storage.service';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
+import { NavController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PushService {
   public osID = '';
-  constructor(private oneSignal: OneSignal, private st: StorageService, private http: HttpClient ) { }
+  constructor(private oneSignal: OneSignal, private st: StorageService, private http: HttpClient, private navCtrl: NavController ) { }
 
   onLoadConfig() {
     console.log('iniciando one signal');
@@ -25,6 +26,10 @@ export class PushService {
     this.oneSignal.handleNotificationOpened().subscribe((osNoti) => {
       // do something when a notification is opened
       console.log('push abierta', osNoti);
+
+      if (osNoti.notification.data.accepted) {
+        this.navCtrl.navigateRoot('/service-run', { animated: true } );
+      }
     });
 
     this.oneSignal.endInit();

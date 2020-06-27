@@ -38,6 +38,10 @@ const routes: Routes = [
     path: 'welcome',
     loadChildren: () => import('./pages/welcome/welcome.module').then( m => m.WelcomePageModule)
   },
+  {
+    path: 'service-run',
+    loadChildren: () => import('./pages/service-run/service-run.module').then( m => m.ServiceRunPageModule)
+  },
 ];
 
 @NgModule({

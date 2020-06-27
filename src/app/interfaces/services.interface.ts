@@ -18,6 +18,7 @@ export interface IServices {
     changeRate: number;
     aliasCategory: string;
     osId: string;
+    isMinRate: boolean;
 
 }
 

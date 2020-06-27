@@ -9,7 +9,8 @@ import { GeolocationOptions, Geolocation } from '@ionic-native/geolocation/ngx';
 import { IServices, IPolygons } from '../../interfaces/services.interface';
 import { Router } from '@angular/router';
 import { VehicleService } from '../../services/vehicle.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, NavController } from '@ionic/angular';
+import { IOffer } from '../../interfaces/offer.interface';
 
 @Component({
   selector: 'app-home',
@@ -26,42 +27,74 @@ export class HomePage implements OnInit, OnDestroy {
   usingSbc: Subscription;
   demandSbc: Subscription;
   socketServicesSbc: Subscription;
+  socketOfferSbc: Subscription;
 
   map: google.maps.Map;
   marker: google.maps.Marker;
 
   codeJournal = 'DIURN';
 
-  dataServices: IServices[] = [];
+  // dataServices: IServices[] = [];
   totalServices = 0;
 
   totalServicesZone = 0;
   totalDriverZone = 0;
 
   infoWindowPolygon: google.maps.InfoWindow;
+  arrPolygons: google.maps.Polygon[] = [];
 
   lat = -12.054825;
   lng = -77.040627;
 
-  demandColors = ['#FE685F', '#FE8F5F', '#FED75F', '#C2FE5F', '#5FFE60'];
+  demandColors = ['#0091F2', '#209FF4', '#40ADF5', '#60BAF7', '#80C8F8', '#9FD6FA'];
 
   // tslint:disable-next-line: max-line-length
-  constructor( private io: SocketService,  private geo: Geolocation,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController ) { }
+  constructor( private io: SocketService,  private geo: Geolocation,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController ) { }
 
   ngOnInit() {
 
     this.onLoadMap();
     this.onEmitGeo();
     this.onGetPosition();
-
+    this.onListenNewService();
     this.st.onLoadToken().then( () => {
       this.onLoadJournal();
       this.onTotalServices();
       this.onGetVehicleUsing();
+      this.onListenOfferClient();
     });
 
     this.infoWindowPolygon = new google.maps.InfoWindow();
 
+  }
+
+  onListenOfferClient() {
+    this.socketOfferSbc = this.io.onListen( 'newOffer-service-client' ).subscribe( async (res: any) => {
+      
+      console.log('oferta del cliente', res)
+      if (res.accepted) {
+        const offer: IOffer = res.res.dataOffer;
+        const alertService = await this.alertCtrl.create({
+          header: 'Mensaje al usuario',
+          subHeader: 'Iniciando servicio de taxi',
+          message: `${ offer.nameComplete }, ha aceptado tu oferta, por favor sirvace a pasar por su pasajero en: ${ offer.streetOrigin }`,
+          mode: 'ios',
+          buttons: [{
+            text: 'Ok',
+            cssClass: 'text-info',
+            handler: () => {
+              this.navCtrl.navigateRoot('/service-run', {animated: true});
+            }
+          }]
+        });
+        await alertService.present();
+        // el cliente acepto la oferta y comienza el servicio de taxi
+      } else {
+        // el cliente hizo una contra oferta
+         // this.dataServices.unshift(...res.dataOffer);
+         this.onTotalServices();
+       }
+    });
   }
 
   onTotalServices() {
@@ -180,9 +213,9 @@ export class HomePage implements OnInit, OnDestroy {
       if (!res.ok) {
         throw new Error( res.error );
       }
-      console.log('using data', res.data);
+      // console.log('using data', res.data);
       if ( !res.data ) {
-        console.log('mostrando alerta');
+        // console.log('mostrando alerta');
         return this.onShowAlertUsing();
       }
 
@@ -250,13 +283,14 @@ export class HomePage implements OnInit, OnDestroy {
         const demandPolygon = new google.maps.Polygon({
           paths: polygonCoords,
           strokeColor: this.demandColors[indexColor],
-          strokeOpacity: 0.8,
+          strokeOpacity: 0.7,
           strokeWeight: 2,
           fillColor: this.demandColors[indexColor],
           fillOpacity: 0.35
         });
 
         demandPolygon.setMap( this.map );
+        this.arrPolygons.push( demandPolygon );
 
         // Add a listener for the click event.
         demandPolygon.addListener('click', (data: any) => {
@@ -269,7 +303,7 @@ export class HomePage implements OnInit, OnDestroy {
           this.infoWindowPolygon.open(this.map);
         });
 
-        if (indexColor <= 4) {
+        if (indexColor <= 5) {
           indexColor++;
         }
 
@@ -283,6 +317,11 @@ export class HomePage implements OnInit, OnDestroy {
     this.socketServicesSbc = this.io.onListen('new-service').subscribe( (resSocket: any) => {
       // recibimos la data del nuevo servicio
       this.onTotalServices();
+      this.arrPolygons.forEach( (polygon)  => {
+        polygon.setMap(null);
+      });
+      this.arrPolygons = [];
+      this.onGetDemand();
       // this.onGetServices(1);
     });
   }
@@ -292,6 +331,9 @@ export class HomePage implements OnInit, OnDestroy {
     this.journalSbc.unsubscribe();
     this.serviceSbc.unsubscribe();
     this.demandSbc.unsubscribe();
+    if (this.socketOfferSbc) {
+      this.socketOfferSbc.unsubscribe();
+    }
   }
 
 }

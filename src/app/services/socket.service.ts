@@ -12,9 +12,12 @@ export class SocketService {
   private usersocket: IUerSocket = {
     pkUser: 0,
     userName: '',
+    nameComplete: '',
     role: '',
     osID: '',
-    device: 'MOVILE'
+    device: 'MOVILE',
+    pkCategory: 0,
+    codeCategory: 'no especificado'
   };
 
   public statusSocket = false;
@@ -53,13 +56,18 @@ export class SocketService {
 
   async onLoadUser() {
     const data = await this.st.onGetItem('dataUser', true);
+    const pkCategory = await this.st.onGetItem('fkCategory', false);
+    const codeCategory =  await this.st.onGetItem('codeCategory', false);
     // if (!data) {
     //   return;
     // }
     this.usersocket.pkUser = data.pkUser || 0;
     this.usersocket.userName = data.userName || '';
+    this.usersocket.nameComplete = data.nameComplete || '';
     this.usersocket.role = data.role || '';
     this.usersocket.osID = this.push.osID || '';
+    this.usersocket.pkCategory = pkCategory || 0;
+    this.usersocket.codeCategory = codeCategory || 'no especificado';
   }
 
   onSingUser(): Promise<IResSocket> {

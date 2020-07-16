@@ -25,7 +25,7 @@
                     <small class="text-danger">Placa inv&aacute;lida</small>
                 </span>
 
-                <ion-input mode="ios" type="text" placeholder="ABC-123" inputmode="numeric" class="ion-text-right" clearInput="true" name="plate" #plate="ngModel" class="toUpper" [(ngModel)]="bodyDriver.numberPlate" pattern="^([a-zA-Z0-9]{2,3}-+\d{3,4})$" required></ion-input>
+                <ion-input mode="ios" type="text" placeholder="ABC-123" inputmode="text" class="ion-text-right" clearInput="true" name="plate" #plate="ngModel" class="toUpper" [(ngModel)]="bodyDriver.numberPlate" pattern="^([a-zA-Z0-9]{2,3}-+\d{3,4})$" required></ion-input>
             </ion-item>
 
 
@@ -70,7 +70,7 @@
                 <ion-label>Auto propio</ion-label>
                 <ion-toggle name="isProper" [(ngModel)]="bodyDriver.isProper"></ion-toggle>
             </ion-item>
-            
+
             <div class="row">
                 <div class="col-12 text-center">
                     <ion-text color="medium">
@@ -78,7 +78,7 @@
                     </ion-text>
                     <ion-slides mode="ios" style="width: fit-content;" #slideProperty>
                         <ion-slide>
-                            <ion-card style=" width: 60%; height:125px;" (click)="onShowSheetImg( 'PROPERTY_CARD', false )">
+                            <ion-card style=" width: 60%; height:125px;" (click)="onShowSheetImg( typeFile.propertyCard, false )">
                                 <img [src]=" driverFiles.onGetSrc( 'PROPERTY_CARD' )  | imgDriver: 'PROPERTY_CARD' " style="width: 100%; height: 100%; " />
                                 <ion-icon class="iconFile" color="primary" name="ellipsis-vertical"></ion-icon>
                             </ion-card>

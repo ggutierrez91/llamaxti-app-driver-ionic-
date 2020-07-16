@@ -22,6 +22,8 @@ export class FormVehicleComponent implements OnInit {
   @Input() driverFiles: DriverFilesModel;
   @Output() clickActionVehicle = new EventEmitter<any>();
   @ViewChild('slideProperty', {static: true}) slideProperty: IonSlides;
+
+  typeFile = ETypeFile;
   
   optColorOptions: any = {
     header: 'Color',

@@ -43,6 +43,7 @@ export class FormDriverComponent implements OnInit {
   pickerOptLicense: any;
   minYear = moment().year();
   maxValue = moment(`${moment().year() + 7}-12-31`).format('YYYY-MM-DD');
+  typeFile = ETypeFile;
 
   viewFile: any = {
     photoCheck: true,
@@ -81,7 +82,7 @@ export class FormDriverComponent implements OnInit {
     this.pickerOptLicense = {
       mode: 'md',
       buttons: [{
-        text: 'Cerrar',
+        text: 'Cerrar', 
         handler: () => { }
       }, {
         text: 'Aceptar',
@@ -90,7 +91,7 @@ export class FormDriverComponent implements OnInit {
           if (!newDate.isValid()) {
             return false;
           }
-          this.bodyDriver.dateLicenseExpiration = newDate.toISOString();
+          this.bodyDriver.dateLicenseExpiration = newDate.format('YYYY-MM-DD');
 
         }
       }]
@@ -160,42 +161,42 @@ export class FormDriverComponent implements OnInit {
   }
 
 
-  async onShowSheetpDF(typeFile: ETypeFile) {
-    const actionSheetImg = await this.sheetCtrl.create({
-      header: 'Opciones',
-      mode: 'ios',
-      animated: true,
-      backdropDismiss: true,
-      buttons: [{
-        icon: 'camera',
-        text: 'Tomar foto',
-        handler: () => {
+  // async onShowSheetpDF(typeFile: ETypeFile) {
+  //   const actionSheetImg = await this.sheetCtrl.create({
+  //     header: 'Opciones',
+  //     mode: 'ios',
+  //     animated: true,
+  //     backdropDismiss: true,
+  //     buttons: [{
+  //       icon: 'camera',
+  //       text: 'Tomar foto',
+  //       handler: () => {
 
-          this.cameraOpt.sourceType = this.camera.PictureSourceType.CAMERA;
-          this.onShowCamera(typeFile);
-        }
-      }, {
-        text: 'Abrir galeria',
-        icon: 'image',
-        handler: () => {
+  //         this.cameraOpt.sourceType = this.camera.PictureSourceType.CAMERA;
+  //         this.onShowCamera(typeFile);
+  //       }
+  //     }, {
+  //       text: 'Abrir galeria',
+  //       icon: 'image',
+  //       handler: () => {
 
-          this.cameraOpt.sourceType = this.camera.PictureSourceType.SAVEDPHOTOALBUM;
-          this.onShowCamera(typeFile);
-        }
-      }, {
-        text: 'Selc. archivo',
-        icon: 'document',
-        handler: () => {
-          this.onShowFileSystem(typeFile);
-        }
-      }]
-    });
-
-
+  //         this.cameraOpt.sourceType = this.camera.PictureSourceType.SAVEDPHOTOALBUM;
+  //         this.onShowCamera(typeFile);
+  //       }
+  //     }, {
+  //       text: 'Selc. archivo',
+  //       icon: 'document',
+  //       handler: () => {
+  //         this.onShowFileSystem(typeFile);
+  //       }
+  //     }]
+  //   });
 
 
-    await actionSheetImg.present();
-  }
+
+
+  //   await actionSheetImg.present();
+  // }
 
   onShowCamera(typeFile: ETypeFile) {
 

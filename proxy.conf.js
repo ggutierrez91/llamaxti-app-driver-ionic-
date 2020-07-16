@@ -3,19 +3,19 @@ var proxyConfig = [{
     context: '/dni/*',
     target: 'https://api.reniec.cloud',
     secure: false,
-    logLevel: "debug",
+    // logLevel: "debug",
     changeOrigin: true
 }, {
     context: '/v2/*',
     target: 'https://secure.culqi.com',
     secure: false,
-    logLevel: "debug",
+    // logLevel: "debug",
     changeOrigin: true
 }, {
     context: '/v1/*',
     target: 'https://onesignal.com/api',
     secure: false,
-    logLevel: "debug",
+    // logLevel: "debug",
     changeOrigin: true
 }];
 

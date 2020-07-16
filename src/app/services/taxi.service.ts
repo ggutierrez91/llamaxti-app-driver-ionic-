@@ -63,4 +63,8 @@ export class TaxiService {
     return this.http.post<IResApi>( URI_API + `/Service/AcceptOffer`, body, { headers: { Authorization: this.st.token } } );
   }
 
+  onServiceInfo( pkService: number ) {
+    return this.http.put<IResApi>( URI_API + `/Service/Info/${ pkService }`,{}, { headers: {Authorization: this.st.token} } );
+  }
+
 }

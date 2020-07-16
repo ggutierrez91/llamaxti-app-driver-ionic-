@@ -21,6 +21,7 @@ export class FormVehicleTwoComponent implements OnInit {
   @ViewChild('slideInTaxi', {static: true}) slideInTaxi: IonSlides;
 
   imgValid = ['jpg', 'png', 'jpeg'];
+  typeFile = ETypeFile;
 
   monthNames = [
     'Enero',
@@ -80,7 +81,8 @@ export class FormVehicleTwoComponent implements OnInit {
           if (!newDate.isValid()) {
             return false;
           }
-          this.bodyDriver.dateSoatExpiration = newDate.toISOString();
+          
+          this.bodyDriver.dateSoatExpiration = newDate.format('YYYY-MM-DD');
 
         }
       }]

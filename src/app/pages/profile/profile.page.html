@@ -1,0 +1,332 @@
+<ion-header no-border>
+    <ion-toolbar color="dark">
+        <ion-buttons slot="start">
+            <ion-back-button color="light">
+            </ion-back-button>
+        </ion-buttons>
+        <ion-title>Mi Perfil</ion-title>
+        <ion-buttons slot="end">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons>
+
+
+    </ion-toolbar>
+</ion-header>
+
+<ion-content no-border>
+    <div class="wrapper backProfile">
+        <div class="page-header clear-filter page-header-small" filter-color="orange">
+
+            <div class="container ">
+
+                <div class="photo-container">
+                    <img *ngIf="!loading" [src]="pathImg + dataProfile.img + '?token=' + st.token " alt="">
+                </div>
+
+                <h4 class="title">
+                    {{ dataProfile.nameComplete }}
+                    <span *ngIf="dataProfile.yearsOld > 0">
+                        , {{ dataProfile.yearsOld }}
+                    </span>
+                </h4>
+                <p class="category">
+                    {{ dataProfile.userName }}
+                </p>
+
+                <div class="content">
+                    <div class="social-description">
+                        <h3>
+                            <i class="fa fa-phone" aria-hidden="true"></i>&nbsp;
+                            <small>{{ dataProfile.phone }}</small>
+                        </h3>
+
+                    </div>
+                    <div class="social-description">
+                        <h3>
+                            <i class="fas fa-mail-bulk "></i>&nbsp;
+                            <small>{{ dataProfile.email }}</small>
+                        </h3>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <div class="section">
+            <div class="container">
+                <div class="button-container">
+                    <button class="btn btn-primary btn-round btn-lg" (click)="onShowEditProfile()">
+
+                        <i class="fas fa-edit "></i> Editar
+                    </button>
+                    <!-- <a class="btn btn-primary btn-round btn-lg">
+                    </a> -->
+
+                    <!-- <a href="#button" class="btn btn-default btn-round btn-lg btn-icon" rel="tooltip" title="" data-original-title="Follow me on Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#button" class="btn btn-default btn-round btn-lg btn-icon" rel="tooltip" title="" data-original-title="Follow me on Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a> -->
+                </div>
+
+                <h3 class="title">Acerca de mi</h3>
+                <h5 class="description">
+                    {{ dataProfile.aboutMe }}
+                </h5>
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4 class="title text-center">
+                            Mi portafolio
+                        </h4>
+                        <div class="nav-align-center">
+                            <ul class="nav nav-pills nav-pills-primary nav-pills-just-icons" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" data-toggle="tab" href="#profile" role="tablist">
+                                        <i class="fas fa-id-card"></i>
+                                        <!-- <i class="now-ui-icons design_image"></i> -->
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#home" role="tablist">
+                                        <i class="fas fa-history"></i>
+                                        <!-- <i class="now-ui-icons location_world"></i> -->
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#messages" role="tablist">
+                                        <i class="fas fa-medal"></i>
+                                        <!-- <i class="now-ui-icons design-2_ruler-pencil"></i> -->
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <br>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content gallery">
+
+                            <div class="tab-pane active" id="profile" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-5 ml-auto mr-auto">
+
+                                        <div class="card card-background card-background-product card-raised">
+                                            <!-- style="background-image: url('../assets/img/driver_docs.jpg'); background-size: cover;" -->
+                                            <div class="card-body">
+                                                <h2 class="card-title">
+                                                    Mis documentos
+                                                </h2>
+
+                                                <p class="card-description text-dark">
+                                                    Gestione y actualice sus documetos y certificados.
+                                                </p>
+                                                <label class="badge badge-info">
+                                                    <span *ngIf="dataProfile.isEmployee">
+                                                        Soy taxista certificado
+                                                    </span>
+                                                    <span *ngIf="!dataProfile.isEmployee"> 
+                                                        Soy taxista independiente
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-5">
+
+                                        <div class="info info-horizontal">
+                                            <div class="icon icon-warning">
+                                                <i class="far fa-id-badge"></i>
+                                                <!-- <i class="fas fa-id-badge"></i> -->
+                                                <!-- <i class="now-ui-icons users_single-02"></i> -->
+                                            </div>
+                                            <div class="description">
+                                                <h5 class="info-title">Licencia de conducir</h5>
+                                                <div class="container">
+                                                    <div class="justify-content-center">
+                                                        <div class="card card-background  card-raised ">
+                                                            <img [src]="pathLicense | imgDriver:'LICENSE' " alt="" style="width: 100%; height: 240px;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <p class="description text-center">
+                                                    Expiraci&oacute;n {{ dataProfile.dateLicenseExpiration | date }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div *ngIf="!dataProfile.isEmployee" class="info info-horizontal">
+                                            <div class="icon icon-warning">
+                                                <i class="far fa-clipboard"></i>
+                                                <!-- <i class="now-ui-icons business_chart-bar-32"></i> -->
+                                            </div>
+                                            <div class="description">
+                                                <h5 class="info-title">
+                                                    Antecedentes penales y policiales
+                                                </h5>
+                                                <div class="container">
+                                                    <div class="justify-content-center">
+
+                                                        <div id="carouselDriver" class="carousel slide" data-ride="carousel">
+                                                            <ol class="carousel-indicators">
+                                                                <li data-target="#carouselDriver" data-slide-to="0" class="active"></li>
+                                                                <li data-target="#carouselDriver" data-slide-to="1"></li>
+                                                            </ol>
+                                                            <div class="carousel-inner" role="listbox">
+
+                                                                <div class="carousel-item">
+                                                                    <img class="d-block" [src]="pathPolicialRecord | imgDriver:'POLICIAL_RECORD' " alt="First slide">
+                                                                    <div class="carousel-caption d-none d-md-block">
+                                                                        <h5>Atecedentes policiales</h5>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="carousel-item active">
+                                                                    <img class="d-block" [src]="pathCriminalRecord | imgDriver:'CRIMINAL_RECORD' " alt="Second slide">
+                                                                    <div class="carousel-caption d-none d-md-block">
+                                                                        <h5>Antecedentes penales</h5>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div *ngIf="dataProfile.isEmployee" class="info info-horizontal">
+                                            <div class="icon icon-warning">
+                                                <i class="fas fa-money-check"></i>
+                                                <!-- <i class="fas fa-id-badge"></i> -->
+                                                <!-- <i class="now-ui-icons users_single-02"></i> -->
+                                            </div>
+                                            <div class="description">
+                                                <h5 class="info-title">Foto check</h5>
+                                                <div class="container">
+                                                    <div class="justify-content-center">
+                                                        <div class="card card-background  card-raised ">
+                                                            <img [src]="pathCheck | imgDriver:'PHOTO_CHECK' " alt="" style="width: 100%; height: 240px;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- <p class="description text-center">
+                                                    Expiraci&oacute;n 
+                                                </p> -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="tab-pane" id="home" role="tabpanel">
+                                <div class="row">
+
+                                    <div class="col-md-5 ml-auto mr-auto">
+                                        <div class="card card-background card-background-product card-raised" style="background-image: url('../assets/img/project8.jpg')">
+                                            <div class="card-body">
+                                                <h2 class="card-title">Social Analytics</h2>
+                                                <p class="card-description">
+                                                    Insight to help you create, connect, and convert. Understand Your Audience's Interests, Influence, Interactions, and Intent. Discover emerging topics and influencers to reach new audiences.
+                                                </p>
+                                                <label class="badge badge-neutral">Analytics</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-5">
+                                        <div class="info info-horizontal">
+                                            <div class="icon icon-danger">
+                                                <i class="now-ui-icons ui-2_chat-round"></i>
+                                            </div>
+                                            <div class="description">
+                                                <h5 class="info-title">Listen to Social Conversations</h5>
+                                                <p class="description">
+                                                    Gain access to the demographics, psychographics, and location of unique people who talk about your brand.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="info info-horizontal">
+                                            <div class="icon icon-danger">
+                                                <i class="now-ui-icons design-2_ruler-pencil"></i>
+                                            </div>
+                                            <div class="description">
+                                                <h5 class="info-title">Social Conversions</h5>
+                                                <p class="description">
+                                                    Track actions taken on your website that originated from social, and understand the impact on your bottom line.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="tab-pane" id="messages" role="tabpanel">
+                                <div class="row">
+
+                                    <div class="col-md-5 ml-auto mr-auto">
+                                        <div class="card card-background card-background-product card-raised" style="background-image: url('../assets/img/bg25.jpg')">
+                                            <div class="card-body">
+                                                <h2 class="card-title">Interior Redesign</h2>
+                                                <p class="card-description">
+                                                    Insight to help you create, connect, and convert. Understand Your Audience's Interests, Influence, Interactions, and Intent. Discover emerging topics and influencers to reach new audiences.
+                                                </p>
+                                                <label class="badge badge-neutral">Interior</label>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-5">
+                                        <div class="info info-horizontal">
+                                            <div class="icon icon-info">
+                                                <i class="now-ui-icons design_palette"></i>
+                                            </div>
+                                            <div class="description">
+                                                <h5 class="info-title">Colors adjustments</h5>
+                                                <p class="description">
+                                                    Gain access to the demographics, psychographics, and location of unique people who talk about your brand.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="info info-horizontal">
+                                            <div class="icon icon-info">
+                                                <i class="now-ui-icons design_scissors"></i>
+                                            </div>
+                                            <div class="description">
+                                                <h5 class="info-title">Performance Clothing</h5>
+                                                <p class="description">
+                                                    Unify data from Facebook, Instagram, Twitter, LinkedIn, and Youtube to gain rich insights from easy-to-use reports.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</ion-content>

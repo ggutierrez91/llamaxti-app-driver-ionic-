@@ -19,11 +19,11 @@ export class VehicleService {
   }
 
   onUsingVehicle( pkVehicle: number ) {
-    return this.http.put<IResApi>( URI_API + `/Using/Vehicle/${ pkVehicle }`, {headers: { Authorization: this.st.token }} );
+    return this.http.put<IResApi>( URI_API + `/Using/Vehicle/${ pkVehicle }`, {}, {headers: { Authorization: this.st.token }} );
   }
 
-  onGetUsing() {
-    return this.http.get<IResApi>( URI_API + `/Usin/Get`, {headers: { Authorization: this.st.token }} );
+  onGetUsing( pkDriver: number ) {
+    return this.http.get<IResApi>( URI_API + `/Usin/Get/${ pkDriver }`, {headers: { Authorization: this.st.token }} );
   }
   
   onGetVehicle( pkDriver: number ) {

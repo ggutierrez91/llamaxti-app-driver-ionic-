@@ -8,7 +8,8 @@ import { AuthService } from './auth.service';
 export class StorageService {
 
   public token = '';
-  public dataUser: any = null;
+  public dataUser: any = { pkUser: 0 };
+  public dataVehicle: any = null;
   public role = '';
   public pkDriver = 0;
   public pkUser = 0;
@@ -17,10 +18,13 @@ export class StorageService {
   public category = '';
   public codeCategory = '';
   public brand = '';
+  public nameModel = '';
   public numberPlate = '';
+  public year = 0;
+  public color = '';
   public nameComplete = '';
   public pkPerson = 0;
-
+  public osID = '';
 
   constructor( private storage: Storage, private authSvc: AuthService ) { }
 
@@ -55,7 +59,22 @@ export class StorageService {
       this.pkPerson = this.dataUser.pkPerson || 0 ;
       this.pkUser = this.dataUser.pkUser || 0 ;
       this.nameComplete = this.dataUser.nameComplete || 0 ;
+      this.osID = await this.storage.get('osID') || '';
     }
+  }
+
+  async onLoadVehicle() {
+    const dataVehicle = await this.onGetItem('dataVehicle', true);
+    this.pkVehicle = dataVehicle.pkVehicle || 0;
+    this.fkCategory = dataVehicle.pkCategory || 0;
+    this.category = dataVehicle.aliasCategory  || '';
+    this.codeCategory = dataVehicle.codeCategory  || '';
+    this.brand = dataVehicle.nameBrand  || '';
+    this.nameModel = dataVehicle.nameModel  || '';
+    this.numberPlate = dataVehicle.numberPlate  || '';
+    this.year = dataVehicle.year  || 0;
+    this.color = dataVehicle.color  || '';
+    this.dataVehicle = dataVehicle || null;
   }
 
   async onGetItem(name: string, isJson = false) {

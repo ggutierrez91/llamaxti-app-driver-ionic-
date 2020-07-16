@@ -95,7 +95,7 @@ export class VehiclePage implements OnInit, OnDestroy {
 
     this.ui.onShowLoading('Espere...').then( () => {
 
-      this.usingSbc = this.vehicleSvc.onUsingVehicle( pkVehicle ).subscribe( async(res) => {
+      this.usingSbc = this.vehicleSvc.onUsingVehicle( pkVehicle ).subscribe( async (res) => {
 
         if (!res.ok) {
           throw new Error( res.error );
@@ -105,21 +105,31 @@ export class VehiclePage implements OnInit, OnDestroy {
         await this.ui.onShowToast( this.onGetError(res.showError), 5000 );
 
         if (res.showError === 0) {
-          // this.onGetUsing();
 
           this.st.pkVehicle = pkVehicle;
           this.st.fkCategory = res.data.pkCategory;
-          this.st.category = res.data.category;
+          this.st.category = res.data.aliasCategory;
           this.st.codeCategory = res.data.codeCategory;
-          this.st.brand = res.data.brand;
+          this.st.brand = res.data.nameBrand;
+          this.st.nameModel = res.data.nameModel;
           this.st.numberPlate = res.data.numberPlate;
-
-          await this.st.onSetItem('pkVehicle', res.data.pkVehicle);
-          await this.st.onSetItem('fkCategory', res.data.pkCategory);
-          await this.st.onSetItem('category', res.data.category);
-          await this.st.onSetItem('codeCategory', res.data.codeCategory);
-          await this.st.onSetItem('brand', res.data.brand);
-          await this.st.onSetItem('numberPlate', res.data.numberPlate);
+          this.st.year = res.data.year;
+          this.st.color = res.data.color;
+          this.st.dataVehicle = res.data;
+          // await this.st.onSetItem('pkVehicle', res.data.pkVehicle);
+          // await this.st.onSetItem('fkCategory', res.data.pkCategory);
+          // await this.st.onSetItem('category', res.data.aliasCategory);
+          // await this.st.onSetItem('codeCategory', res.data.codeCategory);
+          // await this.st.onSetItem('brand', res.data.nameBrand);
+          // await this.st.onSetItem('model', res.data.nameModel);
+          // await this.st.onSetItem('numberPlate', res.data.numberPlate);
+          await this.st.onSetItem('dataVehicle', res.data, true);
+          this.dataVehicle.forEach( vh => {
+            vh.driverUsing = 0;
+          });
+  
+          const indexVehicle = this.dataVehicle.findIndex( vh => vh.pkVehicle === pkVehicle );
+          this.dataVehicle[indexVehicle].driverUsing = 1;
 
           this.io.onEmit('change-category',
                       { pkCategory: res.data.pkCategory, codeCategory: res.data.codeCategory },

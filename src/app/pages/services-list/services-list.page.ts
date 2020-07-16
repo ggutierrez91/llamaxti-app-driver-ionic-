@@ -13,6 +13,7 @@ import { NotificationService } from '../../services/notification.service';
 import { SocketService } from '../../services/socket.service';
 import { NavController, AlertController } from '@ionic/angular';
 import { IOffer } from 'src/app/interfaces/offer.interface';
+import { PushModel } from '../../models/push.model';
 
 const URI_SERVER = environment.URL_SERVER;
 
@@ -30,6 +31,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
   notySbc: Subscription;
   socketServicesSbc: Subscription;
   socketOfferSbc: Subscription;
+  cancelSbc: Subscription;
 
   dataServices: IServices[] = [];
   pathImg = URI_SERVER + '/User/Img/Get/';
@@ -38,6 +40,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
   bodyOffer: OfferModel;
   bodyAcceptOffer: OfferModel;
   bodyNoty: NotyModel;
+  bodyPush: PushModel;
 
   // tslint:disable-next-line: max-line-length
   constructor(private services: TaxiService, public st: StorageService, private ui: UiUtilitiesService, private os: PushService, private notySvc: NotificationService, private io: SocketService, private navCtrl: NavController, private alertCtrl: AlertController) { }
@@ -46,14 +49,24 @@ export class ServicesListPage implements OnInit, OnDestroy {
 
     this.bodyOffer = new OfferModel();
     this.bodyAcceptOffer = new OfferModel();
+    this.bodyPush = new PushModel();
 
+    this.st.onLoadVehicle();
     this.st.onLoadToken().then( (res) => {
       this.onGetServices(1);
       this.bodyNoty = new NotyModel('/notification', this.st.pkUser);
 
       this.onListenNewService();
       this.onListenOfferClient();
+      this.onListenCancelService();
     }).catch( (e) => console.error('Error al cargar token storage') );
+  }
+
+  onListenCancelService() {
+    this.cancelSbc = this.io.onListen('client-cancel-service').subscribe( async (next: any) => {
+      this.dataServices = this.dataServices.filter( svc => svc.pkService !== next.pkService );
+      await this.ui.onShowToast( next.msg );
+    });
   }
 
   onListenNewService() {
@@ -80,12 +93,26 @@ export class ServicesListPage implements OnInit, OnDestroy {
           buttons: [{
             text: 'Ok',
             cssClass: 'text-info',
-            handler: () => {}
+            handler: async () => {
+              await this.ui.onShowLoading('Espere....');
+
+              await this.st.onSetItem('loadCalification', false, false);
+              await this.st.onSetItem('loadRoute', false, false);
+              await this.st.onSetItem('runOrigin', true, false);
+              await this.st.onSetItem('finishOrigin', false, false);
+              await this.st.onSetItem('runDestination', false, false);
+              await this.st.onSetItem('finishDestination', false, false);
+              await this.st.onSetItem('current-service', res.dataOffer, true);
+              this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
+                console.log('Cambiando estado conductor', resOccupied);
+              });
+              await this.ui.onHideLoading();
+              this.navCtrl.navigateRoot('/service-run', {animated: true});
+            }
           }]
         });
         await alertService.present();
         // el cliente acepto la oferta y comienza el servicio de taxi
-        this.navCtrl.navigateRoot('/service-run', {animated: true});
       } else {
         // el cliente hizo una contra oferta
         this.dataServices.unshift(res.dataOffer);
@@ -140,48 +167,16 @@ export class ServicesListPage implements OnInit, OnDestroy {
 
   }
 
-  // async onNewOffer( service: IServices ) {
-
-  //   this.bodyOffer.pkService = service.pkService;
-  //   this.bodyOffer.pkOffer = service.pkOfferService;
-  //   this.bodyOffer.rateOffer = service.rateOffer;
-
-  //   await this.ui.onShowLoading('Enviando oferta...');
-
-  //   this.offerSbc = this.services.onNewOffer( this.bodyOffer ).subscribe( async (res) => {
-
-  //     if (!res.ok) {
-  //       throw new Error( res.error );
-  //     }
-  //     await this.ui.onHideLoading();
-  //     this.ui.onShowToast( this.onGetError( res.showError ), 4500 );
-
-  //     if (res.showError === 0 ) {
-
-  //       const msg = `${ this.st.nameComplete }, acepta llevarte por S/ ${ formatNumber( service.rateOffer, 'es', '.2-2' ) }`;
-
-  //       this.bodyNoty.notificationTitle = `Nueva oferta`;
-  //       this.bodyNoty.notificationSubTitle = `De ${ service.streetOrigin } hasta ${ service.streetDestination }`;
-  //       this.bodyNoty.notificationMessage = msg;
-
-  //       this.io.onEmit('newOffer-driver', { pkClient: service.fkClient }, (resSocket) => {
-  //         console.log('Enviando nueva oferta', resSocket);
-  //       });
-  //       this.dataServices = this.dataServices.filter( ts => ts.pkService !== service.pkService );
-  //       this.onSendPush('Nueva oferta - llamataxi app', msg, service.osId);
-
-  //     }
-
-  //   });
-
-  // }
-
   async onAcceptOffer( service: IServices ) {
-
+    const osIdClient = service.osId;
+    // console.log('osid cliente', osIdClient);
+    // // tslint:disable-next-line: no-debugger
+    // debugger;
     this.bodyAcceptOffer.pkService = service.pkService;
     this.bodyAcceptOffer.pkOffer = service.pkOfferService;
     this.bodyAcceptOffer.rateOffer = service.rateOffer;
     this.bodyAcceptOffer.fkDriver = this.st.dataUser.pkUser || 0;
+    this.bodyAcceptOffer.fkVehicle = this.st.pkVehicle;
     // console.log(this.bodyAcceptOffer);
     await this.ui.onShowLoading('Enviando oferta...');
 
@@ -193,9 +188,9 @@ export class ServicesListPage implements OnInit, OnDestroy {
       await this.ui.onHideLoading();
       this.ui.onShowToast( this.onGetError( res.showError ), 4500 );
 
-      let msg = `${ this.st.nameComplete }, ha aceptado tu oferta de S/ ${ formatNumber( service.rateOffer, 'es', '.2-2' ) }`;
+      let msg = `${ this.st.nameComplete }, ha aceptado tu oferta de S/ ${ formatNumber( service.rateOffer, 'en', '.2-2' ) }`;
       if (service.changeRate === 1) {
-        msg = `${ this.st.nameComplete }, acepta llevarte por S/ ${ formatNumber( service.rateOffer, 'es', '.2-2' ) }`;
+        msg = `${ this.st.nameComplete }, acepta llevarte por S/ ${ formatNumber( service.rateOffer, 'en', '.2-2' ) }`;
       }
       this.bodyNoty.notificationTitle = `Nueva oferta`;
       this.bodyNoty.notificationSubTitle = `De ${ service.streetOrigin } hasta ${ service.streetDestination }`;
@@ -203,11 +198,37 @@ export class ServicesListPage implements OnInit, OnDestroy {
 
       if (res.showError === 0 ) {
 
-        this.io.onEmit('newOffer-driver', { pkClient: service.fkClient }, (resSocket) => {
-          console.log('Enviando nueva oferta socket', resSocket);
+        const payloadService: IServices = service;
+        payloadService.pkCategory = this.st.fkCategory;
+        payloadService.aliasCategory = this.st.category;
+        payloadService.codeCategory = this.st.codeCategory;
+        payloadService.color = this.st.color;
+        payloadService.numberPlate = this.st.numberPlate;
+        payloadService.year = this.st.year;
+        payloadService.nameBrand = this.st.brand;
+        payloadService.nameModel = this.st.nameModel;
+        payloadService.pkVehicle = this.st.pkVehicle;
+
+        payloadService.nameComplete = this.st.dataUser.nameComplete;
+        payloadService.document = this.st.dataUser.document;
+        payloadService.prefix = this.st.dataUser.prefix;
+        payloadService.nameCountry = this.st.dataUser.nameCountry;
+        payloadService.img = this.st.dataUser.img;
+        payloadService.fkDriver = this.st.dataUser.pkUser;
+        payloadService.osId = this.st.osID;
+        payloadService.changeRate = 0;
+
+        this.st.onLoadVehicle().then( (val) => {
+
+          this.io.onEmit('newOffer-driver', { pkClient: service.fkClient,
+                                              dataOffer: payloadService }, (resSocket) => {
+            console.log('Enviando nueva oferta socket', resSocket);
+          });
+
         });
+
         this.dataServices = this.dataServices.filter( ts => ts.pkService !== service.pkService );
-        this.onSendPush('Nueva oferta - llamataxi app', msg, service.osId);
+        this.onSendPush('Nueva oferta - llamataxi app', msg, osIdClient);
       }
 
     });
@@ -254,18 +275,14 @@ export class ServicesListPage implements OnInit, OnDestroy {
 
   onSendPush( title: string, msg: string, osId: string ) {
 
-    // this.notySbc = this.notySvc.onAddNotify( this.bodyNoty ).subscribe( (res) => {
+    this.bodyPush.message = msg;
+    this.bodyPush.title = title;
+    this.bodyPush.osId = [osId];
+    this.bodyPush.data = { url: 'offer-service' };
 
-    //   if (!res.ok) {
-    //     throw new Error( res.error );
-    //   }
-
-      const data = { url: 'offer-service' };
-      this.osSbc = this.os.onSendPushUser( osId, title, msg, data ).subscribe( (res) => {
-          console.log('push enviado con èxito', res);
-      });
-
-    // });
+    this.osSbc = this.os.onSendPushUser( this.bodyPush ).subscribe( (res) => {
+        console.log('push enviado con èxito', res);
+    });
 
   }
 
@@ -273,6 +290,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
 
     this.servicesSbc.unsubscribe();
     this.socketOfferSbc.unsubscribe();
+    this.cancelSbc.unsubscribe();
 
     if (this.notySbc) {
       this.notySbc.unsubscribe();

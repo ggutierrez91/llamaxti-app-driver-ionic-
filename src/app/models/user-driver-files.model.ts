@@ -20,19 +20,21 @@ export enum ETypeFile {
 }
 
 class FileModel {
-    entity: EEntity; //DRIVER : VEHICLE
+    entity: EEntity; // DRIVER : VEHICLE
     typeFile: ETypeFile;
     pathFile: string;
     srcFile: string;
     required: boolean;
+    changeed: boolean;
     isPdf: boolean;
 
-    constructor(entity: EEntity, typeFile: ETypeFile, required: boolean) {
+    constructor(entity: EEntity, typeFile: ETypeFile, required: boolean, path = '', src = '') {
         this.entity = entity;
         this.typeFile = typeFile;
-        this.pathFile = '';
-        this.srcFile = '';
+        this.pathFile = path;
+        this.srcFile = src;
         this.required = required;
+        this.changeed = false;
         this.isPdf = false;
     }
 }
@@ -45,7 +47,7 @@ export class DriverFilesModel {
         this.filesDriver = [];
     }
 
-    onAddFile( entity: EEntity, typeFile: ETypeFile, required: boolean ): IResPromise {
+    onAddFile( entity: EEntity, typeFile: ETypeFile, required: boolean, path = '', src = '' ): IResPromise {
 
         const indexFind = this.filesDriver.findIndex(
             item => item.entity === entity && item.typeFile === typeFile
@@ -58,12 +60,12 @@ export class DriverFilesModel {
             };
         }
 
-        this.filesDriver.push( new FileModel( entity, typeFile, required ) );
+        this.filesDriver.push( new FileModel( entity, typeFile, required, path, src ) );
 
         return { ok: true };
     }
 
-    onUpdateFile(  entity: EEntity, typeFile: ETypeFile, path: string, src: string, isPdf = false ) {
+    onUpdateFile(  entity: EEntity, typeFile: ETypeFile, path: string, src: string, isPdf = false, change = true ) {
 
         const indexFind = this.filesDriver.findIndex(
             item => item.entity === entity && item.typeFile === typeFile
@@ -79,6 +81,7 @@ export class DriverFilesModel {
         this.filesDriver[indexFind].pathFile = path;
         this.filesDriver[indexFind].srcFile = src;
         this.filesDriver[indexFind].isPdf = isPdf;
+        this.filesDriver[indexFind].changeed = change;
         return { ok: true };
 
     }
@@ -135,7 +138,7 @@ export class DriverFilesModel {
                 }
             }
         });
-        
+
         return ok;
     }
 

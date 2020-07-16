@@ -1,0 +1,121 @@
+.photo-container {
+    width: 123px;
+    height: 123px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: 0 10px 25px 0 rgba(0, 0, 0, .3);
+}
+
+.backProfile {
+    background-image: url('../../../assets/img/login.jpg');
+    background-size: cover !important;
+    // backdrop-filter: r;
+    background-repeat: no-repeat !important;
+    // transform: translate3d(0px, 0px, 0px);
+}
+
+.icon.icon-warning {
+    color: #ffb236;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.info-horizontal .icon {
+    float: left;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+.info .icon {
+    color: #888;
+    transition: transform .4s, box-shadow .4s;
+}
+
+.info .info-title {
+    margin: 15px 0 10px;
+    padding: 0 15px;
+    color: #2c2c2c;
+}
+
+.h5,
+h5 {
+    font-size: 1.3em;
+    line-height: 1.4em;
+    margin-bottom: 10px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 400;
+}
+
+.h5,
+h5 {
+    font-size: 1.25rem;
+}
+
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-bottom: .5rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 0;
+    margin-bottom: .5rem;
+}
+
+*,
+ ::after,
+ ::before {
+    box-sizing: border-box;
+}
+
+user agent stylesheet h5 {
+    display: block;
+    font-size: 0.83em;
+    margin-block-start: 1.67em;
+    margin-block-end: 1.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+}
+
+.card-description,
+.description,
+.footer-big p {
+    color: #9a9a9a;
+    font-weight: 300;
+}
+
+.info-horizontal {
+    text-align: left!important;
+}
+
+.info {
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 20px 0 10px;
+    text-align: center;
+}

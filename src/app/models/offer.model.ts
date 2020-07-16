@@ -4,6 +4,7 @@ export class OfferModel {
     rateOffer: number;
     isClient: boolean;
     fkDriver: number;
+    fkVehicle: number;
 
     constructor() {
 
@@ -12,6 +13,7 @@ export class OfferModel {
         this.rateOffer = 0;
         this.isClient = false;
         this.fkDriver = 0;
+        this.fkVehicle = 0;
 
     }
 }

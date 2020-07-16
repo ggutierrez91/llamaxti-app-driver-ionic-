@@ -7,6 +7,7 @@ import { StorageService } from 'src/app/services/storage.service';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { NavController, MenuController } from '@ionic/angular';
 import { SocketService } from '../../services/socket.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,7 @@ export class LoginPage implements OnInit, OnDestroy {
 
   loading = false;
   // tslint:disable-next-line: max-line-length
-  constructor( private authScv: AuthService, private storageSvc: StorageService, private uiSvc: UiUtilitiesService, private navCtrl: NavController, private menuCtrl: MenuController, private io: SocketService ) { }
+  constructor( private authScv: AuthService, private storageSvc: StorageService, private uiSvc: UiUtilitiesService, private navCtrl: NavController, private menuCtrl: MenuController, private io: SocketService, private router: Router ) { }
 
   ngOnInit() {
     this.bodyLogin = new LoginModel();
@@ -35,28 +36,28 @@ export class LoginPage implements OnInit, OnDestroy {
         if (!res.ok) {
           throw new Error( res.error );
         }
-        console.log(res);
+        // console.log(res);
 
-        this.loading = false;
         if (res.showError !== 0) {
+          this.loading = false;
           this.uiSvc.onShowToast( this.onGetError( res.showError ), 2200 );
           await this.storageSvc.onClearStorage();
         } else {
           await this.storageSvc.onSaveCredentials( res.token, res.data );
           this.io.onSingUser().then( (resSocket) => {
+            // console.log('configurando usuario socket', resSocket);
 
-            // console.log('rol', this.storageSvc.role);
-            this.navCtrl.navigateRoot('/home', {animated: true});
-            // if (this.storageSvc.role === 'CLIENT_ROLE') {
-            // } else {
-            //   console.log('redireccionando conductor');
-            //   this.navCtrl.navigateRoot('/homeDriver', {animated: true});
-            // }
+            this.io.onEmit('occupied-driver', {occupied: false}, (resOccupied) => {
+              console.log('Cambiando estado conductor', resOccupied);
+            });
+
+            this.navCtrl.navigateRoot('/home', {animated: true}).then( () => {
+              this.loading = false;
+            }).catch( e => console.error( 'error al redirigir al home', e ) );
 
           }).catch( e => console.error('errror al configurar socket'));
 
         }
-
 
       });
     }
@@ -90,6 +91,13 @@ export class LoginPage implements OnInit, OnDestroy {
     }
 
     return arrErrors.join(', ');
+  }
+
+  async onNavSingin() {
+    await this.uiSvc.onShowLoading('Espere...');
+    this.router.navigateByUrl('/singin').then( async() => {
+      await this.uiSvc.onHideLoading();
+    }).catch(e => console.error('Error al navegar a crear cuenta', e) );
   }
 
   ngOnDestroy() {

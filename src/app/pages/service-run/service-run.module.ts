@@ -7,13 +7,21 @@ import { IonicModule } from '@ionic/angular';
 import { ServiceRunPageRoutingModule } from './service-run-routing.module';
 
 import { ServiceRunPage } from './service-run.page';
+import { ComponentsModule } from '../../components/components.module';
+import { ModalCalificationPageModule } from '../modal-calification/modal-calification.module';
+import { ModalCalificationPage } from '../modal-calification/modal-calification.page';
 
 @NgModule({
+  entryComponents:[
+    ModalCalificationPage
+  ],
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ServiceRunPageRoutingModule
+    ComponentsModule,
+    ServiceRunPageRoutingModule,
+    ModalCalificationPageModule
   ],
   declarations: [ServiceRunPage]
 })

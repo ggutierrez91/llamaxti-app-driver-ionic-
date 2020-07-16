@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 import { VehicleService } from '../../services/vehicle.service';
 import { AlertController, NavController } from '@ionic/angular';
 import { IOffer } from '../../interfaces/offer.interface';
+import { UiUtilitiesService } from '../../services/ui-utilities.service';
 
 @Component({
   selector: 'app-home',
@@ -26,8 +27,10 @@ export class HomePage implements OnInit, OnDestroy {
   serviceSbc: Subscription;
   usingSbc: Subscription;
   demandSbc: Subscription;
+  socktJournalbc: Subscription;
   socketServicesSbc: Subscription;
   socketOfferSbc: Subscription;
+  cancelSbc: Subscription;
 
   map: google.maps.Map;
   marker: google.maps.Marker;
@@ -49,19 +52,20 @@ export class HomePage implements OnInit, OnDestroy {
   demandColors = ['#0091F2', '#209FF4', '#40ADF5', '#60BAF7', '#80C8F8', '#9FD6FA'];
 
   // tslint:disable-next-line: max-line-length
-  constructor( private io: SocketService,  private geo: Geolocation,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController ) { }
+  constructor( private io: SocketService,  private geo: Geolocation,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService ) { }
 
   ngOnInit() {
 
     this.onLoadMap();
-    this.onEmitGeo();
-    this.onGetPosition();
+
     this.onListenNewService();
     this.st.onLoadToken().then( () => {
       this.onLoadJournal();
       this.onTotalServices();
       this.onGetVehicleUsing();
       this.onListenOfferClient();
+      this.onListenJournal();
+      this.onListenCancelService();
     });
 
     this.infoWindowPolygon = new google.maps.InfoWindow();
@@ -70,8 +74,8 @@ export class HomePage implements OnInit, OnDestroy {
 
   onListenOfferClient() {
     this.socketOfferSbc = this.io.onListen( 'newOffer-service-client' ).subscribe( async (res: any) => {
-      
-      console.log('oferta del cliente', res)
+
+      console.log('oferta del cliente', res);
       if (res.accepted) {
         const offer: IOffer = res.res.dataOffer;
         const alertService = await this.alertCtrl.create({
@@ -82,8 +86,22 @@ export class HomePage implements OnInit, OnDestroy {
           buttons: [{
             text: 'Ok',
             cssClass: 'text-info',
-            handler: () => {
+            handler: async () => {
+              await this.ui.onShowLoading('Espere....');
+
+              await this.st.onSetItem('loadCalification', false, false);
+              await this.st.onSetItem('loadRoute', false, false);
+              await this.st.onSetItem('runOrigin', true, false);
+              await this.st.onSetItem('finishOrigin', false, false);
+              await this.st.onSetItem('runDestination', false, false);
+              await this.st.onSetItem('finishDestination', false, false);
+              await this.st.onSetItem('current-service', res.dataOffer, true);
+              this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
+                console.log('Cambiando estado conductor', resOccupied);
+              });
+              await this.ui.onHideLoading();
               this.navCtrl.navigateRoot('/service-run', {animated: true});
+
             }
           }]
         });
@@ -97,7 +115,17 @@ export class HomePage implements OnInit, OnDestroy {
     });
   }
 
+  onListenCancelService() {
+    this.cancelSbc = this.io.onListen('client-cancel-service').subscribe( (res) => {
+      this.onTotalServices();
+      this.onGetDemand();
+    });
+  }
+
   onTotalServices() {
+    if (this.serviceSbc) {
+      this.serviceSbc.unsubscribe();
+    }
     this.serviceSbc = this.taxiSvc.onGetTotalServices().subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -109,20 +137,8 @@ export class HomePage implements OnInit, OnDestroy {
 
   onEmitGeo() {
 
-    const opt: GeolocationOptions = {
-      timeout: 4000,
-      maximumAge: 0
-    };
-
-    this.geoSbc = this.geo.watchPosition( opt ).subscribe(
+    this.geoSbc = this.geo.watchPosition( ).subscribe(
       (position) => {
-
-        // console.log(`${ this.lat } === ${ position.coords.latitude }`);
-        // console.log(`${ this.lng } === ${ position.coords.longitude }`);
-
-        if ( this.lat === position.coords.latitude && this.lng === position.coords.longitude ) {
-          return false;
-        }
 
         this.lat = position.coords.latitude;
         this.lng = position.coords.longitude;
@@ -134,14 +150,22 @@ export class HomePage implements OnInit, OnDestroy {
                       {lat: position.coords.latitude, lng: position.coords.longitude },
                       (resSocket: IResSocket) => {
           console.log('Emitiendo ubicación conductor', resSocket.message);
-          
-        });
-        // console.log('cambio mi ubicación');
 
+        });
 
       },
       (e) => console.error('Surgio un error', e));
 
+  }
+
+  onListenJournal() {
+    this.socktJournalbc = this.io.onListen('change-journal').subscribe( (res: any) => {
+      const styleMap: any = res.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
+      this.map.setOptions({
+        styles: styleMap
+      });
+      this.st.onSetItem('codeJournal', res.codeJournal, false);
+    });
   }
 
   onLoadJournal() {
@@ -152,6 +176,7 @@ export class HomePage implements OnInit, OnDestroy {
       }
 
       this.codeJournal = res.data.codeJournal;
+      this.st.onSetItem('codeJournal', res.data.codeJournal, false);
       const styleMap: any = this.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
 
       this.map.setOptions({
@@ -164,15 +189,16 @@ export class HomePage implements OnInit, OnDestroy {
   onGetPosition() {
     this.geo.getCurrentPosition().then( (geo) => {
 
-      this.map.setCenter( new google.maps.LatLng( geo.coords.latitude, geo.coords.longitude ) );
+      const lat = geo.coords.latitude;
+      const lng = geo.coords.longitude;
+
+      this.map.setCenter( new google.maps.LatLng( lat, lng ) );
       this.map.setZoom(14.5);
 
       this.marker.setMap( this.map );
-      this.marker.setPosition(new google.maps.LatLng( geo.coords.latitude, geo.coords.longitude ));
+      this.marker.setPosition(new google.maps.LatLng( lat, lng ));
 
-      this.io.onEmit('current-position-driver',
-                      {lat: geo.coords.latitude, lng: geo.coords.longitude },
-                      (resSocket: IResSocket) => {
+      this.io.onEmit('current-position-driver', {lat, lng }, (resSocket: IResSocket) => {
         console.log('Emitiendo ubicación conductor', resSocket.message);
 
         setTimeout(() => {
@@ -181,17 +207,20 @@ export class HomePage implements OnInit, OnDestroy {
 
       });
 
+      this.onEmitGeo();
+
     });
   }
 
   onLoadMap() {
-
+    const styleMap: any = this.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
     const optMap: google.maps.MapOptions = {
       center: new google.maps.LatLng( -12.054825, -77.040627 ),
       zoom: 4.5,
       streetViewControl: false,
       disableDefaultUI: true,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      styles: styleMap
     };
 
     this.map = new google.maps.Map( this.mapDriver.nativeElement, optMap );
@@ -199,6 +228,8 @@ export class HomePage implements OnInit, OnDestroy {
     this.marker = new google.maps.Marker({
       draggable: true
     });
+
+    this.onGetPosition();
 
   }
 
@@ -208,7 +239,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   onGetVehicleUsing() {
 
-    this.usingSbc = this.vehicleSvc.onGetUsing().subscribe( async ( res ) => {
+    this.usingSbc = this.vehicleSvc.onGetUsing( this.st.pkDriver ).subscribe( async ( res ) => {
 
       if (!res.ok) {
         throw new Error( res.error );
@@ -224,14 +255,19 @@ export class HomePage implements OnInit, OnDestroy {
       this.st.category = res.data.aliasCategory;
       this.st.codeCategory = res.data.codeCategory;
       this.st.brand = res.data.nameBrand;
+      this.st.nameModel = res.data.nameModel;
       this.st.numberPlate = res.data.numberPlate;
-
-      await this.st.onSetItem('pkVehicle', res.data.pkVehicle);
-      await this.st.onSetItem('fkCategory', res.data.pkCategory);
-      await this.st.onSetItem('category', res.data.aliasCategory);
-      await this.st.onSetItem('codeCategory', res.data.codeCategory);
-      await this.st.onSetItem('brand', res.data.nameBrand);
-      await this.st.onSetItem('numberPlate', res.data.numberPlate);
+      this.st.year = res.data.year;
+      this.st.color = res.data.color;
+      this.st.dataVehicle = res.data;
+      // await this.st.onSetItem('pkVehicle', res.data.pkVehicle);
+      // await this.st.onSetItem('fkCategory', res.data.pkCategory);
+      // await this.st.onSetItem('category', res.data.aliasCategory);
+      // await this.st.onSetItem('codeCategory', res.data.codeCategory);
+      // await this.st.onSetItem('brand', res.data.nameBrand);
+      // await this.st.onSetItem('model', res.data.nameModel);
+      // await this.st.onSetItem('numberPlate', res.data.numberPlate);
+      await this.st.onSetItem('dataVehicle', res.data, true);
 
       this.io.onEmit('change-category',
                       { pkCategory: res.data.pkCategory, codeCategory: res.data.codeCategory },
@@ -265,6 +301,11 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onGetDemand() {
+
+    if (this.demandSbc) {
+      this.demandSbc.unsubscribe();
+    }
+
     this.demandSbc = this.taxiSvc.onGetDemand().subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -330,10 +371,13 @@ export class HomePage implements OnInit, OnDestroy {
     this.geoSbc.unsubscribe();
     this.journalSbc.unsubscribe();
     this.serviceSbc.unsubscribe();
-    this.demandSbc.unsubscribe();
+    if (this.demandSbc) {
+      this.demandSbc.unsubscribe();
+    }
     if (this.socketOfferSbc) {
       this.socketOfferSbc.unsubscribe();
     }
+    this.socktJournalbc.unsubscribe();
   }
 
 }

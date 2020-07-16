@@ -1,9 +1,63 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>serviceRun</ion-title>
-  </ion-toolbar>
+<ion-header no-border>
+    <ion-toolbar color="dark">
+
+        <ion-title>Servicio de taxi</ion-title>
+
+        <!-- <ion-label slot="end">
+      <h3>
+              {{ st.category }}
+            </h3>
+            <p>
+              {{ st.brand }}-{{ st.numberPlate }}
+            </p>
+          </ion-label> -->
+
+        <ion-buttons slot="end">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons>
+
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
+
+    <div #mapService style="width: 100%; height: 100%;">
+
+        <div #infoClient>
+            <div>
+
+                <p class="text-primary">
+                    {{ dataService.streetOrigin | slice: 0: 30 }} <span *ngIf="dataService.streetOrigin.length > 30">...</span>
+                </p>
+            </div>
+            <p class="">
+                {{ dataServiceInfo.nameClient | slice:0:25 }} <span *ngIf="dataServiceInfo.nameClient.length > 25">...</span> <br>
+                <!-- <i class="fas fa-phone"></i>&nbsp;{{ dataServiceInfo.phoneClient }} <br> -->
+                <b> {{ distanceText }} - {{ minutesText }} </b>
+            </p>
+            <!-- <p> {{ dataServiceInfo.documentClient }}</p>
+            <p> {{ dataServiceInfo.phoneClient }}</p> -->
+            <p> </p>
+        </div>
+
+    </div>
+
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="margin-bottom: 75px;" (click)="onSharedGeo()">
+        <ion-fab-button color="primary">
+            <ion-icon name="share-social-outline"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+
+    <ion-fab *ngIf="!loadRoute" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button color="primary">
+            <ion-icon name="chatbubbles-outline"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+
+    <ion-fab *ngIf="loadRoute" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button color="danger">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
 
 </ion-content>

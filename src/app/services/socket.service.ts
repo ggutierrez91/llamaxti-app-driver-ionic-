@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { StorageService } from './storage.service';
 import { IUerSocket } from '../interfaces/user-socket.interface';
-import { PushService } from './push.service';
 import { IResSocket } from '../interfaces/response-socket.interface';
 
 @Injectable({
@@ -22,7 +21,7 @@ export class SocketService {
 
   public statusSocket = false;
 
-  constructor(private socket: Socket, private st: StorageService, private push: PushService) { }
+  constructor(private socket: Socket, private st: StorageService) { }
 
   onListenStatus() {
     console.log('observando estado servidor!!');
@@ -58,16 +57,16 @@ export class SocketService {
     const data = await this.st.onGetItem('dataUser', true);
     const pkCategory = await this.st.onGetItem('fkCategory', false);
     const codeCategory =  await this.st.onGetItem('codeCategory', false);
-    // if (!data) {
-    //   return;
-    // }
+    if (!data) {
+      return;
+    }
     this.usersocket.pkUser = data.pkUser || 0;
     this.usersocket.userName = data.userName || '';
     this.usersocket.nameComplete = data.nameComplete || '';
     this.usersocket.role = data.role || '';
-    this.usersocket.osID = this.push.osID || '';
     this.usersocket.pkCategory = pkCategory || 0;
     this.usersocket.codeCategory = codeCategory || 'no especificado';
+    this.usersocket.osID = this.st.osID;
   }
 
   onSingUser(): Promise<IResSocket> {

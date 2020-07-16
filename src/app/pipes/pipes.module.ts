@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ImgSanitizerPipe } from './img-sanitizer.pipe';
 import { ImgDriverPipe } from './img-driver.pipe';
 import { ColorPipe } from './color.pipe';
+import { YesnoPipe } from './yesno.pipe';
 
 @NgModule({
   declarations: [
     ImgSanitizerPipe,
     ImgDriverPipe,
-    ColorPipe
+    ColorPipe,
+    YesnoPipe
   ],
   imports: [
     CommonModule
@@ -16,7 +18,8 @@ import { ColorPipe } from './color.pipe';
   exports: [
     ImgSanitizerPipe,
     ImgDriverPipe,
-    ColorPipe
+    ColorPipe,
+    YesnoPipe
   ]
 })
 export class PipesModule { }

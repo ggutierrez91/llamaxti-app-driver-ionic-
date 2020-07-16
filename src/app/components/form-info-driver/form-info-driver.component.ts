@@ -104,8 +104,7 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
           if (!newDate.isValid()) {
             return false;
           }
-          this.bodyDriver.brithDate = newDate.toISOString();
-
+          this.bodyDriver.brithDate = newDate.format('YYYY-MM-DD');
         }
       }]
     };

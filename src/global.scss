@@ -113,3 +113,18 @@
         color: var(--ion-color-primary) !important;
     }
 }
+
+.ionitemCreative {
+    --highlight-height: 0;
+    margin: 0px !important;
+    height: 48px !important;
+    // ion-label {
+    //     font-weight: 300;
+    //     font-size: 1rem!important;
+    // }
+    padding-bottom: 5px !important;
+    ion-icon {
+        font-size: 18.5px;
+        // color: var(--ion-color-primary) !important;
+    }
+}

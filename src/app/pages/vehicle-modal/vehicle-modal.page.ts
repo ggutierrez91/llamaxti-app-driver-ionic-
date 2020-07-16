@@ -24,7 +24,7 @@ export class VehicleModalPage implements OnInit {
 
   bodyVehicle: VehicleModel;
   filesVehicle: VehicleFilesModel;
-
+  typeFile = ETypeFile;
   year = moment().year();
 
   yearValues: any[] = [];
@@ -279,20 +279,20 @@ export class VehicleModalPage implements OnInit {
   async onSubmit() {
     let verifyFiles = false;
     const arrMsg = ['Error'];
-    // if (this.filesVehicle.onGetSrc( ETypeFile.taxiFrontal ) === '') {
-    //   verifyFiles = true;
-    //   arrMsg.push('foto frontal requerida');
-    // }
+    if (this.filesVehicle.onGetSrc( ETypeFile.taxiFrontal ) === '') {
+      verifyFiles = true;
+      arrMsg.push('foto frontal requerida');
+    }
 
-    // if (this.filesVehicle.onGetSrc( ETypeFile.taxiBack ) === '') {
-    //   verifyFiles = true;
-    //   arrMsg.push('foto trasera requerida');
-    // }
+    if (this.filesVehicle.onGetSrc( ETypeFile.taxiBack ) === '') {
+      verifyFiles = true;
+      arrMsg.push('foto trasera requerida');
+    }
 
-    // if (this.filesVehicle.onGetSrc( ETypeFile.taxiInterior ) === '') {
-    //   verifyFiles = true;
-    //   arrMsg.push('foto interior requerida');
-    // }
+    if (this.filesVehicle.onGetSrc( ETypeFile.taxiInterior ) === '') {
+      verifyFiles = true;
+      arrMsg.push('foto interior requerida');
+    }
 
     if (verifyFiles) {
       return this.uiSvc.onShowToast(arrMsg.join(', '), 4500);

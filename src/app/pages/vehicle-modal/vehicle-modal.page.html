@@ -13,7 +13,7 @@
 <ion-content slot="fixed" fullscreen="true" #driverContent>
 
     <ion-list class="animated fadeIn">
-        <ion-slides #slideVehicle mode="ios" mode="ios" pager="ios" style="width: 100%; height: 100%;" [options]="optSlider">
+        <ion-slides #slideVehicle style="width: 100%; height: 100%;" [options]="optSlider">
 
             <ion-slide>
 
@@ -132,7 +132,7 @@
                                             </ion-text>
                                             <ion-slides mode="ios" style="width: fit-content;" #slideProperty>
                                                 <ion-slide>
-                                                    <ion-card style=" width: 75%; height:125px;" (click)="onShowSheetImg( 'PROPERTY_CARD', false )">
+                                                    <ion-card style=" width: 75%; height:125px;" (click)="onShowSheetImg( typeFile.propertyCard, false )">
                                                         <img [src]=" filesVehicle.onGetSrc( 'PROPERTY_CARD' )  | imgDriver: 'PROPERTY_CARD' " style="width: 100%; height: 100%; " />
                                                         <ion-icon class="iconFile" color="primary" name="ellipsis-vertical"></ion-icon>
                                                     </ion-card>
@@ -154,7 +154,7 @@
                                             <ion-slides mode="ios" style="width: fit-content;" #slideSoat>
                                                 <ion-slide>
 
-                                                    <ion-card style=" width: 75%; height:125px;" (click)="onShowSheetImg( 'SOAT' )">
+                                                    <ion-card style=" width: 75%; height:125px;" (click)="onShowSheetImg( typeFile.soat )">
                                                         <img [src]=" filesVehicle.onGetSrc( 'SOAT' )  | imgDriver: 'SOAT' " style="width: 100%; height: 100%; " />
                                                         <ion-icon class="iconFile" color="primary" name="ellipsis-vertical"></ion-icon>
                                                     </ion-card>
@@ -216,13 +216,13 @@
                             <ion-col size="12">
                                 <div class="row">
                                     <div class="col-6">
-                                        <ion-card style=" width: 98%; height:160px;" (click)="onShowSheetImg( 'TAXI_FRONTAL' )">
+                                        <ion-card style=" width: 98%; height:160px;" (click)="onShowSheetImg( typeFile.taxiFrontal )">
                                             <img [src]=" filesVehicle.onGetSrc( 'TAXI_FRONTAL' )  | imgDriver: 'TAXI_FRONTAL' " style="width: 100%; height: 100%; " />
                                             <ion-icon class="iconVehicle" color="primary" name="ellipsis-vertical"></ion-icon>
                                         </ion-card>
                                     </div>
                                     <div class="col-6 text-center">
-                                        <ion-card style=" width: 100%; height:160px;" (click)="onShowSheetImg( 'TAXI_BACK' )">
+                                        <ion-card style=" width: 100%; height:160px;" (click)="onShowSheetImg( typeFile.taxiBack )">
                                             <img [src]=" filesVehicle.onGetSrc( 'TAXI_BACK' )  | imgDriver: 'TAXI_BACK' " style="width: 100%; height: 100%; " />
                                             <ion-icon class="iconVehicle" color="primary" name="ellipsis-vertical"></ion-icon>
                                         </ion-card>
@@ -236,7 +236,7 @@
 
                         <ion-row>
                             <ion-col size="12">
-                                <ion-card style=" width: 99%; height:160px;" (click)="onShowSheetImg( 'TAXI_INTERIOR' )">
+                                <ion-card style=" width: 99%; height:160px;" (click)="onShowSheetImg( typeFile.taxiInterior )">
                                     <img [src]=" filesVehicle.onGetSrc( 'TAXI_INTERIOR' )  | imgDriver: 'TAXI_INTERIOR' " style="width: 100%; height: 100%; " />
                                     <ion-icon class="iconFile" color="light" name="ellipsis-vertical"></ion-icon>
                                 </ion-card>

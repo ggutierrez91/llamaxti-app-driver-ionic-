@@ -31,16 +31,16 @@ const routes: Routes = [
     loadChildren: () => import('./pages/vehicle/vehicle.module').then( m => m.VehiclePageModule)
   },
   {
-    path: 'vehicle-add',
-    loadChildren: () => import('./pages/vehicle-add/vehicle-add.module').then( m => m.VehicleAddPageModule)
-  },
-  {
     path: 'welcome',
     loadChildren: () => import('./pages/welcome/welcome.module').then( m => m.WelcomePageModule)
   },
   {
     path: 'service-run',
     loadChildren: () => import('./pages/service-run/service-run.module').then( m => m.ServiceRunPageModule)
+  },
+  {
+    path: 'profile',
+    loadChildren: () => import('./pages/profile/profile.module').then( m => m.ProfilePageModule)
   },
 ];
 

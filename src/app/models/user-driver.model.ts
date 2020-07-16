@@ -39,6 +39,7 @@ export class DriverModel extends PersonModel {
         this.userPassword = '';
         this.userPassRepit = '';
         this.verifyReniec = false;
+        this.brithDate = '';
 
         // DATOS DEL CONDUCTOR
         this.dateLicenseExpiration = '';

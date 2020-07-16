@@ -1,4 +1,4 @@
-<ion-menu menuId="main-menu" contentId="main-content" side="start" type="overlay">
+<ion-menu menuId="main-menu" contentId="main-content" side="end" type="overlay">
     <ion-header>
         <ion-toolbar>
             <ion-title>Llamataxi APP</ion-title>
@@ -11,7 +11,14 @@
         <ion-list>
             <ion-item>Menu Item</ion-item>
             <ion-item>Menu Item</ion-item>
-            <ion-item (click)="onRedirect('vehicle')">Mis vehículos</ion-item>
+            <ion-item (click)="onRedirect('profile')" detail>
+                <ion-icon slot="start" name="person-circle-outline" color="primary"></ion-icon>
+                Mi perfil
+            </ion-item>
+            <ion-item (click)="onRedirect('vehicle')" detail>
+                <ion-icon slot="start" name="car-sport-outline" color="primary"></ion-icon>
+                Mis vehículos
+            </ion-item>
             <!-- <ion-item (click)="onRedirect('card')" detail>
                 <ion-icon slot="start" name="card-outline" color="primary"></ion-icon>
                 Mis tarjetas

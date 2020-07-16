@@ -24,6 +24,7 @@ import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 import { ComponentsModule } from './components/components.module';
 import { PipesModule } from './pipes/pipes.module';
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 
 // the second parameter 'fr-FR' is optional
 registerLocaleData(localeEs, 'es');
@@ -53,6 +54,7 @@ const configIO: SocketIoConfig = { url: environment.URL_SERVER, options: {} };
     Geolocation,
     NativeGeocoder,
     OneSignal,
+    SocialSharing,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

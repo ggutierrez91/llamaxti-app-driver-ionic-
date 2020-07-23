@@ -3,6 +3,7 @@ import { LoginModel } from '../../models/login.model';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
+import { retry } from 'rxjs/operators';
 import { StorageService } from 'src/app/services/storage.service';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { NavController, MenuController } from '@ionic/angular';
@@ -21,7 +22,7 @@ export class LoginPage implements OnInit, OnDestroy {
 
   loading = false;
   // tslint:disable-next-line: max-line-length
-  constructor( private authScv: AuthService, private storageSvc: StorageService, private uiSvc: UiUtilitiesService, private navCtrl: NavController, private menuCtrl: MenuController, private io: SocketService, private router: Router ) { }
+  constructor( private authScv: AuthService, private st: StorageService, private uiSvc: UiUtilitiesService, private navCtrl: NavController, private menuCtrl: MenuController, private io: SocketService, private router: Router ) { }
 
   ngOnInit() {
     this.bodyLogin = new LoginModel();
@@ -32,7 +33,7 @@ export class LoginPage implements OnInit, OnDestroy {
 
     if (frm.valid) {
       this.loading = true;
-      this.sbcLogin = this.authScv.onLogin( this.bodyLogin ).subscribe( async (res) => {
+      this.sbcLogin = this.authScv.onLogin( this.bodyLogin ).pipe( retry(2) ).subscribe( async (res) => {
         if (!res.ok) {
           throw new Error( res.error );
         }
@@ -41,16 +42,17 @@ export class LoginPage implements OnInit, OnDestroy {
         if (res.showError !== 0) {
           this.loading = false;
           this.uiSvc.onShowToast( this.onGetError( res.showError ), 2200 );
-          await this.storageSvc.onClearStorage();
+          await this.st.onClearStorage();
         } else {
-          await this.storageSvc.onSaveCredentials( res.token, res.data );
-          this.io.onSingUser().then( (resSocket) => {
+          await this.st.onSaveCredentials( res.token, res.data );
+          this.io.onSingUser().then( async (resSocket) => {
             // console.log('configurando usuario socket', resSocket);
 
             this.io.onEmit('occupied-driver', {occupied: false}, (resOccupied) => {
               console.log('Cambiando estado conductor', resOccupied);
             });
 
+            await this.st.onSetItem( 'current-page', '/home', false );
             this.navCtrl.navigateRoot('/home', {animated: true}).then( () => {
               this.loading = false;
             }).catch( e => console.error( 'error al redirigir al home', e ) );
@@ -95,7 +97,8 @@ export class LoginPage implements OnInit, OnDestroy {
 
   async onNavSingin() {
     await this.uiSvc.onShowLoading('Espere...');
-    this.router.navigateByUrl('/singin').then( async() => {
+    await this.st.onSetItem( 'current-page', '/singin', false );
+    this.router.navigateByUrl('/singin').then( async () => {
       await this.uiSvc.onHideLoading();
     }).catch(e => console.error('Error al navegar a crear cuenta', e) );
   }

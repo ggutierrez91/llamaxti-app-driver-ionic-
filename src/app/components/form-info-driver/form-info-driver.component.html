@@ -3,18 +3,16 @@
 
     <form #frmInfo="ngForm">
 
-        <ion-slides #avtSlide style="width: fit-content;">
-            <ion-slide>
-                <ion-card style=" width: 130px; height: 160px; " (click)="onShowImgOptions()">
+        <div class="row">
+            <div class="col-12">
+                <div class="container text-center" style="margin-top: 20px;">
+                    <div class="photo-container">
+                        <img [src]=" bodyDriver.srcImg | imgSanitizer " alt="" class="rounded-circle img-raised" style="width: 170px; height: 170px;" (click)="onShowImgOptions()">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                    <img [src]=" bodyDriver.srcImg | imgSanitizer" style="width: 100%; height: 100%;" />
-                    <!-- <img *ngIf="loadingImg" [src]="'assets/img/Preloader_2.gif' | imgSanitizer" style="width: 100%; height: 100%; background-size: cover;" /> -->
-                    <ion-icon class="iconFile" color="primary" name="ellipsis-vertical"></ion-icon>
-
-                </ion-card>
-
-            </ion-slide>
-        </ion-slides>
         <span *ngIf="!photoValid">
             <Small class="text-danger">
             *Requerido
@@ -43,7 +41,7 @@
                     </span>
 
                     <span class="msgValidation" *ngIf="document.errors?.minlength && document.touched">
-                        <small class="text-danger">*Mínimo {{ longTypeDoc }} caracteres</small>
+                        <small class="text-danger">*Mínimo {{ longTypeDoc }}</small>
                     </span>
 
                     <ion-select (ionChange)="onChangeTypeDoc()" [selectedText]="typeDocText" name="typeDoc" [(ngModel)]="bodyDriver.fkTypeDocument" okText="Ok" cancelText="Cerrar" [interfaceOptions]="typeDocAlertOptions">
@@ -54,7 +52,8 @@
 
                     </ion-select>
 
-                    <ion-input type="text" placeholder="# documento" class="ion-text-right" clearInput="true" inputmode="numeric" debounce="750" (ionChange)="onVerifyDni($event)" name="document" #document="ngModel" [(ngModel)]="bodyDriver.document" required="true" [minlength]="longTypeDoc">
+                    <!-- (ionChange)="onVerifyDni($event)" -->
+                    <ion-input type="text" placeholder="# documento" class="ion-text-right" clearInput="true" inputmode="numeric" debounce="750" name="document" #document="ngModel" [(ngModel)]="bodyDriver.document" required="true" [minlength]="longTypeDoc">
 
                     </ion-input>
 
@@ -192,23 +191,6 @@
                         <ion-select-option value="O"> Otro </ion-select-option>
                     </ion-select>
                 </ion-item>
-
-                <!-- <div class="row">
-                    <div class="col-12 text-center">
-                        <ion-text color="medium">
-                            <h3>DNI</h3>
-                        </ion-text>
-                        <ion-slides mode="ios" style="width: 100%;" #slideProperty>
-                            <ion-slide>
-                                (click)="onShowSheetImg( 'PROPERTY_CARD', false )"
-                                <ion-card style=" width: 60%; height:125px;">
-                                    <img [src]=" driverFiles.onGetSrc( 'DNI' )  | imgDriver: 'DNI' " style="width: 100%; height: 100%; " />
-                                    <ion-icon class="iconFile" color="warning" name="ellipsis-vertical"></ion-icon>
-                                </ion-card>
-                            </ion-slide>
-                        </ion-slides>
-                    </div>
-                </div> -->
             </div>
         </div>
 

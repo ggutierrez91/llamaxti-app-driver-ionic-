@@ -9,14 +9,27 @@ h2 {
 
 .iconFile {
     position: relative;
-    top: -110px;
-    right: -100px;
-    font-size: 19px;
+    top: -135px;
+    right: -130px;
+    font-size: 24px;
+    font-weight: bold;
 }
 
 .iconFileVertical {
     position: relative;
-    top: -200px;
+    top: -235px;
     right: -65px;
-    font-size: 19px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.photo-driver {
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: 0 5px 7px 0 rgba(0, 0, 0, .3);
+}
+
+h2 {
+    color: #807e7e!important;
+    font-weight: bold;
 }

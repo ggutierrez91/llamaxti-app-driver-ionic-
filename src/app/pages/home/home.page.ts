@@ -12,6 +12,7 @@ import { VehicleService } from '../../services/vehicle.service';
 import { AlertController, NavController } from '@ionic/angular';
 import { IOffer } from '../../interfaces/offer.interface';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
+import { retry } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -89,18 +90,16 @@ export class HomePage implements OnInit, OnDestroy {
             handler: async () => {
               await this.ui.onShowLoading('Espere....');
 
-              await this.st.onSetItem('loadCalification', false, false);
-              await this.st.onSetItem('loadRoute', false, false);
-              await this.st.onSetItem('runOrigin', true, false);
-              await this.st.onSetItem('finishOrigin', false, false);
               await this.st.onSetItem('runDestination', false, false);
               await this.st.onSetItem('finishDestination', false, false);
               await this.st.onSetItem('current-service', res.dataOffer, true);
+              await this.st.onSetItem('current-page', '/service-run', false);
               this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
                 console.log('Cambiando estado conductor', resOccupied);
               });
-              await this.ui.onHideLoading();
-              this.navCtrl.navigateRoot('/service-run', {animated: true});
+              this.navCtrl.navigateRoot('/service-run', {animated: true}).then( async () => {
+                await this.ui.onHideLoading();
+              });
 
             }
           }]
@@ -116,7 +115,15 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onListenCancelService() {
-    this.cancelSbc = this.io.onListen('client-cancel-service').subscribe( (res) => {
+    this.cancelSbc = this.io.onListen('client-cancel-service').subscribe( (res: any) => {
+
+      if (this.arrPolygons.length > 0) {
+        console.log('eliminando poligonos');
+        this.arrPolygons.forEach( (polygon)  => {
+          polygon.setMap(null);
+        });
+        this.arrPolygons = [];
+      }
       this.onTotalServices();
       this.onGetDemand();
     });
@@ -137,11 +144,14 @@ export class HomePage implements OnInit, OnDestroy {
 
   onEmitGeo() {
 
-    this.geoSbc = this.geo.watchPosition( ).subscribe(
+    this.geoSbc = this.geo.watchPosition( ).pipe( retry(3) ).subscribe(
       (position) => {
 
         this.lat = position.coords.latitude;
         this.lng = position.coords.longitude;
+
+        this.onTotalServices();
+        // this.onGetDemand();
 
         const latlng = new google.maps.LatLng( position.coords.latitude, position.coords.longitude );
         this.marker.setPosition( latlng );
@@ -154,7 +164,7 @@ export class HomePage implements OnInit, OnDestroy {
         });
 
       },
-      (e) => console.error('Surgio un error', e));
+      (e) => console.error('Surgio un errora l observar geo', e));
 
   }
 
@@ -239,7 +249,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   onGetVehicleUsing() {
 
-    this.usingSbc = this.vehicleSvc.onGetUsing( this.st.pkDriver ).subscribe( async ( res ) => {
+    this.usingSbc = this.vehicleSvc.onGetUsing( this.st.pkDriver ).pipe( retry(2) ).subscribe( async ( res ) => {
 
       if (!res.ok) {
         throw new Error( res.error );
@@ -260,13 +270,7 @@ export class HomePage implements OnInit, OnDestroy {
       this.st.year = res.data.year;
       this.st.color = res.data.color;
       this.st.dataVehicle = res.data;
-      // await this.st.onSetItem('pkVehicle', res.data.pkVehicle);
-      // await this.st.onSetItem('fkCategory', res.data.pkCategory);
-      // await this.st.onSetItem('category', res.data.aliasCategory);
-      // await this.st.onSetItem('codeCategory', res.data.codeCategory);
-      // await this.st.onSetItem('brand', res.data.nameBrand);
-      // await this.st.onSetItem('model', res.data.nameModel);
-      // await this.st.onSetItem('numberPlate', res.data.numberPlate);
+
       await this.st.onSetItem('dataVehicle', res.data, true);
 
       this.io.onEmit('change-category',
@@ -302,10 +306,6 @@ export class HomePage implements OnInit, OnDestroy {
 
   onGetDemand() {
 
-    if (this.demandSbc) {
-      this.demandSbc.unsubscribe();
-    }
-
     this.demandSbc = this.taxiSvc.onGetDemand().subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -331,7 +331,6 @@ export class HomePage implements OnInit, OnDestroy {
         });
 
         demandPolygon.setMap( this.map );
-        this.arrPolygons.push( demandPolygon );
 
         // Add a listener for the click event.
         demandPolygon.addListener('click', (data: any) => {
@@ -340,9 +339,10 @@ export class HomePage implements OnInit, OnDestroy {
 
           this.totalServicesZone = dataPolygon.total || 0;
           this.totalDriverZone = dataPolygon.totalDrivers || 0;
-  
+
           this.infoWindowPolygon.open(this.map);
         });
+        this.arrPolygons.push( demandPolygon );
 
         if (indexColor <= 5) {
           indexColor++;
@@ -350,24 +350,25 @@ export class HomePage implements OnInit, OnDestroy {
 
       });
 
-      console.log( 'poligonos', res );
+      // console.log( 'poligonos', res );
     });
   }
 
   onListenNewService() {
     this.socketServicesSbc = this.io.onListen('new-service').subscribe( (resSocket: any) => {
       // recibimos la data del nuevo servicio
-      this.onTotalServices();
       this.arrPolygons.forEach( (polygon)  => {
         polygon.setMap(null);
       });
       this.arrPolygons = [];
+      this.onTotalServices();
       this.onGetDemand();
       // this.onGetServices(1);
     });
   }
 
   ngOnDestroy() {
+    console.log('destruyendo home');
     this.geoSbc.unsubscribe();
     this.journalSbc.unsubscribe();
     this.serviceSbc.unsubscribe();

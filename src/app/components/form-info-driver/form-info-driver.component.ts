@@ -17,11 +17,8 @@ declare var window: any;
 })
 export class FormInfoDriverComponent implements OnInit, OnDestroy {
 
-  @ViewChild('avtSlide', {static: true}) avtSlide: IonSlides;
-  // tslint:disable-next-line: no-input-rename
   @Input() bodyDriver: DriverModel;
   @Input() driverFiles: DriverFilesModel;
-  // tslint:disable-next-line: no-output-rename
   @Output() clickNext = new EventEmitter<any>();
 
   imgValid = ['jpg', 'png', 'jpeg'];
@@ -88,7 +85,6 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
   constructor( private authSvc: AuthService, private camera: Camera, private sheetCtrl: ActionSheetController, private uiSvc: UiUtilitiesService) { }
 
   ngOnInit() {
-    this.avtSlide.lockSwipes(true);
     this.onLoadNationality();
     this.onLoadTypeDoc();
     this.pickerOptions = {
@@ -217,7 +213,6 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
      throw new Error( err );
     });
   }
-
 
   ngOnDestroy() {
     if (this.sbcClient) {

@@ -2,6 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { StorageService } from '../../services/storage.service';
 import { NavController, MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
+import * as moment from 'moment';
+import { UiUtilitiesService } from '../../services/ui-utilities.service';
+
+const URI_SERVER = environment.URL_SERVER;
 
 @Component({
   selector: 'app-menu',
@@ -11,7 +16,11 @@ import { Router } from '@angular/router';
 export class MenuComponent implements OnInit {
 
   loading = false;
-  constructor(private navCtrl: NavController, private st: StorageService, private menuCtrl: MenuController, private router: Router) { }
+  loadingData = false;
+  pathImg = URI_SERVER + '/User/Img/Get/';
+  currentDate = moment();
+  // tslint:disable-next-line: max-line-length
+  constructor(private navCtrl: NavController, public st: StorageService, private menuCtrl: MenuController, private router: Router, private ui: UiUtilitiesService) { }
 
   ngOnInit() {}
 
@@ -21,11 +30,13 @@ export class MenuComponent implements OnInit {
     this.loading = false;
     this.menuCtrl.close();
     this.navCtrl.navigateRoot('/login');
-
   }
 
-  onRedirect( path: string ) {
-    this.router.navigateByUrl(`/${ path }`).then( (ok) => {
+  async onRedirect( path: string ) {
+    await this.ui.onShowLoading('Espere...');
+    this.router.navigateByUrl( path ).then( async (ok) => {
+      await this.ui.onHideLoading();
+      await this.st.onSetItem( 'current-page', path, false );
       this.menuCtrl.close();
     }).catch(e => {
       throw new Error( e );

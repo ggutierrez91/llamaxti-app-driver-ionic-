@@ -31,16 +31,12 @@ ion-radio-group {
     border: 1px solid var(--ion-color-primary) !important;
     border-radius: 25px 25px 25px 25px !important;
     margin: 12px;
+    height: 40px !important;
     --background-focused: var(--ion-color-primary) !important;
     --background-activated: var(--ion-color-primary) !important;
     --background-activated-opacity: 0.5px;
 }
 
-// .bgTexture {
-//     background-image: url('../../../assets/textures/texture-driver.png');
-//     background-size: cover;
-//     background-repeat: no-repeat;
-// }
 .iconFile {
     position: relative;
     top: -148px;
@@ -50,5 +46,11 @@ ion-radio-group {
 
 h2 {
     color: #807e7e!important;
-    font-weight: 300;
+    font-weight: bold;
+}
+
+.photo-driver {
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: 0 5px 7px 0 rgba(0, 0, 0, .3);
 }

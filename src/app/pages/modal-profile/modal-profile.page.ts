@@ -8,7 +8,6 @@ import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
 import { DriverFilesModel, EEntity, ETypeFile } from '../../models/user-driver-files.model';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
-import { FileChooser } from '@ionic-native/file-chooser/ngx';
 import { FilePath } from '@ionic-native/file-path/ngx';
 import { NgForm } from '@angular/forms';
 import { UserService } from '../../services/user.service';
@@ -27,10 +26,6 @@ export class ModalProfilePage implements OnInit, OnDestroy {
   @Input() token: string;
   @ViewChild('slideProfile', {static: true}) slideProfile: IonSlides;
   @ViewChild('driverContent', {static: true}) content: IonContent;
-  @ViewChild('canvasCriminal') canvasCriminal: ElementRef;
-  @ViewChild('canvasPolicial') canvasPolicial: ElementRef;
-  
-  // @ViewChild('slidePhotoCheck', {static: false}) slidePhotoCheck: IonSlides;
 
   tdSbc: Subscription;
   natiSbc: Subscription;
@@ -50,9 +45,9 @@ export class ModalProfilePage implements OnInit, OnDestroy {
   imgValid = ['jpg', 'png', 'jpeg'];
 
   validLicense = true;
-  validPhotoChk = false;
-  validCriRecord = false;
-  validPolRecord = false;
+  validPhotoChk = true;
+  validCriRecord = true;
+  validPolRecord = true;
 
   criIsPdf = false;
   polIsPdf = false;
@@ -111,7 +106,7 @@ export class ModalProfilePage implements OnInit, OnDestroy {
   pathDriver = URI_SERVER + `/Driver/Img/Get/driver/`;
 
   // tslint:disable-next-line: max-line-length
-  constructor( private camera: Camera, private modalCtrl: ModalController, private pickerCtrl: PickerController, private authSvc: AuthService, private sheetCtrl: ActionSheetController, private ui: UiUtilitiesService, private fileChooser: FileChooser, private filePath: FilePath, private userSvc: UserService, private upload: UploadService ) { }
+  constructor( private camera: Camera, private modalCtrl: ModalController, private pickerCtrl: PickerController, private authSvc: AuthService, private sheetCtrl: ActionSheetController, private ui: UiUtilitiesService, private filePath: FilePath, private userSvc: UserService, private upload: UploadService ) { }
 
   ngOnInit() {
 
@@ -123,10 +118,10 @@ export class ModalProfilePage implements OnInit, OnDestroy {
     const imgPol = this.bodyProfile.imgPolicialRecord;
     const img = this.bodyProfile.img;
 
-    this.pathLic = this.pathDriver + `${ imgLic }/${ pkDriver }?token=${ this.token }`;
-    this.pathPho = this.pathDriver + `${ imgPho }/${ pkDriver }?token=${ this.token }`;
-    this.pathCri = this.pathDriver + `${ imgCri }/${ pkDriver }?token=${ this.token }`;
-    this.pathPo = this.pathDriver + `${ imgPol }/${ pkDriver }?token=${ this.token }`;
+    this.pathLic = this.pathDriver + `${ pkDriver }/${ imgLic }?token=${ this.token }`;
+    this.pathPho = this.pathDriver + `${ pkDriver }/${ imgPho }?token=${ this.token }`;
+    this.pathCri = this.pathDriver + `${ pkDriver }/${ imgCri }?token=${ this.token }`;
+    this.pathPo = this.pathDriver + `${ pkDriver }/${ imgPol }?token=${ this.token }`;
 
     this.driverFiles.onAddFile( EEntity.driver, ETypeFile.license, true, this.pathLic, this.pathLic );
     this.driverFiles.onAddFile( EEntity.driver, ETypeFile.photoCheck, true, this.pathPho, this.pathPho );
@@ -134,7 +129,6 @@ export class ModalProfilePage implements OnInit, OnDestroy {
     this.driverFiles.onAddFile( EEntity.driver, ETypeFile.policialRecord, false, this.pathPo, this.pathPo );
 
     this.slideProfile.lockSwipes(true);
-    // this.slidePhotoCheck.lockSwipes(true);
     this.validLicense = imgLic === '' ? false : true;
 
     if (this.bodyProfile.isEmployee) {
@@ -142,19 +136,6 @@ export class ModalProfilePage implements OnInit, OnDestroy {
     } else {
       this.validCriRecord = imgCri === '' ? false : true;
       this.validPolRecord = imgPol === '' ? false : true;
-
-      if (this.validPolRecord) {
-        const arrExtCri = imgCri.split('.');
-        const extCri = arrExtCri[ arrExtCri.length - 1 ].toLowerCase();
-        this.criIsPdf = extCri.trim() === 'pdf' ? true : false;
-      }
-
-      if (this.validPolRecord) {
-        const arrExtPol = imgPol.split('.');
-        const extPol = arrExtPol[ arrExtPol.length - 1 ].toLowerCase();
-        this.polIsPdf = extPol.trim() === 'pdf' ? true : false;
-      }
-
     }
 
     this.imgProfile = URI_SERVER + '/User/Img/Get/' + `${ img || 'xD.png' }?token=${ this.token }`;
@@ -206,7 +187,6 @@ export class ModalProfilePage implements OnInit, OnDestroy {
     };
 
   }
-
 
   onCloseModal() {
     this.modalCtrl.dismiss({ok: false});
@@ -427,26 +407,36 @@ export class ModalProfilePage implements OnInit, OnDestroy {
   }
 
   onChangeIsEmployee() {
+    const pkDriver = this.bodyProfile.pkDriver;
+    const imgPho = this.bodyProfile.imgPhotoCheck;
+    const imgCri = this.bodyProfile.imgCriminalRecord;
+    const imgPol = this.bodyProfile.imgPolicialRecord;
 
     this.driverFiles.onChangeIsEmployee(this.bodyProfile.isEmployee);
-    this.validPhotoChk = this.bodyProfile.imgPhotoCheck === '' ? false : true;
+    this.validPhotoChk = imgPho === '' ? false : true;
+    this.validCriRecord = imgCri === '' ? false : true;
+    this.validPolRecord = imgPol === '' ? false : true;
+
     if (this.bodyProfile.isEmployee) {
+      this.pathCri = this.pathDriver + `${ pkDriver }/${ imgCri }?token=${ this.token }`;
+      this.pathPo = this.pathDriver + `${ pkDriver }/${ imgPol }?token=${ this.token }`;
 
       this.driverFiles.onUpdateFile(EEntity.driver, ETypeFile.criminalRecord
                                     , this.pathCri
                                     , this.pathCri
                                     , false
                                     , false );
+
       this.driverFiles.onUpdateFile(EEntity.driver
                                     , ETypeFile.policialRecord
-                                    , this.pathCri
-                                    , this.pathCri
+                                    , this.pathPo
+                                    , this.pathPo
                                     , false
                                     , false);
-    }
+                                  }
     else {
-      this.validCriRecord = this.bodyProfile.imgCriminalRecord === '' ? false : true;
-      this.validPolRecord = this.bodyProfile.imgPolicialRecord === '' ? false : true;
+
+      this.pathPho = this.pathDriver + `${ pkDriver }/${ imgPho }?token=${ this.token }`;
       this.driverFiles.onUpdateFile(EEntity.driver
                                     , ETypeFile.photoCheck
                                     , this.pathPho
@@ -459,9 +449,9 @@ export class ModalProfilePage implements OnInit, OnDestroy {
 
   onShowCameraDriver( typeFile: ETypeFile ) {
 
-    this.camera.getPicture(this.options).then((imageData) => {
+    this.camera.getPicture(this.options).then((path) => {
 
-      const src: string = window.Ionic.WebView.convertFileSrc(imageData);
+      const src: string = window.Ionic.WebView.convertFileSrc(path);
       let arrImg = src.split('.');
       arrImg = arrImg[arrImg.length - 1].split('?');
       const extension = arrImg[0].toLowerCase();
@@ -479,14 +469,12 @@ export class ModalProfilePage implements OnInit, OnDestroy {
       }
       if (typeFile === ETypeFile.criminalRecord) {
         this.validCriRecord = true;
-        this.criIsPdf = false;
       }
       if (typeFile === ETypeFile.policialRecord) {
         this.validPolRecord = true;
-        this.polIsPdf = false;
       }
 
-      const res = this.driverFiles.onUpdateFile(EEntity.driver, typeFile, imageData, src, false);
+      const res = this.driverFiles.onUpdateFile(EEntity.driver, typeFile, path, src, false);
 
       if (!res.ok) {
         console.error('Error al actualizar imagen', res);
@@ -499,10 +487,6 @@ export class ModalProfilePage implements OnInit, OnDestroy {
   }
 
   async onSubmit( frm: NgForm ) {
-    console.log(this.bodyProfile);
-    console.log(this.driverFiles);
-    // tslint:disable-next-line: no-debugger
-    debugger;
 
     if (frm.valid) {
       let resUpImg = {
@@ -522,12 +506,15 @@ export class ModalProfilePage implements OnInit, OnDestroy {
 
           resUpImg = JSON.parse( resImg.response );
           if (!resUpImg.ok) {
-            throw new Error( resUpImg.error );
+            console.error( 'Error al subir imagen', resUpImg );
+          } else {
+            this.bodyProfile.img = resUpImg.data[0].nameFile;
           }
+
         }
 
         let resDocsJson: any;
-        const arrFilesUploaded: string[] = [];
+        const arrFilesUploaded: any[] = [];
 
         this.driverFiles.filesDriver.forEach( async (item) => {
             if (item.changeed) {
@@ -539,9 +526,30 @@ export class ModalProfilePage implements OnInit, OnDestroy {
                                                                 , item.isPdf);
               resDocsJson = JSON.parse( resDoc.response );
               if (!resDocsJson.ok) {
-                throw new Error( resDocsJson.error );
+                console.error( 'Error al subir imagen', resDocsJson.error );
+                return;
               }
-              arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
+
+              if (item.typeFile === this.typeFile.license ) {
+                this.bodyProfile.imgLicense = resDocsJson.newFile;
+              }
+
+              if (item.typeFile === this.typeFile.photoCheck ) {
+                this.bodyProfile.imgPhotoCheck = resDocsJson.newFile;
+              }
+              if (item.typeFile === this.typeFile.criminalRecord ) {
+                this.bodyProfile.imgCriminalRecord = resDocsJson.newFile;
+              }
+              if (item.typeFile === this.typeFile.policialRecord ) {
+                this.bodyProfile.imgPolicialRecord = resDocsJson.newFile;
+              }
+
+              arrFilesUploaded.push( {
+                img: resDocsJson.newFile,
+                doc: resDocsJson.document,
+                msg: `Se subio archivo ${ item.typeFile }`
+              });
+
             }
         });
         await this.ui.onHideLoading();
@@ -552,7 +560,7 @@ export class ModalProfilePage implements OnInit, OnDestroy {
           newImg: resUpImg.data[0].nameFile,
           arrFilesUploaded
         });
-        console.table(arrFilesUploaded);
+        // console.table(arrFilesUploaded);
 
       });
     }

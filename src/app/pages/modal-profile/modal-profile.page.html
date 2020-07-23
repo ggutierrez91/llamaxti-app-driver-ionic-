@@ -24,7 +24,7 @@
                             <ion-col size="12">
                                 <div class="container text-center" style="margin-top: 20px;">
                                     <div class="photo-container">
-                                        <img [src]="imgProfile" alt="" class="rounded-circle img-raised" style="width: 160px;" (click)="onShowImgOptions()">
+                                        <img [src]="imgProfile" alt="" class="rounded-circle img-raised" style="width: 160px; height: 160px;" (click)="onShowImgOptions()">
                                     </div>
                                 </div>
                                 <br>
@@ -178,7 +178,8 @@
                                       }">
                                     <ion-icon slot="start" class="text-primary" name="calendar-outline" style="padding-bottom: 7px !important;"></ion-icon>
 
-                                    <ion-datetime [pickerOptions]="pickerBirthDate" [monthNames]="monthNames" [monthShortNames]="monthNames" [max]="minYear" placeholder="D&iacute;a/Mes/A&ntilde;o" name="birthDate" #birthDate="ngModel" [(ngModel)]="bodyProfile.brithDate" required="true"></ion-datetime>
+                                    <ion-datetime [pickerOptions]="pickerBirthDate" [monthNames]="monthNames" [monthShortNames]="monthNames" [max]="minYear" placeholder="D&iacute;a/Mes/A&ntilde;o" name="birthDate" #birthDate="ngModel" [(ngModel)]="bodyProfile.brithDate" required="true"
+                                        displayFormat="DD/MM/YYYY"></ion-datetime>
                                 </ion-item>
                             </ion-col>
                         </ion-row>
@@ -195,6 +196,7 @@
                                     <div class=" input-group-prepend ">
                                         <div class="input-group-text ">
                                             <ion-icon slot="start" name="flag-outline" class="text-primary"></ion-icon> &nbsp;
+
                                         </div>
                                     </div>
                                     <div class="form-control text-left text-capitalize" (click)="onShowNati()">
@@ -213,7 +215,10 @@
                                 }">
                                     <div class=" input-group-prepend ">
                                         <div class="input-group-text ">
-                                            <ion-icon slot="start" class="text-primary" name="call-outline"></ion-icon>&nbsp;&nbsp;
+                                            <ion-icon slot="start" class="text-primary" name="call-outline"></ion-icon>&nbsp;
+                                            <small>
+                                                {{ bodyProfile.prefixPhone }}
+                                            </small>&nbsp;
                                         </div>
                                     </div>
 
@@ -309,7 +314,7 @@
                                     <h4>Licencia de conducir</h4>
                                 </ion-text>
                                 <div class="container text-center">
-                                    <div class="photo-driver" style=" width: 80%; height:130px;" (click)="onShowSheetImg( typeFile.license )">
+                                    <div class="photo-driver" style=" width: 80%; height:150px;" (click)="onShowSheetImg( typeFile.license )">
                                         <img [src]=" driverFiles.onGetSrc( 'LICENSE' )  | imgDriver: 'LICENSE' " style="width: 100%; height: 100%; " class="rounded img-raised" />
                                         <ion-icon class="iconImg" color="primary" name="ellipsis-vertical"></ion-icon>
                                     </div>
@@ -370,7 +375,7 @@
                                     <h3>Foto check</h3>
                                 </ion-text>
                                 <div class="container text-center">
-                                    <div class="photo-driver" style=" width: 80%; height:130px;" (click)="onShowSheetpDF( typeFile.criminalRecord )">
+                                    <div class="photo-driver" style=" width: 80%; height:150px;" (click)="onShowSheetpDF( typeFile.photoCheck )">
                                         <img [src]=" driverFiles.onGetSrc( 'PHOTO_CHECK' )  | imgDriver: 'PHOTO_CHECK' " style="width: 100%; height: 100%;" class="rounded img-raised" />
                                         <ion-icon class="iconImg" color="primary" name="ellipsis-vertical"></ion-icon>
                                     </div>
@@ -389,7 +394,7 @@
                                 </ion-text>
                                 <div class="container text-center">
 
-                                    <div class="photo-driver" style="  height:230px;" (click)="onShowSheetpDF( typeFile.criminalRecord )">
+                                    <div class="photo-driver" style="  height:250px;" (click)="onShowSheetpDF( typeFile.criminalRecord )">
 
                                         <img [src]=" driverFiles.onGetSrc( 'CRIMINAL_RECORD' )  | imgDriver: 'CRIMINAL_RECORD' " style="width: 100%; height: 100%; " class="rounded img-raised" />
 
@@ -408,7 +413,7 @@
                                     <h4>Antc. policiales</h4>
                                 </ion-text>
                                 <div class="container text-center">
-                                    <div class="photo-driver" style="  height:230px;" (click)="onShowSheetpDF( typeFile.policialRecord )">
+                                    <div class="photo-driver" style="  height:250px;" (click)="onShowSheetpDF( typeFile.policialRecord )">
 
                                         <img [src]=" driverFiles.onGetSrc( 'POLICIAL_RECORD' )  | imgDriver: 'POLICIAL_RECORD' " style="width: 100%; height: 100%; " class="rounded img-raised" />
 
@@ -429,7 +434,7 @@
                                 </ion-button>
                             </ion-col>
                             <ion-col size="6">
-                                <ion-button expand="block" fill="clear" shape="round" [disabled]="frmDriver.invalid || !validLicense || !validPhotoChk || !validCriRecord || !validPolRecord" (click)="onSubmit()">
+                                <ion-button expand="block" fill="clear" shape="round" [disabled]="frmDriver.invalid || !validLicense || !validPhotoChk || !validCriRecord || !validPolRecord" (click)="onSubmit( frmDriver )">
                                     Guardar cambios
                                 </ion-button>
                             </ion-col>

@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { IResPromise } from '../interfaces/response-prom.interfaces';
 import { Storage } from '@ionic/storage';
 import { AuthService } from './auth.service';
+import { IUserToken } from '../interfaces/user-token.interface';
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
 
   public token = '';
-  public dataUser: any = { pkUser: 0 };
+  public dataUser: IUserToken = { pkUser: 0, pkDriver: 0 };
   public dataVehicle: any = null;
   public role = '';
   public pkDriver = 0;
@@ -50,6 +51,11 @@ export class StorageService {
     });
   }
 
+  async onLoadData() {
+    const value = await this.storage.get( 'dataUser' );
+    this.dataUser =  JSON.parse( value );
+  }
+
   async onLoadToken() {
     this.token = await this.storage.get('token') || '';
     const value = await this.storage.get( 'dataUser' );
@@ -58,7 +64,7 @@ export class StorageService {
       this.pkDriver = this.dataUser.pkDriver || 0 ;
       this.pkPerson = this.dataUser.pkPerson || 0 ;
       this.pkUser = this.dataUser.pkUser || 0 ;
-      this.nameComplete = this.dataUser.nameComplete || 0 ;
+      this.nameComplete = this.dataUser.nameComplete || '' ;
       this.osID = await this.storage.get('osID') || '';
     }
   }

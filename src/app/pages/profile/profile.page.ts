@@ -28,6 +28,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   pathImg = URI_SERVER + '/User/Img/Get/';
   pathDriver = URI_SERVER + `/Driver/Img/Get/driver/`;
   loading = false;
+  loadingModal = false;
 
   pathLicense = '';
   pathPolicialRecord = '';
@@ -56,15 +57,14 @@ export class ProfilePage implements OnInit, OnDestroy {
         throw new Error( res.error );
       }
 
-      console.log(res);
-
       await this.ui.onHideLoading();
       this.dataProfile = res.data;
+      const pkDriver = this.dataProfile.pkDriver ;
       this.dataProfile.sexText = 'MASCULINO';
-      this.pathLicense = this.pathDriver + `${ this.dataProfile.imgLicense }/${ this.dataProfile.pkDriver  }?token=${ this.st.token }`;
-      this.pathPolicialRecord = this.pathDriver + `${ this.dataProfile.imgPolicialRecord }/${ this.dataProfile.pkDriver  }?token=${ this.st.token }`;
-      this.pathCriminalRecord = this.pathDriver + `${ this.dataProfile.imgCriminalRecord }/${ this.dataProfile.pkDriver  }?token=${ this.st.token }`;
-      this.pathCheck = this.pathDriver + `${ this.dataProfile.imgPhotoCheck }/${ this.dataProfile.pkDriver  }?token=${ this.st.token }`;
+      this.pathLicense = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgLicense }?token=${ this.st.token }`;
+      this.pathPolicialRecord = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgPolicialRecord }?token=${ this.st.token }`;
+      this.pathCriminalRecord = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgCriminalRecord }?token=${ this.st.token }`;
+      this.pathCheck = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgPhotoCheck }?token=${ this.st.token }`;
 
       // this.dataProfile.brithDate = moment
       this.dataProfile.dateLicenseExpiration = moment( this.dataProfile.dateLicenseExpiration ).format('YYYY-MM-DD');
@@ -80,7 +80,8 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   async onShowEditProfile() {
-    const modelProf = await this.modalCtrl.create({
+    this.loadingModal = true;
+    const modalProf = await this.modalCtrl.create({
       animated: true,
       component: ModalProfilePage,
       componentProps: {
@@ -89,14 +90,22 @@ export class ProfilePage implements OnInit, OnDestroy {
       }
     });
 
-    await modelProf.present();
+    modalProf.present().then( () => {
+      this.loadingModal = false;
+    });
 
-    await modelProf.present();
-    modelProf.onDidDismiss().then( (res: any) => {
-      if (res.ok) {
-        this.dataProfile = res.data;
+    modalProf.onDidDismiss().then( (resModal) => {
+      if (resModal.data.ok) {
+        this.dataProfile = resModal.data.data;
+        const pkDriver = this.dataProfile.pkDriver;
+        this.pathLicense = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgLicense }?token=${ this.st.token }`;
+        this.pathPolicialRecord = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgPolicialRecord }?token=${ this.st.token }`;
+        this.pathCriminalRecord = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgCriminalRecord }?token=${ this.st.token }`;
+        this.pathCheck = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgPhotoCheck }?token=${ this.st.token }`;
+        console.log('upload info', resModal.data.arrFilesUploaded);
       }
     });
+
   }
 
   ngOnDestroy() {

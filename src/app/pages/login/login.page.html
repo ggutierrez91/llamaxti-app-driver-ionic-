@@ -6,7 +6,7 @@
 
                 <div class="navbar-translate">
                     <a class="navbar-brand" rel="tooltip" title="Designed by Invision. Coded by Creative Tim" data-placement="bottom" target="_blank">
-                        Bienvenido conductor v 1.0.4
+                        Bienvenido conductor v 1.0.5
                     </a>
                 </div>
 
@@ -58,7 +58,8 @@
 
                                     <button type="submit" [disabled]="frmLogin.invalid" class="btn  btn-info btn-round btn-lg btn-block">
                                         Iniciar sesión&nbsp; &nbsp;
-                                        <ion-spinner slot="end" *ngIf="loading" name="bubbles" color="light"></ion-spinner>
+                                        <!-- <ion-spinner slot="end" *ngIf="loading" name="bubbles" color="light"></ion-spinner> -->
+                                        <i *ngIf="loading" class="fa fa-spinner fa-pulse"></i>
                                     </button>
 
                                     <div class="pull-left">

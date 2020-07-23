@@ -42,12 +42,24 @@ ion-radio-group {
 
 .iconFile {
     position: relative;
-    top: -117px;
-    right: -97px;
-    font-size: 19px;
+    top: -132px;
+    right: -127px;
+    font-size: 24px;
+    font-weight: bold;
 }
 
 .toUpper {
     text-transform: uppercase;
     text-align: right;
+}
+
+.photo-driver {
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: 0 5px 7px 0 rgba(0, 0, 0, .3);
+}
+
+h2 {
+    color: #807e7e!important;
+    font-weight: bold;
 }

@@ -3,17 +3,24 @@
 
         <ion-title>Servicio de taxi</ion-title>
 
-        <!-- <ion-label slot="end">
-      <h3>
-              {{ st.category }}
-            </h3>
-            <p>
-              {{ st.brand }}-{{ st.numberPlate }}
-            </p>
-          </ion-label> -->
+
+
+        <!-- <ion-buttons slot="end">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons> -->
 
         <ion-buttons slot="end">
-            <ion-menu-button menu="main-menu"></ion-menu-button>
+            <!-- <ion-button *ngIf="!runDestination" (click)="onClick()">
+                <ion-icon slot="start" name="add"></ion-icon>
+                Click me
+            </ion-button> -->
+
+            <button *ngIf="!runDestination && !finishDestination" class="btn btn-outline-primary" (click)="onRun()">
+                Iniciar viaje&nbsp;<i class="fas fa-paper-plane"></i>
+            </button>
+            <button *ngIf="runDestination" class="btn btn-outline-primary" (click)="onFinish()">
+                Finalizar&nbsp;<i class="fas fa-tags"></i>
+            </button>
         </ion-buttons>
 
     </ion-toolbar>
@@ -26,8 +33,8 @@
         <div #infoClient>
             <div>
 
-                <p class="text-primary">
-                    {{ dataService.streetOrigin | slice: 0: 30 }} <span *ngIf="dataService.streetOrigin.length > 30">...</span>
+                <p class="text-dark">
+                    {{ dataService.streetOrigin }}
                 </p>
             </div>
             <p class="">
@@ -48,13 +55,13 @@
         </ion-fab-button>
     </ion-fab>
 
-    <ion-fab *ngIf="!loadRoute" vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab *ngIf="!runDestination" vertical="bottom" horizontal="end" slot="fixed">
         <ion-fab-button color="primary">
             <ion-icon name="chatbubbles-outline"></ion-icon>
         </ion-fab-button>
     </ion-fab>
 
-    <ion-fab *ngIf="loadRoute" vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab *ngIf="runDestination && !finishDestination" vertical="bottom" horizontal="end" slot="fixed">
         <ion-fab-button color="danger">
             <ion-icon name="alert-circle-outline"></ion-icon>
         </ion-fab-button>

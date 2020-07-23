@@ -36,7 +36,7 @@ export class SinginPage implements OnInit, OnDestroy {
   };
 
   // tslint:disable-next-line: max-line-length
-  constructor(private authSvc: AuthService, private uiSvc: UiUtilitiesService, private uploadSvc: UploadService, private navCtrl: NavController, private storageSvc: StorageService, private io: SocketService, private menuCtrl: MenuController) { }
+  constructor(private authSvc: AuthService, private uiSvc: UiUtilitiesService, private uploadSvc: UploadService, private navCtrl: NavController, private st: StorageService, private io: SocketService, private menuCtrl: MenuController) { }
 
   ngOnInit() {
     /**
@@ -89,7 +89,6 @@ export class SinginPage implements OnInit, OnDestroy {
   }
 
   onNextBackDriver(data: any) {
-    console.log('click desde hijo', data);
 
     if (data.action === 'back') {
       this.onBackSlide();
@@ -101,7 +100,6 @@ export class SinginPage implements OnInit, OnDestroy {
   }
 
   onNextBackVehicle( data: any ) {
-    console.log('click desde hijo', data);
 
     if (data.action === 'back') {
       this.onBackSlide();
@@ -113,7 +111,6 @@ export class SinginPage implements OnInit, OnDestroy {
   }
 
   onNextBackVehicleTwo(data: any) {
-    console.log('click desde hijo', data);
 
     if (data.action === 'back') {
       this.onBackSlide();
@@ -144,14 +141,15 @@ export class SinginPage implements OnInit, OnDestroy {
         const pkDriver = resSingin.data.pkDriver;
         const pkVehicle = resSingin.data.pkVehicle;
 
-        this.storageSvc.token = resSingin.token || '';
-        await this.storageSvc.onSaveCredentials( resSingin.token, resSingin.data );
+        this.st.token = resSingin.token || '';
+        await this.st.onSaveCredentials( resSingin.token, resSingin.data );
         // subiendo imagen perfil del conductor
         this.uploadSvc.onUploadImg( this.bodyDriver.img, resSingin.data.pkUser, resSingin.token ).then( async (resUp) => {
           const resJson: IResApi = JSON.parse( resUp.response );
           if (!resJson.ok) {
             throw new Error( resJson.error );
           }
+          resSingin.data.img = resJson.data[0].nameFile || 'xd.png';
 
           let idEntity = 0;
           let resUpDocs: any;
@@ -207,6 +205,7 @@ export class SinginPage implements OnInit, OnDestroy {
       console.log('Cambiando estado conductor', resOccupied);
     });
     await this.uiSvc.onHideLoading();
+    await this.st.onSetItem( 'current-page', '/home', false );
     this.navCtrl.navigateRoot('welcome', {animated: true});
   }
 

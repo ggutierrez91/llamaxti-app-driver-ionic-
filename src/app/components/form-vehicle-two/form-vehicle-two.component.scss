@@ -5,16 +5,26 @@ h2 {
 
 .iconSoat {
     position: relative;
-    right: -79px;
-    top: -115px;
-    font-size: 19px;
+    right: -130px;
+    top: -135px;
+    font-size: 22px;
+    font-weight: bold;
 }
 
 .iconVehicle {
     position: relative;
-    right: -65px;
-    top: -150px;
-    font-size: 19px;
+    right: -79px;
+    top: -235px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.iconInterior {
+    position: relative;
+    right: -129px;
+    top: -220px;
+    font-size: 22px;
+    font-weight: bold;
 }
 
 .iconFile {
@@ -22,4 +32,15 @@ h2 {
     right: -110px;
     top: -150px;
     font-size: 19px;
+}
+
+.photo-driver {
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: 0 5px 7px 0 rgba(0, 0, 0, .3);
+}
+
+h2 {
+    color: #807e7e!important;
+    font-weight: bold;
 }

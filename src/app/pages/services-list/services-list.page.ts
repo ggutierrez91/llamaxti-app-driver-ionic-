@@ -32,6 +32,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
   socketServicesSbc: Subscription;
   socketOfferSbc: Subscription;
   cancelSbc: Subscription;
+  declineSbc: Subscription;
 
   dataServices: IServices[] = [];
   pathImg = URI_SERVER + '/User/Img/Get/';
@@ -96,18 +97,16 @@ export class ServicesListPage implements OnInit, OnDestroy {
             handler: async () => {
               await this.ui.onShowLoading('Espere....');
 
-              await this.st.onSetItem('loadCalification', false, false);
-              await this.st.onSetItem('loadRoute', false, false);
-              await this.st.onSetItem('runOrigin', true, false);
-              await this.st.onSetItem('finishOrigin', false, false);
               await this.st.onSetItem('runDestination', false, false);
               await this.st.onSetItem('finishDestination', false, false);
               await this.st.onSetItem('current-service', res.dataOffer, true);
+              await this.st.onSetItem('current-page', '/service-run', false);
               this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
                 console.log('Cambiando estado conductor', resOccupied);
               });
-              await this.ui.onHideLoading();
-              this.navCtrl.navigateRoot('/service-run', {animated: true});
+              this.navCtrl.navigateRoot('/service-run', {animated: true}).then( async () => {
+                await this.ui.onHideLoading();
+              });
             }
           }]
         });
@@ -137,10 +136,10 @@ export class ServicesListPage implements OnInit, OnDestroy {
     const percent = service.minRatePercent;
     const minrate = (service.rateHistory * percent)  / 100;
     console.log(` tarifa minima ${ minrate } -> ${  percent }`);
-    if ( (service.rateOffer - 0.20) < minrate ) {
+    if ( (service.rateOffer - 0.50) < minrate ) {
       return await this.ui.onShowToast(`La tarifa mìnima es de ${ formatNumber( minrate, 'es', '.2-2' ) }`, 4500);
     }
-    service.rateOffer -= 0.20;
+    service.rateOffer -= 0.50;
 
     if (service.rateOfferHistory !== service.rateOffer) {
       service.changeRate = 1;
@@ -153,11 +152,11 @@ export class ServicesListPage implements OnInit, OnDestroy {
   async onPlusRate( service: IServices ) {
     const maxrate = service.rateHistory + 5;
 
-    if ( (service.rateOffer + 0.20) > maxrate ) {
+    if ( (service.rateOffer + 0.50) > maxrate ) {
       return await this.ui.onShowToast(`La tarifa máxima es de ${ formatNumber( maxrate, 'es', '.2-2' ) }`, 4500);
     }
 
-    service.rateOffer += 0.20;
+    service.rateOffer += 0.50;
 
     if (service.rateOfferHistory !== service.rateOffer) {
       service.changeRate = 1;
@@ -169,15 +168,13 @@ export class ServicesListPage implements OnInit, OnDestroy {
 
   async onAcceptOffer( service: IServices ) {
     const osIdClient = service.osId;
-    // console.log('osid cliente', osIdClient);
-    // // tslint:disable-next-line: no-debugger
-    // debugger;
+
     this.bodyAcceptOffer.pkService = service.pkService;
     this.bodyAcceptOffer.pkOffer = service.pkOfferService;
     this.bodyAcceptOffer.rateOffer = service.rateOffer;
     this.bodyAcceptOffer.fkDriver = this.st.dataUser.pkUser || 0;
     this.bodyAcceptOffer.fkVehicle = this.st.pkVehicle;
-    // console.log(this.bodyAcceptOffer);
+
     await this.ui.onShowLoading('Enviando oferta...');
 
     this.offerSbc = this.services.onNewOffer( this.bodyAcceptOffer ).subscribe( async (res) => {
@@ -278,12 +275,30 @@ export class ServicesListPage implements OnInit, OnDestroy {
     this.bodyPush.message = msg;
     this.bodyPush.title = title;
     this.bodyPush.osId = [osId];
-    this.bodyPush.data = { url: 'offer-service' };
+    this.bodyPush.data = { url: '/offer-list' };
 
     this.osSbc = this.os.onSendPushUser( this.bodyPush ).subscribe( (res) => {
         console.log('push enviado con èxito', res);
     });
 
+  }
+
+  onCloseService( service: IServices ) {
+    const body = {
+      pkOffer: service.pkOfferService,
+      pkService: service.pkService
+    };
+
+    this.dataServices = this.dataServices.filter( item => item.pkService !== service.pkService );
+    if (this.declineSbc) {
+      this.declineSbc.unsubscribe();
+    }
+    this.declineSbc = this.services.onDeclineOffer( body ).subscribe( (res) => {
+      if (!res.ok) {
+        throw new Error( res.error );
+      }
+
+    });
   }
 
   ngOnDestroy() {
@@ -302,6 +317,10 @@ export class ServicesListPage implements OnInit, OnDestroy {
 
     if (this.socketServicesSbc) {
       this.socketServicesSbc.unsubscribe();
+    }
+
+    if (this.declineSbc) {
+      this.declineSbc.unsubscribe();
     }
 
   }

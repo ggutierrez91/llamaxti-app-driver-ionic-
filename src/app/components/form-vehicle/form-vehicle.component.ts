@@ -4,7 +4,6 @@ import { DriverFilesModel, ETypeFile, EEntity } from '../../models/user-driver-f
 import * as moment from 'moment';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { ActionSheetController, IonSlides } from '@ionic/angular';
-import { FileChooser } from '@ionic-native/file-chooser/ngx';
 import { FilePath } from '@ionic-native/file-path/ngx';
 import { NgForm } from '@angular/forms';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
@@ -21,13 +20,12 @@ export class FormVehicleComponent implements OnInit {
   @Input() bodyDriver: DriverModel;
   @Input() driverFiles: DriverFilesModel;
   @Output() clickActionVehicle = new EventEmitter<any>();
-  @ViewChild('slideProperty', {static: true}) slideProperty: IonSlides;
 
   typeFile = ETypeFile;
-  
+
   optColorOptions: any = {
     header: 'Color',
-    subHeader: 'Seleccione el color del vehículo'
+    subHeader: 'Seleccione color del vehículo'
   };
 
   imgValid = ['jpg', 'png', 'jpeg'];
@@ -47,11 +45,10 @@ export class FormVehicleComponent implements OnInit {
   validFiles = false;
 
   // tslint:disable-next-line: max-line-length
-  constructor(private camera: Camera, private sheetCtrl: ActionSheetController, private fileChooser: FileChooser, private filePath: FilePath, private uiSvc: UiUtilitiesService) { }
+  constructor(private camera: Camera, private sheetCtrl: ActionSheetController, private filePath: FilePath, private uiSvc: UiUtilitiesService) { }
 
   ngOnInit() {
     this.onLoadYears();
-    this.slideProperty.lockSwipes(true);
   }
 
   onLoadYears() {
@@ -62,7 +59,7 @@ export class FormVehicleComponent implements OnInit {
     }
   }
 
-  async onShowSheetImg( typeFile: ETypeFile, allowPDF = false ) {
+  async onShowSheetImg( typeFile: ETypeFile ) {
     const actionSheetImg = await this.sheetCtrl.create({
       header: 'Opciones',
       mode: 'ios',

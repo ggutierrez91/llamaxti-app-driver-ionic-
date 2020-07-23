@@ -15,7 +15,7 @@ export class FormVehicleTwoComponent implements OnInit {
   @Input() bodyDriver: DriverModel;
   @Input() driverFiles: DriverFilesModel;
   @Output() clickNextBackVehicleTwo = new EventEmitter<any>();
-  @ViewChild('slideSoat', {static: true}) slideSoat: IonSlides;
+  // // @ViewChild('slideSoat', {static: true}) slideSoat: IonSlides;
   @ViewChild('slideFrontalTaxi', {static: true}) slideFrontalTaxi: IonSlides;
   @ViewChild('slideBackTaxi', {static: true}) slideBackTaxi: IonSlides;
   @ViewChild('slideInTaxi', {static: true}) slideInTaxi: IonSlides;
@@ -64,7 +64,7 @@ export class FormVehicleTwoComponent implements OnInit {
 
   ngOnInit() {
 
-    this.slideSoat.lockSwipes(true);
+    // this.slideSoat.lockSwipes(true);
     // this.slideFrontalTaxi.lockSwipes(true);
     // this.slideBackTaxi.lockSwipes(true);
     // this.slideInTaxi.lockSwipes(true);

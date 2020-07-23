@@ -46,7 +46,6 @@ export interface IPolygons {
     totalDrivers: number;
 }
 
-
 export interface IServiceAccepted {
 
     pkService?: number;
@@ -79,5 +78,12 @@ export interface IServiceAccepted {
     year?: number;
     color?: string;
     aliasCategory?: string;
+
+    runDestination?: boolean;
+    finishDestination?: boolean;
+    dateRunOrigin?: string;
+    dateFinishOrigin?: string;
+    dateRunDestination?: string;
+    dateFinishDestination?: string;
 
 }

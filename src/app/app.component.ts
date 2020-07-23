@@ -5,6 +5,7 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { SocketService } from './services/socket.service';
 import { PushService } from './services/push.service';
+import { AppUtilitiesService } from './services/app-utilities.service';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,8 @@ export class AppComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private io: SocketService,
-    private os: PushService
+    private os: PushService,
+    private apps: AppUtilitiesService
   ) {
     this.initializeApp();
     this.io.onListenStatus();
@@ -27,6 +29,8 @@ export class AppComponent {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+      this.apps.onLoadCurrentPage();
+      // this.apps.onLoadCurrentPage();
       this.os.onLoadConfig();
     });
   }

@@ -76,18 +76,17 @@
                     <ion-text color="medium">
                         <h3>Tarjeta de propiedad</h3>
                     </ion-text>
-                    <ion-slides mode="ios" style="width: fit-content;" #slideProperty>
-                        <ion-slide>
-                            <ion-card style=" width: 60%; height:125px;" (click)="onShowSheetImg( typeFile.propertyCard, false )">
-                                <img [src]=" driverFiles.onGetSrc( 'PROPERTY_CARD' )  | imgDriver: 'PROPERTY_CARD' " style="width: 100%; height: 100%; " />
-                                <ion-icon class="iconFile" color="primary" name="ellipsis-vertical"></ion-icon>
-                            </ion-card>
-                        </ion-slide>
-                    </ion-slides>
+
+                    <div class="container text-center">
+                        <div class="photo-driver" style=" width: 80%; height:150px;" (click)="onShowSheetImg( typeFile.propertyCard )">
+                            <img [src]=" driverFiles.onGetSrc( 'PROPERTY_CARD' )  | imgDriver: 'PROPERTY_CARD' " style="width: 100%; height: 100%; " class="rounded img-raised" />
+                            <ion-icon class="iconFile" color="primary" name="ellipsis-vertical"></ion-icon>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row" style="margin-top: 30px;">
                 <div class="col-6">
                     <ion-button fill="clear" shape="round" (click)="onClickAction(frmVehicle, 'back')">
                         <ion-icon name="arrow-back-outline"></ion-icon>&nbsp; ATRÁS

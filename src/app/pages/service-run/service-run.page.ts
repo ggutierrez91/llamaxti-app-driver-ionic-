@@ -45,12 +45,9 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   geoSbc: Subscription;
   lat = 0;
   lng = 0;
-  runOrigin = true;
-  finishOrigin = false;
+
   runDestination = false;
   finishDestination = false;
-  loadRoute = false;
-  loadCalification = false;
 
   bodyPush: PushModel;
 
@@ -61,26 +58,49 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     this.bodyPush = new PushModel();
 
-    this.directionService = new google.maps.DirectionsService();
-    this.directionRender = new google.maps.DirectionsRenderer();
-    this.markerDriver = new google.maps.Marker({
-      position: new google.maps.LatLng( -12.054825, -77.040627 ),
-      animation: google.maps.Animation.DROP,
-      icon: '/assets/geo-driver.png'
-    });
-
     this.onLoadMap();
-    this.st.onLoadToken().then( () => {
-      this.onLoadService();
-    } ).catch(e => console.error('error al cargar token storage', e) );
-    this.st.onGetItem('codeJournal', false).then( (value) => {
+    this.onLoadGeo();
 
-      const styleMap: any = value === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
+    this.st.onLoadToken().then( async() => {
+      this.onLoadService();
+      const cJournal = await this.st.onGetItem('codeJournal', false);
+      const styleMap: any = cJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
       this.map.setOptions({
         styles: styleMap
       });
+    } ).catch(e => console.error('error al cargar token storage', e) );
 
-    }).catch( (e) => console.error('Error al extraer codeJournal de storage', e) );
+  }
+
+  onLoadMap() {
+
+    const optMap: google.maps.MapOptions = {
+      center: new google.maps.LatLng( -12.054825, -77.040627 ),
+      zoom: 14.5,
+      streetViewControl: false,
+      disableDefaultUI: true,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    this.map = new google.maps.Map( this.mapService.nativeElement, optMap );
+
+    this.directionService = new google.maps.DirectionsService();
+    this.directionRender = new google.maps.DirectionsRenderer({ map: this.map });
+    // this.directionRender.setMap( this.map );
+
+  }
+
+  async onLoadGeo() {
+    const val = await this.geo.getCurrentPosition();
+    const latlng = new google.maps.LatLng( val.coords.latitude, val.coords.longitude );
+    this.markerDriver = new google.maps.Marker({
+      position: latlng,
+      animation: google.maps.Animation.DROP,
+      icon: '/assets/geo-driver.png',
+      map: this.map
+    });
+    this.map.setCenter(latlng);
+    this.map.setZoom(14.5);
   }
 
   async onLoadService() {
@@ -106,60 +126,82 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       return;
     }
 
-    this.markerClient = new google.maps.Marker({
-      position: new google.maps.LatLng( this.dataService.latOrigin, this.dataService.lngOrigin ),
-      animation: google.maps.Animation.DROP,
-      map: this.map
-    });
-
     this.infoServiceSbc = this.serviceSvc.onServiceInfo( this.dataService.pkService ).subscribe( async (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
-      this.loadCalification = await this.st.onGetItem('loadCalification', false);
-      this.loadRoute = await this.st.onGetItem('loadRoute', false);
-      this.runOrigin = await this.st.onGetItem('runOrigin', false);
-      this.finishOrigin = await this.st.onGetItem('finishOrigin', false);
-      this.runDestination = await this.st.onGetItem('runDestination', false);
-      this.finishDestination = await this.st.onGetItem('finishDestination', false);
+
+      this.dataServiceInfo = res.data;
+      this.runDestination = this.dataServiceInfo.runDestination;
+      this.finishDestination = this.dataServiceInfo.finishDestination;
+
       await this.ui.onHideLoading();
-      if (this.loadRoute) {
-        this.onLoadRoute();
-      }
+
+      this.onLoadRoute(); // mostarndo ruta
 
       const infowindow = new google.maps.InfoWindow({
         content: this.infoClient.nativeElement
       });
 
+      this.markerClient = new google.maps.Marker({
+        position: new google.maps.LatLng( this.dataServiceInfo.latOrigin, this.dataServiceInfo.lngOrigin ),
+        animation: google.maps.Animation.DROP,
+        map: this.map
+      });
       infowindow.open(this.map, this.markerClient);
 
       this.markerClient.addListener('click', () => {
         infowindow.open(this.map, this.markerClient);
       });
 
-      this.dataServiceInfo = res.data;
-      if (!this.loadCalification) {
-        this.onListenGeo();
-      } else {
-        this.onShowModalCalification();
-      }
+      this.onListenGeo();
+
     });
 
     // this.map.setZoom(14.5);
   }
 
-  onLoadMap() {
+  onRun() {
 
-    const optMap: google.maps.MapOptions = {
-      center: new google.maps.LatLng( -12.054825, -77.040627 ),
-      zoom: 14.5,
-      streetViewControl: false,
-      disableDefaultUI: true,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
+    this.runDestination = true;
+    this.onLoadRoute();
+    const payload = {
+      runDestination: this.runDestination,
+      finishDestination: this.finishDestination,
+      pkClient: this.dataService.fkClient,
+      pkService: this.dataService.pkService
     };
 
-    this.map = new google.maps.Map( this.mapService.nativeElement, optMap );
+    this.io.onEmit('status-travel-driver', payload, (ioRes) => {
+      console.log('Emitiendo estado de servicio a cliente', ioRes);
+    });
 
+  }
+
+  async onFinish() {
+
+    const confirmAlert = await this.alertCtrl.create({
+      header: 'Confirmación',
+      subHeader: 'Llamataxi-app',
+      message: '¿Está seguro de dar por finalizado el servicio?',
+      animated: true,
+      mode: 'ios',
+      buttons: [{
+        text: 'No',
+        cssClass: 'text-dark',
+        role: 'Close',
+        handler: () => {}
+      }, {
+        text: 'Aceptar',
+        role: 'ok',
+        cssClass: 'text-info',
+        handler: () => {
+          this.onShowModalCalification();
+        }
+      }]
+    });
+
+    await confirmAlert.present();
   }
 
   onListenGeo() {
@@ -175,25 +217,24 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       const latlng = new google.maps.LatLng( lat, lng );
 
       this.markerDriver.setPosition( latlng );
-      this.markerDriver.setMap( this.map );
-      // this.map.setZoom(14.5);
-      this.map.setCenter(latlng);
+      this.map.setCenter( latlng );
+      // this.markerDriver.setMap( this.map );
 
     });
   }
 
   onLoadRoute() {
     const pointA = new google.maps.LatLng( this.lat, this.lng );
-    const pointB = new google.maps.LatLng( this.dataServiceInfo.latDestination, this.dataServiceInfo.lngDestination );
+    let pointB = new google.maps.LatLng( this.dataServiceInfo.latOrigin, this.dataServiceInfo.lngOrigin );
+    if (this.runDestination) {
+      pointB = new google.maps.LatLng( this.dataServiceInfo.latDestination, this.dataServiceInfo.lngDestination );
+    }
 
     this.directionService.route({ origin: pointA,
                                   destination: pointB,
                                   travelMode: google.maps.TravelMode.DRIVING }, (res, status) => {
         if (status === 'OK') {
           this.directionRender.setDirections(res);
-          if (!this.directionRender.getMap()) {
-            this.directionRender.setMap( this.map );
-          }
         }
     });
   }
@@ -216,12 +257,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.distance = distance.rows[0].elements[0].distance.value;
       this.minutes = distance.rows[0].elements[0].duration.value;
 
-      // notificar mediante socket y push acercamiento del conductor al cliente
-      // this.runDetination = false;
-      console.log(`run origin ${ this.runOrigin }`, this.distance);
-
-      if (this.runOrigin) {
-        if ((this.distance <= 300 && this.distance >= 280) || (this.distance <= 100 && this.distance >= 90 ) ) {
+      if (!this.runDestination) {
+        if ((this.distance <= 250 && this.distance >= 200) || (this.distance <= 100 && this.distance >= 70 ) ) {
 
           this.bodyPush.message = `Conductor a ${ this.distanceText } - ${ this.minutesText } de tu ubicación`;
 
@@ -232,88 +269,61 @@ export class ServiceRunPage implements OnInit, OnDestroy {
         }
       }
 
-      if ( this.distance <= 50 && this.runOrigin && !this.finishOrigin ) {
-          this.onFinishRunOrigin();
-      } else if ( this.distance <= 50 && this.runDestination && !this.finishDestination ) {
-          this.onFinishDestination();
-      }
-
       this.onEmitGeoDriverToClient();
 
     });
   }
 
-  onFinishRunOrigin() {
-    this.runOrigin = false;
-    this.finishOrigin = true;
-    this.runDestination = true;
-    this.st.onSetItem('runOrigin', false, false);
-    this.st.onSetItem('finishOrigin', true, false);
-    this.st.onSetItem('runDestination', true, false);
-    if (!this.loadRoute) {
-      this.loadRoute = true;
-      this.st.onSetItem('loadRoute', true, false);
-      this.onLoadRoute();
-    }
-    this.onEmitTravel();
-  }
+  async onShowModalCalification() {
 
-  onFinishDestination() {
+    await this.ui.onShowLoading('Espere...');
+
     this.runDestination = false;
     this.finishDestination = true;
-    this.st.onSetItem('runDestination', false, false);
-    this.st.onSetItem('finishDestination', true, false);
+    const payload = {
+      runDestination: this.runDestination,
+      finishDestination: this.finishDestination,
+      pkClient: this.dataService.fkClient,
+      pkService: this.dataService.pkService
+    };
+    this.io.onEmit('status-travel-driver', payload, (ioRes) => {
+      console.log('Emitiendo estado de servicio a cliente', ioRes);
+    });
 
-    if (!this.loadCalification) {
-      this.loadCalification = true;
-      this.st.onSetItem('loadCalification', true, false);
-
-      // abrir modal de calificación y desuscribir ubicación del conductor
-      if (this.geoSbc) {
-        this.geoSbc.unsubscribe();
-      }
-      // abrir modal
-      this.onShowModalCalification();
-
-    }
-
-    this.onEmitTravel();
-  }
-
-  async onShowModalCalification() {
     const modalCalif = await this.modalCtrl.create({
       component: ModalCalificationPage,
       mode: 'md',
       animated: true,
       componentProps: {
         pkService: this.dataServiceInfo.pkService,
-        pkClient: this.dataService.fkClient
+        pkClient: this.dataService.fkClient,
+        dataService: this.dataServiceInfo,
+        token: this.st.token
       }
     });
 
-    await modalCalif.present();
+    modalCalif.present().then( async () => {
+      await this.ui.onHideLoading();
+    });
 
-    modalCalif.onDidDismiss().then( (res) => {
+    modalCalif.onDidDismiss().then( async (res) => {
 
+      await this.st.onSetItem('current-page', '/home', false);
+      await this.st.onSetItem('current-service', null, false);
+
+      await this.st.onSetItem('occupied-driver', false, false);
+
+      await this.st.onSetItem('runDestination', false, false);
+      await this.st.onSetItem('finishDestination', false, false);
+
+      this.io. onEmit('occupied-driver', { occupied: false }, (resOccupied) => {
+        console.log('Cambiando estado conductor', resOccupied);
+      });
+      if (res.data.ok) {
+        await this.ui.onHideLoading();
+      }
       this.navCtrl.navigateRoot('/home');
 
-    });
-  }
-
-  onEmitTravel() {
-    const payload = {
-      pkClient: this.dataService.fkClient,
-      pkService: this.dataService.pkService,
-      runOrigin: this.runOrigin,
-      finishOrigin: this.finishOrigin,
-      runDestination: this.runDestination,
-      finishDestination: this.finishDestination,
-      loadRoute: this.loadRoute,
-      loadCalification: this.loadCalification
-    };
-
-    this.io.onEmit('status-travel-driver', payload, (res) => {
-      console.log('notificando llegada del conductor');
     });
   }
 
@@ -332,23 +342,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.io.onEmit('current-position-driver-service', payload, (resSocket) => {
       console.log('Emitiendo ubicación del conductor', resSocket);
     });
-
-    // tslint:disable-next-line: max-line-length
-    if ( (this.distance <= 100 && this.distance >= 90)  || (this.distance <= 50 && this.distance >= 40 ) || (this.distance <= 25 && this.distance >= 10 )) {
-
-      if (this.osSbc) {
-        this.osSbc.unsubscribe();
-      }
-
-      this.bodyPush.message = `${ this.dataServiceInfo.nameDriver }, a ${ this.distanceText } ( ${ this.minutesText } ) de tu ubicación`;
-
-      this.bodyPush.title = 'LlamataxiApp - Conductor aproximandose';
-      this.bodyPush.osId = [ this.dataServiceInfo.osIdClient ];
-
-      this.osSbc = this.os.onSendPushUser( this.bodyPush ).subscribe( (resOs: any)  => {
-          console.log('notificación enviada', resOs);
-      });
-    }
 
   }
 

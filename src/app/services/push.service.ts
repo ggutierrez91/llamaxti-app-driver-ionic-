@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { NavController } from '@ionic/angular';
 import { SocketService } from './socket.service';
 import { PushModel } from '../models/push.model';
+import { Router } from '@angular/router';
 
 const URL_API = environment.URL_SERVER;
 
@@ -15,7 +16,7 @@ const URL_API = environment.URL_SERVER;
 export class PushService {
   public osID = '';
   // tslint:disable-next-line: max-line-length
-  constructor(private oneSignal: OneSignal, private st: StorageService, private http: HttpClient, private navCtrl: NavController , private io: SocketService) { }
+  constructor(private oneSignal: OneSignal, private st: StorageService, private http: HttpClient, private navCtrl: NavController , private io: SocketService, private router: Router) { }
 
   onLoadConfig() {
     // console.log('iniciando one signal');
@@ -28,27 +29,31 @@ export class PushService {
      console.log('push recibida', osNoti);
     });
 
-    this.oneSignal.handleNotificationOpened().subscribe((osNoti) => {
+    this.oneSignal.handleNotificationOpened().subscribe(async (osNoti) => {
       // do something when a notification is opened
       console.log('push abierta', osNoti);
+      const accepted = osNoti.notification.payload.additionalData.accepted || false;
+      if (accepted) {
+        await this.st.onSetItem('current-service', osNoti.notification.payload.additionalData.dataOffer, true);
 
-      if (osNoti.notification.data.accepted) {
-        this.st.onSetItem('current-service', osNoti.notification.data.dataOffer, true).then( async (value) => {
+        await this.st.onSetItem('occupied-driver', true, false);
 
-          await this.st.onSetItem('occupied-driver', true, false);
-          await this.st.onSetItem('loadRoute', false, false);
-          await this.st.onSetItem('loadCalification', false, false);
-          await this.st.onSetItem('runOrigin', true, false);
-          await this.st.onSetItem('finishOrigin', false, false);
-          await this.st.onSetItem('runDestination', false, false);
-          await this.st.onSetItem('finishDestination', false, false);
+        await this.st.onSetItem('runDestination', false, false);
+        await this.st.onSetItem('finishDestination', false, false);
 
-          this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
-            console.log('Cambiando estado conductor', resOccupied);
-          });
-
-          this.navCtrl.navigateRoot('/service-run', { animated: true } );
+        this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
+          console.log('Cambiando estado conductor', resOccupied);
         });
+
+        await this.st.onSetItem( 'current-page', '/service-run', false );
+        this.navCtrl.navigateRoot('/service-run', { animated: true } );
+
+      } else {
+        const url = osNoti.notification.payload.additionalData.url || '';
+        if (url !== '') {
+          await this.st.onSetItem( 'current-page', url, false );
+          this.router.navigateByUrl(url );
+        }
       }
     });
 

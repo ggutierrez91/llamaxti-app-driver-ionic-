@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, OnChanges } from '@angular/core';
 import { SocketService } from '../../services/socket.service';
 import { Subscription } from 'rxjs';
 import { IResSocket } from '../../interfaces/response-socket.interface';
@@ -13,6 +13,7 @@ import { AlertController, NavController } from '@ionic/angular';
 import { IOffer } from '../../interfaces/offer.interface';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { retry } from 'rxjs/operators';
+import { Insomnia } from '@ionic-native/insomnia/ngx';
 
 @Component({
   selector: 'app-home',
@@ -53,21 +54,33 @@ export class HomePage implements OnInit, OnDestroy {
   demandColors = ['#0091F2', '#209FF4', '#40ADF5', '#60BAF7', '#80C8F8', '#9FD6FA'];
 
   // tslint:disable-next-line: max-line-length
-  constructor( private io: SocketService,  private geo: Geolocation,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService ) { }
+  constructor( private io: SocketService,  private geo: Geolocation,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia ) { }
 
   ngOnInit() {
+
+    this.zombie.keepAwake().then(
+      (success) => { console.log('Teléfono en estado zombie :D', success); },
+      (e) => { console.log('Error al prevenir bloqueo de pantalla', e); }
+    );
 
     this.onLoadMap();
 
     this.onListenNewService();
     this.st.onLoadToken().then( () => {
       this.onLoadJournal();
-      this.onTotalServices();
-      this.onGetVehicleUsing();
+      // this.onTotalServices();
+      
+      this.st.onLoadVehicle().then( () => {
+        console.log(this.st.dataVehicle);
+        if (this.st.pkVehicle === 0) {
+          this.onGetVehicleUsing();
+        }
+      });
       this.onListenOfferClient();
       this.onListenJournal();
       this.onListenCancelService();
     });
+
 
     this.infoWindowPolygon = new google.maps.InfoWindow();
 
@@ -92,8 +105,10 @@ export class HomePage implements OnInit, OnDestroy {
 
               await this.st.onSetItem('runDestination', false, false);
               await this.st.onSetItem('finishDestination', false, false);
-              await this.st.onSetItem('current-service', res.dataOffer, true);
+              await this.st.onSetItem('current-service', offer, true);
               await this.st.onSetItem('current-page', '/service-run', false);
+              await this.st.onSetItem('occupied-driver', true, false);
+
               this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
                 console.log('Cambiando estado conductor', resOccupied);
               });
@@ -130,9 +145,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onTotalServices() {
-    if (this.serviceSbc) {
-      this.serviceSbc.unsubscribe();
-    }
+    
     this.serviceSbc = this.taxiSvc.onGetTotalServices().subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -147,19 +160,16 @@ export class HomePage implements OnInit, OnDestroy {
     this.geoSbc = this.geo.watchPosition( ).pipe( retry(3) ).subscribe(
       (position) => {
 
-        this.lat = position.coords.latitude;
-        this.lng = position.coords.longitude;
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
 
-        this.onTotalServices();
-        // this.onGetDemand();
-
-        const latlng = new google.maps.LatLng( position.coords.latitude, position.coords.longitude );
+        const latlng = new google.maps.LatLng( lat, lng );
         this.marker.setPosition( latlng );
 
-        this.io.onEmit('current-position-driver',
-                      {lat: position.coords.latitude, lng: position.coords.longitude },
-                      (resSocket: IResSocket) => {
+        this.io.onEmit('current-position-driver', {lat, lng }, (resSocket: IResSocket) => {
           console.log('Emitiendo ubicación conductor', resSocket.message);
+          // this.onTotalServices();
+          // this.onGetDemand();
 
         });
 
@@ -202,18 +212,18 @@ export class HomePage implements OnInit, OnDestroy {
       const lat = geo.coords.latitude;
       const lng = geo.coords.longitude;
 
-      this.map.setCenter( new google.maps.LatLng( lat, lng ) );
-      this.map.setZoom(14.5);
-
-      this.marker.setMap( this.map );
-      this.marker.setPosition(new google.maps.LatLng( lat, lng ));
+      setTimeout( () => {
+        this.map.setCenter( new google.maps.LatLng( lat, lng ) );
+        this.map.setZoom(14.5);
+  
+        this.marker.setMap( this.map );
+        this.marker.setPosition(new google.maps.LatLng( lat, lng ));
+      }, 2500 );
 
       this.io.onEmit('current-position-driver', {lat, lng }, (resSocket: IResSocket) => {
         console.log('Emitiendo ubicación conductor', resSocket.message);
-
-        setTimeout(() => {
-          this.onGetDemand();
-        }, 3000);
+        this.onTotalServices();
+        this.onGetDemand();
 
       });
 
@@ -254,7 +264,7 @@ export class HomePage implements OnInit, OnDestroy {
       if (!res.ok) {
         throw new Error( res.error );
       }
-      // console.log('using data', res.data);
+      console.log('using data', res.data);
       if ( !res.data ) {
         // console.log('mostrando alerta');
         return this.onShowAlertUsing();
@@ -371,7 +381,9 @@ export class HomePage implements OnInit, OnDestroy {
     console.log('destruyendo home');
     this.geoSbc.unsubscribe();
     this.journalSbc.unsubscribe();
-    this.serviceSbc.unsubscribe();
+    if (this.serviceSbc) {
+      this.serviceSbc.unsubscribe();
+    }
     if (this.demandSbc) {
       this.demandSbc.unsubscribe();
     }

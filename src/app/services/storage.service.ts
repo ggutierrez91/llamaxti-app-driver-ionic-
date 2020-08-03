@@ -9,7 +9,14 @@ import { IUserToken } from '../interfaces/user-token.interface';
 export class StorageService {
 
   public token = '';
-  public dataUser: IUserToken = { pkUser: 0, pkDriver: 0 };
+  public dataUser: IUserToken = {
+    pkUser: 0,
+    pkPerson: 0,
+    pkDriver: 0,
+    role: '',
+    userName: '',
+    nameComplete: ''
+  };
   public dataVehicle: any = null;
   public role = '';
   public pkDriver = 0;
@@ -33,7 +40,7 @@ export class StorageService {
       // console.log(data);
       this.token = token;
       this.dataUser = data;
-      this.pkDriver = data.pkDriver || 0;
+      this.pkDriver = data.pkDriver;
       this.role = data.role;
       this.nameComplete = data.nameComplete;
       this.pkPerson = data.pkPerson;
@@ -53,34 +60,41 @@ export class StorageService {
 
   async onLoadData() {
     const value = await this.storage.get( 'dataUser' );
-    this.dataUser =  JSON.parse( value );
+    if (value) {
+      this.dataUser =  JSON.parse( value );
+    }
   }
 
   async onLoadToken() {
     this.token = await this.storage.get('token') || '';
+    this.osID = await this.storage.get('osID') || '';
     const value = await this.storage.get( 'dataUser' );
-    this.dataUser =  JSON.parse( value );
     if (value) {
-      this.pkDriver = this.dataUser.pkDriver || 0 ;
-      this.pkPerson = this.dataUser.pkPerson || 0 ;
-      this.pkUser = this.dataUser.pkUser || 0 ;
-      this.nameComplete = this.dataUser.nameComplete || '' ;
-      this.osID = await this.storage.get('osID') || '';
+      this.dataUser =  JSON.parse( value );
+      this.pkDriver = this.dataUser.pkDriver ;
+      this.pkPerson = this.dataUser.pkPerson;
+      this.pkUser = this.dataUser.pkUser;
+      this.nameComplete = this.dataUser.nameComplete;
     }
   }
 
   async onLoadVehicle() {
-    const dataVehicle = await this.onGetItem('dataVehicle', true);
-    this.pkVehicle = dataVehicle.pkVehicle || 0;
-    this.fkCategory = dataVehicle.pkCategory || 0;
-    this.category = dataVehicle.aliasCategory  || '';
-    this.codeCategory = dataVehicle.codeCategory  || '';
-    this.brand = dataVehicle.nameBrand  || '';
-    this.nameModel = dataVehicle.nameModel  || '';
-    this.numberPlate = dataVehicle.numberPlate  || '';
-    this.year = dataVehicle.year  || 0;
-    this.color = dataVehicle.color  || '';
-    this.dataVehicle = dataVehicle || null;
+    const value = await this.storage.get( 'dataVehicle' );
+    if (value) {
+      const dataJson = JSON.parse( value ) ;
+
+      const dataVehicle = dataJson;
+      this.pkVehicle = Number( dataVehicle.pkVehicle ) || 0;
+      this.fkCategory = dataVehicle.pkCategory || 0;
+      this.category = dataVehicle.aliasCategory  || '';
+      this.codeCategory = dataVehicle.codeCategory  || '';
+      this.brand = dataVehicle.nameBrand  || '';
+      this.nameModel = dataVehicle.nameModel  || '';
+      this.numberPlate = dataVehicle.numberPlate  || '';
+      this.year = dataVehicle.year  || 0;
+      this.color = dataVehicle.color  || '';
+      this.dataVehicle = dataVehicle || null;
+    }
   }
 
   async onGetItem(name: string, isJson = false) {
@@ -92,7 +106,8 @@ export class StorageService {
 
   async onClearStorage() {
     this.token = '';
-    await this.storage.clear();
+    await this.storage.set('token', null);
+    // await this.storage.clear();
   }
 
   async onAuthToken(): Promise<IResPromise> {

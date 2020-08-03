@@ -4,17 +4,17 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
+import { ChangePasswordPageRoutingModule } from './change-password-routing.module';
 
-import { ModalProfilePage } from './modal-profile.page';
-import { PipesModule } from 'src/app/pipes/pipes.module';
+import { ChangePasswordPage } from './change-password.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    PipesModule
+    ChangePasswordPageRoutingModule
   ],
-  declarations: [ModalProfilePage]
+  declarations: [ChangePasswordPage]
 })
-export class ModalProfilePageModule {}
+export class ChangePasswordPageModule {}

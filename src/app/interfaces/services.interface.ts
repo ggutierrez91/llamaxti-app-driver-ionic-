@@ -49,6 +49,8 @@ export interface IPolygons {
 export interface IServiceAccepted {
 
     pkService?: number;
+    fkClient?: number;
+	fkDriver?: number;
     nameClient: string;
     imgClient?: string;
     phoneClient?: string;
@@ -68,6 +70,8 @@ export interface IServiceAccepted {
     lngOrigin?: number;
     latDestination?: number;
     lngDestination?: number;
+    latDriver?: number;
+    lngDriver?: number;
     streetOrigin?: string;
     streetDestination?: string;
     distanceText?: string;

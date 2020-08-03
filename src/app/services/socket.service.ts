@@ -54,32 +54,34 @@ export class SocketService {
   }
 
   async onLoadUser() {
-    const data = await this.st.onGetItem('dataUser', true);
+    await this.st.onLoadToken();
     const pkCategory = await this.st.onGetItem('fkCategory', false);
     const codeCategory =  await this.st.onGetItem('codeCategory', false);
-    if (!data) {
-      return;
-    }
-    this.usersocket.pkUser = data.pkUser || 0;
-    this.usersocket.userName = data.userName || '';
-    this.usersocket.nameComplete = data.nameComplete || '';
-    this.usersocket.role = data.role || '';
+
+    this.usersocket.pkUser = this.st.dataUser.pkUser;
+    this.usersocket.userName = this.st.dataUser.userName;
+    this.usersocket.nameComplete = this.st.dataUser.nameComplete;
+    this.usersocket.role = this.st.dataUser.role;
+    this.usersocket.osID = this.st.osID;
     this.usersocket.pkCategory = pkCategory || 0;
     this.usersocket.codeCategory = codeCategory || 'no especificado';
-    this.usersocket.osID = this.st.osID;
   }
 
   onSingUser(): Promise<IResSocket> {
     return new Promise( async ( resolve, reject ) => {
       await this.onLoadUser();
       // console.log('enviando socket user', this.usersocket);
-      this.onEmit('sing-user', this.usersocket, (resSocket: IResSocket) => {
-        console.log('autenticando usuario socket !!', resSocket);
-        if (!resSocket.ok) {
-          reject( {ok: false, error: resSocket.error} );
-        }
-        resolve( {ok: true, message: resSocket.message} );
-      });
+      if( this.st.token !== '' ) {
+        this.onEmit('sing-user', this.usersocket, (resSocket: IResSocket) => {
+          console.log('autenticando usuario socket !!', resSocket);
+          if (!resSocket.ok) {
+            reject( {ok: false, error: resSocket.error} );
+          }
+          resolve( {ok: true, message: resSocket.message} );
+        });
+      } else {
+        reject( {ok: false, error: {message: 'Primero authenticar'} } );
+      }
     });
   }
 

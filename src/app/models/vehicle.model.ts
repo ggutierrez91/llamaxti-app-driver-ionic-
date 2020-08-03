@@ -1,4 +1,5 @@
 export class VehicleModel {
+    pkVehicle: number;
     numberPlate: string;
     year: number;
     color: string;
@@ -7,6 +8,7 @@ export class VehicleModel {
     isProper: boolean;
 
     constructor() {
+        this.pkVehicle = 0;
         this.numberPlate = '';
         this.year = 2015;
         this.color = 'BLACK';

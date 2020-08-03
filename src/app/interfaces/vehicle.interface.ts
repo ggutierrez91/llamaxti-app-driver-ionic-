@@ -1,5 +1,6 @@
 export default interface IVehicle {
     pkVehicle: number;
+    fkDriver: number;
     fkCategory: number;
     fkBrand: number;
     fkModel: number;
@@ -11,8 +12,9 @@ export default interface IVehicle {
     imgPropertyCard: string;
     imgTaxiBack: string;
     imgTaxiFrontal: string;
+    srcTaxiFrontal: string;
     imgTaxiInterior: string;
-    isProper: number;
+    isProper: boolean;
     dateRegister: string;
     verified: number;
     dateVerified: string;

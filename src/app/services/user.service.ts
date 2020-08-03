@@ -6,6 +6,7 @@ import { IProfile } from '../interfaces/profile.interface';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { retry } from 'rxjs/operators';
+import { PassModel } from '../models/user.model';
 
 const URI_API = environment.URL_SERVER;
 
@@ -22,6 +23,10 @@ export class UserService {
 
   onUpdateProfi( body: IProfile, token: string ) {
     return this.http.post<IResApi>( URI_API + `/Driver/Profile/Update/App`, body, { headers: {Authorization: token} } );
+  }
+
+  onChangePass( body: PassModel ) {
+    return this.http.post<IResApi>( URI_API + `/User/ChangePass`, body, { headers: {Authorization: this.st.token} } );
   }
 
 }

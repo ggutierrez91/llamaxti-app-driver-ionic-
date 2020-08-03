@@ -18,6 +18,10 @@ export class VehicleService {
     return this.http.post<IResApi>( URI_API + `/Vehicle/Add/App`, body, {headers: { Authorization: this.st.token }} );
   }
 
+  onUpdateVehicle( body: VehicleModel ) {
+    return this.http.put<IResApi>( URI_API + `/Vehicle/Update/App/${ body.pkVehicle }`, body, {headers: { Authorization: this.st.token }} );
+  }
+
   onUsingVehicle( pkVehicle: number ) {
     return this.http.put<IResApi>( URI_API + `/Using/Vehicle/${ pkVehicle }`, {}, {headers: { Authorization: this.st.token }} );
   }
@@ -25,9 +29,13 @@ export class VehicleService {
   onGetUsing( pkDriver: number ) {
     return this.http.get<IResApi>( URI_API + `/Usin/Get/${ pkDriver }`, {headers: { Authorization: this.st.token }} );
   }
-  
+
   onGetVehicle( pkDriver: number ) {
     return this.http.get<IResApi>( URI_API + `/Driver/Vehicle/Get/${ pkDriver }`, {headers: { Authorization: this.st.token }} );
+  }
+  
+  onDeleteVehicle( pkVehicle: number ) {
+    return this.http.delete<IResApi>( URI_API + `/Vehicle/Del/App/${ pkVehicle }`, {headers: { Authorization: this.st.token }} );
   }
 
 }

@@ -25,3 +25,15 @@ export class UserModel extends PersonModel {
         this.userPassRepit = '';
     }
 }
+
+export class PassModel {
+    passwordOld: string;
+    password: string;
+    passRepit: string;
+
+    constructor(){
+        this.passwordOld = '';
+        this.password = '';
+        this.passRepit = '';
+    }
+ }

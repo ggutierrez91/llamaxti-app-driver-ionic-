@@ -11,10 +11,49 @@ h2 {
     position: relative;
     top: -117px;
     right: -117px;
-    font-size: 19px;
+    font-size: 22px;
+    font-weight: bold;
 }
 
 .toUpper {
     text-transform: uppercase;
     text-align: right;
+}
+
+.ionitemCreative {
+    --highlight-height: 0;
+    margin-bottom: 12px;
+    height: 45px !important;
+    ion-label {
+        color: #807e7e!important;
+        font-weight: 300;
+        font-size: 1rem!important;
+    }
+}
+
+.iconVehicle {
+    position: absolute;
+    right: 35px;
+    top: 62px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.iconInternal {
+    position: absolute;
+    right: 50px;
+    top: 62px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.photo-driver {
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: 0 5px 7px 0 rgba(0, 0, 0, .3);
+}
+
+.ionitem {
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
 }

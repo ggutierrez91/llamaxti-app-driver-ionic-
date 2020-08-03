@@ -21,9 +21,11 @@ export class VehiclePage implements OnInit, OnDestroy {
   vhSbc: Subscription;
   usingSbc: Subscription;
   usingGetSbc: Subscription;
+  delSbc: Subscription;
   dataVehicle: IVehicle[] = [];
   loading = false;
   pathImg = URI_SERVER + '/Driver/Img/Get/vehicle/';
+  tokenPath = '';
 
   // tslint:disable-next-line: max-line-length
   constructor( private modalCtrl: ModalController, private vehicleSvc: VehicleService, public st: StorageService, private alertCtrl: AlertController, private ui: UiUtilitiesService, private io: SocketService) { }
@@ -32,6 +34,8 @@ export class VehiclePage implements OnInit, OnDestroy {
     this.loading = true;
     this.st.onLoadToken().then( () => {
 
+      this.tokenPath = `?idDriver=${ this.st.pkDriver }&token=${ this.st.token }`;
+      console.log(this.tokenPath );
       this.onGetVehicles();
 
     });
@@ -42,25 +46,103 @@ export class VehiclePage implements OnInit, OnDestroy {
     const modalAdd = await this.modalCtrl.create({
       component: VehicleModalPage,
       animated: true,
-      mode: 'ios'
+      mode: 'ios',
+      componentProps: {
+        loadData: false,
+        data: {
+          imgSoat: '',
+          imgPropertyCard: '',
+          imgTaxiFrontal: '',
+          imgTaxiBack: '',
+          imgTaxiInterior: ''
+        }
+      }
     });
 
     await modalAdd.present();
-    modalAdd.onDidDismiss().then( (resModal: any) => {
-      if (resModal.ok) {
+    modalAdd.onDidDismiss().then( (resModal) => {
+      if (resModal.data.ok) {
         this.onGetVehicles();
       }
     });
   }
 
-  onGetVehicles() {
+  async onEditVehicle( vh: IVehicle ) {
 
+    const modalAdd = await this.modalCtrl.create({
+      component: VehicleModalPage,
+      animated: true,
+      // mode: 'ios',
+      componentProps: {
+        loadData: true,
+        data: vh
+      }
+    });
+
+    await modalAdd.present();
+    modalAdd.onDidDismiss().then( (resModal) => {
+      if (resModal.data.ok) {
+        this.onGetVehicles();
+      }
+    });
+
+  }
+
+  async onDeleteVehicle( vh: IVehicle ) {
+    // const finded = this.dataVehicle.find( vh => vh.pkVehicle === pkVehicle );
+
+    const alertUsing = await this.alertCtrl.create({
+      header: '¡Confirmación!',
+      message: `¿Está seguro de eliminar el vehículo con placa ${ vh.numberPlate }?`,
+      mode: 'ios',
+      buttons: [{
+        text: 'Cerrar',
+        cssClass: 'text-danger',
+        role: 'cancel',
+        handler: () => { }
+      }, {
+        text: 'Aceptar',
+        handler: () => {
+            this.onSubmitDel( vh.pkVehicle );
+        }
+      }]
+    });
+
+    await alertUsing.present();
+  }
+
+  async onSubmitDel( pkVehicle: number ) {
+    await this.ui.onShowLoading('Eliminando...');
+    this.delSbc = this.vehicleSvc.onDeleteVehicle( pkVehicle ).subscribe( async (res) => {
+
+      if (!res.ok) {
+        throw new Error( res.error );
+      }
+
+
+      if (res.showError === 0) {
+        this.dataVehicle = this.dataVehicle.filter( vh => vh.pkVehicle !== pkVehicle );
+      }
+      await this.ui.onHideLoading();
+      await this.ui.onShowToast( this.onGetErrorDel( res.showError ), 4500 );
+
+    });
+
+  }
+
+  onGetVehicles() {
+    this.loading = true;
     this.vhSbc = this.vehicleSvc.onGetVehicle( this.st.pkDriver ).subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
 
       this.dataVehicle = res.data;
+
+      this.dataVehicle.forEach( (vh) => {
+        vh.srcTaxiFrontal = this.pathImg + vh.pkVehicle + `/${ vh.imgTaxiFrontal || 'xd.png' }${ this.tokenPath }`;
+        console.log(vh.imgTaxiFrontal);
+      });
       this.loading = false;
     });
 
@@ -116,18 +198,14 @@ export class VehiclePage implements OnInit, OnDestroy {
           this.st.year = res.data.year;
           this.st.color = res.data.color;
           this.st.dataVehicle = res.data;
-          // await this.st.onSetItem('pkVehicle', res.data.pkVehicle);
-          // await this.st.onSetItem('fkCategory', res.data.pkCategory);
-          // await this.st.onSetItem('category', res.data.aliasCategory);
-          // await this.st.onSetItem('codeCategory', res.data.codeCategory);
-          // await this.st.onSetItem('brand', res.data.nameBrand);
-          // await this.st.onSetItem('model', res.data.nameModel);
-          // await this.st.onSetItem('numberPlate', res.data.numberPlate);
+
+          res.data.pkVehicle = pkVehicle;
           await this.st.onSetItem('dataVehicle', res.data, true);
+          
           this.dataVehicle.forEach( vh => {
             vh.driverUsing = 0;
           });
-  
+
           const indexVehicle = this.dataVehicle.findIndex( vh => vh.pkVehicle === pkVehicle );
           this.dataVehicle[indexVehicle].driverUsing = 1;
 
@@ -178,6 +256,19 @@ export class VehiclePage implements OnInit, OnDestroy {
 
   }
 
+  onGetErrorDel( showError: number ) {
+
+    const arrError = showError === 0 ? ['Se eliminó con éxito'] : ['Error'];
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 1) {
+      arrError.push('no se encontró vehículo');
+    }
+
+    return arrError.join(', ');
+
+  }
+
   ngOnDestroy() {
     this.vhSbc.unsubscribe();
 
@@ -187,6 +278,10 @@ export class VehiclePage implements OnInit, OnDestroy {
 
     if (this.usingGetSbc) {
       this.usingGetSbc.unsubscribe();
+    }
+
+    if (this.delSbc) {
+      this.delSbc.unsubscribe();
     }
 
   }

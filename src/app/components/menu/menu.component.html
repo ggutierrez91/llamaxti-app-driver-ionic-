@@ -2,7 +2,7 @@
     <ion-header>
         <ion-toolbar color="dark">
             <div class="row">
-                <div class="col-12 text-right">
+                <div class="col-12 text-right fontP">
                     <small style="padding-right: 17px;">Llamataxiperu.com</small>
                 </div>
             </div>
@@ -17,13 +17,13 @@
             </div>
 
             <div class="row">
-                <div class="col-12 text-center">
+                <div class="col-12 text-center fontP">
                     <br> {{ currentDate | date }}
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-12 text-center">
+                <div class="col-12 text-center fontP">
                     <h6 *ngIf="!loadingData">
                         <p>
                             {{ st.dataUser.nameComplete }}
@@ -48,6 +48,10 @@
             <ion-item (click)="onRedirect('/vehicle')" detail>
                 <ion-icon slot="start" name="car-sport-outline" color="primary"></ion-icon>
                 Mis vehículos
+            </ion-item>
+            <ion-item (click)="onRedirect('/change-password')" detail>
+                <ion-icon slot="start" name="key-outline" color="primary"></ion-icon>
+                Cambiar contrase&ntilde;a
             </ion-item>
             <!-- <ion-item (click)="onRedirect('card')" detail>
                 <ion-icon slot="start" name="card-outline" color="primary"></ion-icon>

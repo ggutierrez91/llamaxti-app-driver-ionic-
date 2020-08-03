@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
-import { ModalController, PickerController, ActionSheetController, IonSlides, IonContent } from '@ionic/angular';
+import { Component, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
+import { ModalController, PickerController, ActionSheetController, IonSlides, IonContent, Platform } from '@ionic/angular';
 import { VehicleModel } from '../../models/vehicle.model';
 import { VehicleFilesModel, ETypeFile } from '../../models/vehicle-files.model';
 import * as moment from 'moment';
@@ -7,7 +7,14 @@ import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { VehicleService } from '../../services/vehicle.service';
 import { StorageService } from '../../services/storage.service';
+import IVehicle from '../../interfaces/vehicle.interface';
+import { environment } from '../../../environments/environment';
+import { IResApi } from '../../interfaces/response-api.interface';
+import { UploadService } from '../../services/upload.service';
+import { EEntity } from 'src/app/models/user-driver-files.model';
+import { Subscription } from 'rxjs';
 
+const URI_SERVER = environment.URL_SERVER;
 declare var window: any;
 
 @Component({
@@ -15,20 +22,23 @@ declare var window: any;
   templateUrl: './vehicle-modal.page.html',
   styleUrls: ['./vehicle-modal.page.scss'],
 })
-export class VehicleModalPage implements OnInit {
-  @ViewChild('slideProperty', {static: true}) slideProperty: IonSlides;
-  @ViewChild('slideSoat', {static: true}) slideSoat: IonSlides;
+export class VehicleModalPage implements OnInit, OnDestroy {
+
   @ViewChild('slideVehicle', {static: true}) slideVehicle: IonSlides;
   @ViewChild('driverContent', {static: true}) content: IonContent;
   @Input() loadData: boolean;
+  @Input() data: IVehicle;
 
   bodyVehicle: VehicleModel;
   filesVehicle: VehicleFilesModel;
+  vhSbc: Subscription;
   typeFile = ETypeFile;
   year = moment().year();
 
   yearValues: any[] = [];
   colorValues: any[] = [];
+
+  // widthDevice = 0;
 
   imgValid = ['jpg', 'png', 'jpeg'];
 
@@ -74,49 +84,127 @@ export class VehicleModalPage implements OnInit {
   optSlideRecords = {
     slidesPerView: 1.3
   };
+  pathDriver = URI_SERVER + `/Driver/Img/Get/vehicle/`;
 
   // tslint:disable-next-line: max-line-length
-  constructor(private modalCtrl: ModalController, private pickerCtrl: PickerController, private sheetCtrl: ActionSheetController, private camera: Camera, private uiSvc: UiUtilitiesService, private vehicleSvc: VehicleService, private st: StorageService) { }
+  constructor(private modalCtrl: ModalController, private pickerCtrl: PickerController, private sheetCtrl: ActionSheetController, private camera: Camera, private uiSvc: UiUtilitiesService, private vehicleSvc: VehicleService, public st: StorageService, private uploadSvc: UploadService, private device: Platform) { }
 
   ngOnInit() {
-    this.st.onLoadToken();
-    this.slideProperty.lockSwipes(true);
-    this.slideSoat.lockSwipes(true);
+
+    // this.slideProperty.lockSwipes(true);
+    // this.slideSoat.lockSwipes(true);
     this.slideVehicle.lockSwipes(true);
-    
+
     this.bodyVehicle = new VehicleModel();
     this.filesVehicle = new VehicleFilesModel();
 
-    this.filesVehicle.onAddFile( ETypeFile.soat, true );
-    this.filesVehicle.onAddFile( ETypeFile.propertyCard, true );
+    this.onLoadInit();
 
-    this.filesVehicle.onAddFile( ETypeFile.taxiFrontal, true );
-    this.filesVehicle.onAddFile( ETypeFile.taxiBack, true );
-    this.filesVehicle.onAddFile( ETypeFile.taxiInterior, true );
+    // this.widthDevice = this.device.width;
 
-    this.onLoadYears();
-    this.onLoadColors();
+  }
 
-    this.pickerOptLicense = {
-      mode: 'md',
-      buttons: [{
-        text: 'Cerrar',
-        handler: () => {}
-      }, {
-        text: 'Aceptar',
-        handler: (v: any) => {
-          const newDate = moment( `${ v.year.value }-${ v.month.value  }-${ v.day.value }` );
-          if (!newDate.isValid()) {
-            return false;
-          }
+  async onLoadInit() {
+    await this.uiSvc.onShowLoading('Espere...');
+    this.st.onLoadToken().then( async() => {
 
-          // console.log('fecha exp', newDate.format('YYYY-MM-DD'));
-          this.bodyVehicle.dateSoatExpiration = newDate.format('YYYY-MM-DD');
+      this.onLoadFiles();
 
+      this.onLoadYears();
+      this.onLoadColors();
+
+      if (this.loadData) {
+
+        let nameColor = '';
+
+        switch (this.data.color) {
+          case 'BLUE':
+            nameColor = 'AZUL';
+            break;
+            case 'RED':
+            nameColor = 'ROJO';
+            break;
+            case 'BLACK':
+            nameColor = 'NEGRO';
+            break;
+            case 'WHITE':
+            nameColor = 'BLANCO';
+            break;
+            case 'GRAY':
+            nameColor = 'GRIS';
+            break;
+            case 'YELLOW':
+            nameColor = 'AMARILLO';
+            break;
+            case 'BROWN':
+            nameColor = 'MARRON';
+            break;
+            case 'GREEN':
+            nameColor = 'VERDE';
+            break;
+    
+          default:
+            break;
         }
-      }]
+        // console.log('data', this.data);
+        this.bodyVehicle.pkVehicle = this.data.pkVehicle;
+        this.bodyVehicle.numberPlate = this.data.numberPlate;
+        this.bodyVehicle.color = this.data.color;
+        this.bodyVehicle.colorEs = nameColor;
+        this.bodyVehicle.year = this.data.year;
+        this.bodyVehicle.isProper = Boolean( this.data.isProper );
+        this.bodyVehicle.dateSoatExpiration = this.data.dateSoatExpiration;
 
-    };
+      }
+
+      this.pickerOptLicense = {
+        mode: 'md',
+        buttons: [{
+          text: 'Cerrar',
+          handler: () => {}
+        }, {
+          text: 'Aceptar',
+          handler: (v: any) => {
+            const newDate = moment( `${ v.year.value }-${ v.month.value  }-${ v.day.value }` );
+            if (!newDate.isValid()) {
+              return false;
+            }
+  
+            // console.log('fecha exp', newDate.format('YYYY-MM-DD'));
+            this.bodyVehicle.dateSoatExpiration = newDate.format('YYYY-MM-DD');
+  
+          }
+        }]
+  
+      };
+      await this.uiSvc.onHideLoading();
+    });
+  }
+
+  onLoadFiles() {
+    const path = this.pathDriver + `${ this.data.pkVehicle }/`;
+    const param = `?idDriver=${ this.data.fkDriver || 0 }&token=${ this.st.token }`;
+    console.log('params', param);
+    let pathSoat =  path + this.data.imgSoat + param;
+    let pathPropertyCard =  path + this.data.imgPropertyCard + param;
+    let pathFrontal =  path + this.data.imgTaxiFrontal + param;
+    let pathBack =  path + this.data.imgTaxiBack + param;
+    let pathInterior =  path + this.data.imgTaxiInterior + param;
+
+    if (!this.loadData) {
+      pathSoat = '';
+      pathPropertyCard = '';
+      pathFrontal = '';
+      pathBack = '';
+      pathInterior = '';
+    }
+
+    this.filesVehicle.onAddFile( ETypeFile.soat, true, pathSoat, pathSoat );
+    this.filesVehicle.onAddFile( ETypeFile.propertyCard, true, pathPropertyCard, pathPropertyCard );
+
+    this.filesVehicle.onAddFile( ETypeFile.taxiFrontal, true, pathFrontal, pathFrontal );
+    this.filesVehicle.onAddFile( ETypeFile.taxiBack, true, pathBack, pathBack );
+    this.filesVehicle.onAddFile( ETypeFile.taxiInterior, true, pathInterior, pathInterior );
   }
 
   onLoadYears() {
@@ -246,22 +334,6 @@ export class VehicleModalPage implements OnInit {
 
   onNextVehicleTwo() {
 
-    let verifyFiles = false;
-    const arrMsg = ['Error'];
-    // if (this.filesVehicle.onGetSrc( ETypeFile.soat ) === '') {
-    //   verifyFiles = true;
-    //   arrMsg.push('el soat es requerido');
-    // }
-
-    // if (this.filesVehicle.onGetSrc( ETypeFile.propertyCard ) === '') {
-    //   verifyFiles = true;
-    //   arrMsg.push('tarjeta de propieda requerida');
-    // }
-
-    if (verifyFiles) {
-      return this.uiSvc.onShowToast(arrMsg.join(', '), 4500);
-    }
-
     this.slideVehicle.lockSwipes(false);
     this.slideVehicle.slideNext();
     this.slideVehicle.lockSwipes(true);
@@ -301,25 +373,95 @@ export class VehicleModalPage implements OnInit {
     await this.uiSvc.onShowLoading('Guardando...');
 
     if (!this.loadData) {
-      this.vehicleSvc.onAddVehicle( this.bodyVehicle ).subscribe( async(res) => {
+      this.vhSbc = this.vehicleSvc.onAddVehicle( this.bodyVehicle ).subscribe( async ( res ) => {
           if (!res.ok) {
             throw new Error( res.error );
           }
+          console.log('respuesta grabar vehiculo', res);
+          if (res.showError === 0) {
+            let resDocsJson: IResApi;
+            let resUpDocs: any;
+            const arrFilesUploaded: any[] = [];
+            this.filesVehicle.filesVehicle.forEach( async (item) => {
+              // pkVehicleDriver
+              if (item.pathFile !== '') {
 
+                resUpDocs = await this.uploadSvc.onUploadDocuments( item.pathFile
+                                                , EEntity.vehicle
+                                                , res.data.pkVehicleDriver
+                                                , item.typeFile
+                                                , this.st.token
+                                                , false );
+                resDocsJson = JSON.parse( resUpDocs.response );
+                if (!resDocsJson.ok) {
+                  throw new Error( resDocsJson.error );
+                }
+                arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
+              }
+            });
+            await this.uiSvc.onHideLoading();
+
+            await this.uiSvc.onShowToast( this.onGetError(res.showError) );
+            this.modalCtrl.dismiss({
+              ok: true,
+              arrUpload: arrFilesUploaded,
+              data: res
+            });
+          } else {
+            await this.uiSvc.onHideLoading();
+            await this.uiSvc.onShowToast( this.onGetError(res.showError) );
+          }
+
+      });
+    } else {
+
+      this.vhSbc = this.vehicleSvc.onUpdateVehicle( this.bodyVehicle ).subscribe( async ( res ) => {
+        if (!res.ok) {
+          throw new Error( res.error );
+        }
+
+        if (res.showError === 0) {
+          let resDocsJson: IResApi;
+          let resUpDocs: any;
+          const arrFilesUploaded: any[] = [];
+          this.filesVehicle.filesVehicle.forEach( async (item) => {
+            // pkVehicleDriver
+            if (item.changed) {
+
+              resUpDocs = await this.uploadSvc.onUploadDocuments( item.pathFile
+                                              , EEntity.vehicle
+                                              , this.data.pkVehicle
+                                              , item.typeFile
+                                              , this.st.token
+                                              , false );
+              resDocsJson = JSON.parse( resUpDocs.response );
+              if (!resDocsJson.ok) {
+                throw new Error( resDocsJson.error );
+              }
+              arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
+            }
+          });
           await this.uiSvc.onHideLoading();
 
           await this.uiSvc.onShowToast( this.onGetError(res.showError) );
+          this.modalCtrl.dismiss({
+            ok: true,
+            arrUpload: arrFilesUploaded,
+            data: res
+          });
+        } else {
+          await this.uiSvc.onHideLoading();
+          await this.uiSvc.onShowToast( this.onGetError(res.showError) );
+        }
 
-          this.onCloseModal();
+    });
 
-      });
     }
-
 
   }
 
   onCloseModal() {
-    this.modalCtrl.dismiss({ ok: true });
+    this.modalCtrl.dismiss({ ok: false });
   }
 
   onGetError( showError: number ) {
@@ -347,6 +489,12 @@ export class VehicleModalPage implements OnInit {
 
   onClose() {
     this.modalCtrl.dismiss();
+  }
+
+  ngOnDestroy() {
+    if (this.vhSbc) {
+      this.vhSbc.unsubscribe();
+    }
   }
 
 }

@@ -26,17 +26,6 @@ ion-radio-group {
     color: var(--ion-color-primary) !important;
 }
 
-.itemSex {
-    --highlight-height: 0;
-    border: 1px solid var(--ion-color-primary) !important;
-    border-radius: 25px 25px 25px 25px !important;
-    margin: 12px;
-    height: 40px !important;
-    --background-focused: var(--ion-color-primary) !important;
-    --background-activated: var(--ion-color-primary) !important;
-    --background-activated-opacity: 0.5px;
-}
-
 .iconFile {
     position: relative;
     top: -148px;

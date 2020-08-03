@@ -45,14 +45,14 @@
                     </div>
                     <div class="col-8">
                         <div class="row">
-                            <div class="col-12 ">
-                                <button class="btn btn-sm btn-outline-danger btn-round" (click)="onMinusRate(ts)">
+                            <div class="col-12 text-center">
+                                <button class="btn btn-sm btn-outline-danger btn-round" (click)="onMinusRate(ts)" *ngIf="!ts.isMinRate">
                                     <i class="fa fa-minus" aria-hidden="true"></i>
                                 </button>
                                 <span class=" text-rate">
                                     {{ ts.rateOffer | number:'.2-2' }}
                                 </span>
-                                <button class="btn btn-sm btn-outline-success btn-round" (click)="onPlusRate(ts)">
+                                <button class="btn btn-sm btn-outline-success btn-round" (click)="onPlusRate(ts)" *ngIf="!ts.isMinRate">
                                     <i class="fa fa-plus" aria-hidden="true"></i>
                                 </button>
                             </div>

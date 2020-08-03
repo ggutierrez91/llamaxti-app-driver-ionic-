@@ -17,12 +17,12 @@ class FileModel {
     required: boolean;
     changed: boolean;
 
-    constructor( typeFile: ETypeFile, required: boolean) {
+    constructor( typeFile: ETypeFile, required: boolean, path = '', src = '') {
 
         this.typeFile = typeFile;
-        this.pathFile = '';
-        this.srcFile = '';
         this.required = required;
+        this.pathFile = path;
+        this.srcFile = src;
         this.changed = false;
     }
 }
@@ -35,8 +35,7 @@ export class VehicleFilesModel {
         this.filesVehicle = [];
     }
 
-    onAddFile( typeFile: ETypeFile, required: boolean ): IResPromise {
-
+    onAddFile( typeFile: ETypeFile, required: boolean, path = '', src = '' ): IResPromise {
 
         const indexFind = this.filesVehicle.findIndex( item => item.typeFile === typeFile );
 
@@ -47,7 +46,7 @@ export class VehicleFilesModel {
             };
         }
 
-        this.filesVehicle.push( new FileModel( typeFile, required ) );
+        this.filesVehicle.push( new FileModel( typeFile, required, path, src ) );
 
         return { ok: true };
     }
@@ -56,7 +55,6 @@ export class VehicleFilesModel {
 
         const indexFind = this.filesVehicle.findIndex( item => item.typeFile === typeFile );
 
-        // console.log('indexFind', indexFind);
         if ( indexFind === -1 ) {
             return {
                 ok: false,
@@ -66,12 +64,16 @@ export class VehicleFilesModel {
 
         this.filesVehicle[indexFind].pathFile = path;
         this.filesVehicle[indexFind].srcFile = src;
+        this.filesVehicle[indexFind].changed = true;
         return { ok: true };
 
     }
 
     onGetSrc( typeFile: string ) {
         const item = this.filesVehicle.find( file => file.typeFile === typeFile );
+        if (!item) {
+            return '';
+        }
         return item.srcFile || '';
     }
 

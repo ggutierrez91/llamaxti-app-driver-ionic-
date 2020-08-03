@@ -25,6 +25,8 @@
     "@ionic-native/file-path": "^5.26.0",
     "@ionic-native/file-transfer": "^5.26.0",
     "@ionic-native/geolocation": "^5.26.0",
+    "@ionic-native/insomnia": "^5.27.0",
+    "@ionic-native/launch-navigator": "^5.27.0",
     "@ionic-native/native-geocoder": "^5.26.0",
     "@ionic-native/onesignal": "^5.26.0",
     "@ionic-native/social-sharing": "^5.27.0",
@@ -33,12 +35,15 @@
     "@ionic/angular": "^5.0.0",
     "@ionic/storage": "^2.2.0",
     "cordova-android": "^8.1.0",
+    "cordova-plugin-actionsheet": "^2.3.3",
     "cordova-plugin-add-swift-support": "^2.0.2",
     "cordova-plugin-camera": "^4.1.0",
+    "cordova-plugin-dialogs": "^2.0.2",
     "cordova-plugin-file": "^6.0.2",
     "cordova-plugin-file-transfer": "^1.7.1",
     "cordova-plugin-filepath": "^1.5.8",
     "cordova-plugin-geolocation": "^4.0.2",
+    "cordova-plugin-insomnia": "^4.3.0",
     "cordova-plugin-nativegeocoder": "^3.4.1",
     "cordova-plugin-x-socialsharing": "^5.6.8",
     "cordova-sqlite-storage": "^5.0.0",
@@ -50,6 +55,7 @@
     "onesignal-cordova-plugin": "^2.9.1",
     "rxjs": "~6.5.1",
     "tslib": "^1.10.0",
+    "uk.co.workingedge.phonegap.plugin.launchnavigator": "^5.0.4",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
@@ -106,6 +112,11 @@
       },
       "cordova-plugin-x-socialsharing": {
         "ANDROID_SUPPORT_V4_VERSION": "24.1.1+"
+      },
+      "cordova-plugin-insomnia": {},
+      "uk.co.workingedge.phonegap.plugin.launchnavigator": {
+        "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyCJPaTvSLvLvhNhST_2DTJSfeQRC5yYNNA",
+        "OKHTTP_VERSION": "3.12.0"
       }
     },
     "platforms": [

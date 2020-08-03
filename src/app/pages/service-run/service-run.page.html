@@ -3,17 +3,7 @@
 
         <ion-title>Servicio de taxi</ion-title>
 
-
-
-        <!-- <ion-buttons slot="end">
-            <ion-menu-button menu="main-menu"></ion-menu-button>
-        </ion-buttons> -->
-
         <ion-buttons slot="end">
-            <!-- <ion-button *ngIf="!runDestination" (click)="onClick()">
-                <ion-icon slot="start" name="add"></ion-icon>
-                Click me
-            </ion-button> -->
 
             <button *ngIf="!runDestination && !finishDestination" class="btn btn-outline-primary" (click)="onRun()">
                 Iniciar viaje&nbsp;<i class="fas fa-paper-plane"></i>
@@ -39,12 +29,9 @@
             </div>
             <p class="">
                 {{ dataServiceInfo.nameClient | slice:0:25 }} <span *ngIf="dataServiceInfo.nameClient.length > 25">...</span> <br>
-                <!-- <i class="fas fa-phone"></i>&nbsp;{{ dataServiceInfo.phoneClient }} <br> -->
                 <b> {{ distanceText }} - {{ minutesText }} </b>
             </p>
-            <!-- <p> {{ dataServiceInfo.documentClient }}</p>
-            <p> {{ dataServiceInfo.phoneClient }}</p> -->
-            <p> </p>
+
         </div>
 
     </div>

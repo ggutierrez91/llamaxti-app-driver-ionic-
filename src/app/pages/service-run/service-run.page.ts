@@ -12,6 +12,8 @@ import { TaxiService } from '../../services/taxi.service';
 import { PushService } from '../../services/push.service';
 import { ModalCalificationPage } from '../modal-calification/modal-calification.page';
 import { PushModel } from '../../models/push.model';
+import { Insomnia } from '@ionic-native/insomnia/ngx';
+import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
 
 @Component({
   selector: 'app-service-run',
@@ -32,6 +34,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     streetOrigin: ''
   };
   dataServiceInfo: IServiceAccepted = {
+    fkClient: 0,
     nameClient: '',
     documentClient: '',
     phoneClient: '',
@@ -52,14 +55,29 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   bodyPush: PushModel;
 
   // tslint:disable-next-line: max-line-length
-  constructor(private st: StorageService, private geo: Geolocation, private io: SocketService, private sh: SocialSharing, private ui: UiUtilitiesService, private alertCtrl: AlertController, private navCtrl: NavController, private serviceSvc: TaxiService, private os: PushService, private modalCtrl: ModalController) { }
+  constructor(  private st: StorageService,
+                private geo: Geolocation,
+                private io: SocketService,
+                private sh: SocialSharing,
+                private ui: UiUtilitiesService,
+                private alertCtrl: AlertController,
+                private navCtrl: NavController,
+                private serviceSvc: TaxiService,
+                private os: PushService,
+                private modalCtrl: ModalController,
+                private zombie: Insomnia,
+                private launchNavigator: LaunchNavigator) { }
 
   ngOnInit() {
+
+    this.zombie.keepAwake().then(
+      (success) => { console.log('Teléfono en estado zombie :D', success); },
+      (e) => { console.log('Error al prevenir bloqueo de pantalla', e); }
+    );
 
     this.bodyPush = new PushModel();
 
     this.onLoadMap();
-    this.onLoadGeo();
 
     this.st.onLoadToken().then( async() => {
       this.onLoadService();
@@ -76,7 +94,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     const optMap: google.maps.MapOptions = {
       center: new google.maps.LatLng( -12.054825, -77.040627 ),
-      zoom: 14.5,
+      zoom: 7.5,
       streetViewControl: false,
       disableDefaultUI: true,
       mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -85,22 +103,35 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.map = new google.maps.Map( this.mapService.nativeElement, optMap );
 
     this.directionService = new google.maps.DirectionsService();
-    this.directionRender = new google.maps.DirectionsRenderer({ map: this.map });
-    // this.directionRender.setMap( this.map );
+    this.directionRender = new google.maps.DirectionsRenderer({map: this.map});
+
+    this.onLoadGeo();
 
   }
 
-  async onLoadGeo() {
-    const val = await this.geo.getCurrentPosition();
-    const latlng = new google.maps.LatLng( val.coords.latitude, val.coords.longitude );
-    this.markerDriver = new google.maps.Marker({
-      position: latlng,
-      animation: google.maps.Animation.DROP,
-      icon: '/assets/geo-driver.png',
-      map: this.map
+  onLoadGeo() {
+
+    this.geo.getCurrentPosition().then( (val) => {
+
+      this.lat =  val.coords.latitude;
+      this.lng =  val.coords.longitude;
+
+      const latlng = new google.maps.LatLng( val.coords.latitude, val.coords.longitude );
+
+      this.markerDriver = new google.maps.Marker({
+        position: latlng,
+        animation: google.maps.Animation.DROP,
+        icon: '/assets/geo-driver.png',
+        map: this.map
+      });
+
+      setTimeout(() => {
+        this.map.setCenter(latlng);
+        this.map.setZoom(14.6);
+      }, 2500);
+
     });
-    this.map.setCenter(latlng);
-    this.map.setZoom(14.5);
+
   }
 
   async onLoadService() {
@@ -117,6 +148,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
           text: 'Aceptar',
           role: 'ok',
           handler: () => {
+            this.st.onSetItem('current-page', '/home', false);
             this.navCtrl.navigateRoot('/home', {animated: true});
           }
         }]
@@ -127,13 +159,17 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     }
 
     this.infoServiceSbc = this.serviceSvc.onServiceInfo( this.dataService.pkService ).subscribe( async (res) => {
+
       if (!res.ok) {
         throw new Error( res.error );
       }
-
+      // console.log(res.data);
       this.dataServiceInfo = res.data;
       this.runDestination = this.dataServiceInfo.runDestination;
       this.finishDestination = this.dataServiceInfo.finishDestination;
+
+      this.lat = this.dataServiceInfo.latDriver;
+      this.lng = this.dataServiceInfo.lngDriver;
 
       await this.ui.onHideLoading();
 
@@ -143,22 +179,10 @@ export class ServiceRunPage implements OnInit, OnDestroy {
         content: this.infoClient.nativeElement
       });
 
-      this.markerClient = new google.maps.Marker({
-        position: new google.maps.LatLng( this.dataServiceInfo.latOrigin, this.dataServiceInfo.lngOrigin ),
-        animation: google.maps.Animation.DROP,
-        map: this.map
-      });
-      infowindow.open(this.map, this.markerClient);
-
-      this.markerClient.addListener('click', () => {
-        infowindow.open(this.map, this.markerClient);
-      });
-
       this.onListenGeo();
 
     });
 
-    // this.map.setZoom(14.5);
   }
 
   onRun() {
@@ -168,14 +192,35 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     const payload = {
       runDestination: this.runDestination,
       finishDestination: this.finishDestination,
-      pkClient: this.dataService.fkClient,
+      pkClient: this.dataServiceInfo.fkClient,
       pkService: this.dataService.pkService
     };
 
-    this.io.onEmit('status-travel-driver', payload, (ioRes) => {
+    this.io.onEmit('status-travel-driver', payload, (ioRes: any) => {
       console.log('Emitiendo estado de servicio a cliente', ioRes);
     });
+    this.onLaunchNav();
 
+  }
+
+  onLaunchNav() {
+
+    const options: LaunchNavigatorOptions = {
+      start: [this.dataServiceInfo.latOrigin, this.dataServiceInfo.lngOrigin],
+      transportMode: this.launchNavigator.TRANSPORT_MODE.DRIVING,
+      startName: this.dataServiceInfo.streetOrigin,
+      destinationName: this.dataServiceInfo.streetDestination
+      // app: 'USER_SELECT '
+    };
+
+    const lat = this.dataServiceInfo.latDestination;
+    const lng = this.dataServiceInfo.lngDestination;
+
+    this.launchNavigator.navigate( [lat, lng] , options)
+      .then(
+        (success) => console.log('Launched navigator', success),
+        (error) => console.log('Error launching navigator', error)
+      );
   }
 
   async onFinish() {
@@ -212,29 +257,32 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
       this.lat = lat;
       this.lng = lng;
-      // this.onLoadRoute();
       this.onLoadDistance();
       const latlng = new google.maps.LatLng( lat, lng );
 
-      this.markerDriver.setPosition( latlng );
+      this.markerDriver.setOptions( {position: latlng, icon: '/assets/geo-driver.png' } );
       this.map.setCenter( latlng );
-      // this.markerDriver.setMap( this.map );
 
     });
   }
 
   onLoadRoute() {
     const pointA = new google.maps.LatLng( this.lat, this.lng );
-    let pointB = new google.maps.LatLng( this.dataServiceInfo.latOrigin, this.dataServiceInfo.lngOrigin );
+    let lat = this.dataServiceInfo.latOrigin;
+    let lng = this.dataServiceInfo.lngOrigin;
     if (this.runDestination) {
-      pointB = new google.maps.LatLng( this.dataServiceInfo.latDestination, this.dataServiceInfo.lngDestination );
+      lat = this.dataServiceInfo.latDestination;
+      lng = this.dataServiceInfo.lngDestination;
     }
+    const pointB = new google.maps.LatLng( lat, lng );
 
     this.directionService.route({ origin: pointA,
                                   destination: pointB,
                                   travelMode: google.maps.TravelMode.DRIVING }, (res, status) => {
         if (status === 'OK') {
           this.directionRender.setDirections(res);
+          // this.directionRender.setMap( this.map );
+          // console.log('cargando ruta');
         }
     });
   }
@@ -332,7 +380,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     const payload = {
       lat: this.lat,
       lng: this.lng,
-      pkClient: this.dataService.fkClient,
+      pkClient: this.dataServiceInfo.fkClient,
       distanceText: this.distanceText,
       minutesText: this.minutesText,
       distance: this.distance,
@@ -340,13 +388,18 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     };
 
     this.io.onEmit('current-position-driver-service', payload, (resSocket) => {
-      console.log('Emitiendo ubicación del conductor', resSocket);
+      console.log('Emitiendo ubicación del conductor al cliente =====', resSocket);
     });
 
   }
 
   onSharedGeo() {
-    this.sh.share( 'Llamataxi app', `Desde lorem ipsum hasta lorem ipsum two conductor nameComplete`, '', `http://www.google.com/maps/place/${ this.lat },${ this.lng }` ).then( (resShared) => {
+    let msg = `Desde ${ this.dataServiceInfo.streetOrigin }, `;
+    msg += `hasta ${ this.dataServiceInfo.streetDestination }.`;
+    msg += `Conductor ${ this.dataServiceInfo.nameDriver }`;
+    const url = `http://www.google.com/maps/place/${ this.lat },${ this.lng }`;
+
+    this.sh.share( 'Llamataxi app', msg, '', url ).then( (resShared) => {
       console.log('Se compartió ubicación exitosamente', resShared);
     }).catch( e => console.error( 'Error al compartir ubicación', e ) );
   }

@@ -99,8 +99,10 @@ export class ServicesListPage implements OnInit, OnDestroy {
 
               await this.st.onSetItem('runDestination', false, false);
               await this.st.onSetItem('finishDestination', false, false);
-              await this.st.onSetItem('current-service', res.dataOffer, true);
+              await this.st.onSetItem('current-service', offer, true);
               await this.st.onSetItem('current-page', '/service-run', false);
+              await this.st.onSetItem('occupied-driver', true, false);
+
               this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
                 console.log('Cambiando estado conductor', resOccupied);
               });
@@ -167,6 +169,23 @@ export class ServicesListPage implements OnInit, OnDestroy {
   }
 
   async onAcceptOffer( service: IServices ) {
+
+    if (this.st.pkVehicle === 0) {
+      const alertVerify = await this.alertCtrl.create({
+        header: 'Mensaje al usuario',
+        message: 'Por favor verifique tener un vehículo seleccionado',
+        mode: 'ios',
+        animated: true,
+        buttons: [{
+          text: 'Ok',
+          handler: () => {}
+        }]
+      });
+
+      await alertVerify.present();
+      return;
+    }
+
     const osIdClient = service.osId;
 
     this.bodyAcceptOffer.pkService = service.pkService;

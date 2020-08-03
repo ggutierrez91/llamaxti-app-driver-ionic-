@@ -68,6 +68,15 @@ export class PushService {
 
   }
 
+  async onGetId() {
+    const info = await this.oneSignal.getIds();
+
+    // console.log('os id', info.userId);
+    this.osID = info.userId;
+    this.st.osID = info.userId;
+    await this.st.onSetItem('osID', info.userId);
+  }
+
   onSendPushUser( body: PushModel ) {
 
     return this.http.post( URL_API + '/Push/Send', body, {headers: { Authorization: this.st.token }} );

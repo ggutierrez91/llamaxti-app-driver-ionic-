@@ -45,6 +45,9 @@ export class LoginPage implements OnInit, OnDestroy {
           await this.st.onClearStorage();
         } else {
           await this.st.onSaveCredentials( res.token, res.data );
+
+          
+
           this.io.onSingUser().then( async (resSocket) => {
             // console.log('configurando usuario socket', resSocket);
 

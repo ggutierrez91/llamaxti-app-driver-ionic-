@@ -9,6 +9,7 @@ import { UploadService } from '../../services/upload.service';
 import { IResApi } from '../../interfaces/response-api.interface';
 import { StorageService } from '../../services/storage.service';
 import { SocketService } from '../../services/socket.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-singin',
@@ -20,6 +21,8 @@ export class SinginPage implements OnInit, OnDestroy {
   @ViewChild('driverSlide', {static: true}) slidesDriver: IonSlides;
   @ViewChild('driverContent', {static: true}) content: IonContent;
   slideIndex = 0;
+
+  driverSbc: Subscription;
 
   bodyDriver: DriverModel;
   driverFiles: DriverFilesModel;
@@ -128,7 +131,7 @@ export class SinginPage implements OnInit, OnDestroy {
     if (frm.valid) {
       this.bodyDriver.numberPlate = this.bodyDriver.numberPlate.toUpperCase();
 
-      this.authSvc.onSaveDriver( this.bodyDriver ).subscribe( async (resSingin) => {
+      this.driverSbc = this.authSvc.onSaveDriver( this.bodyDriver ).subscribe( async (resSingin) => {
         if (!resSingin.ok) {
           throw new Error( resSingin.error );
         }
@@ -138,52 +141,44 @@ export class SinginPage implements OnInit, OnDestroy {
           this.uiSvc.onShowAlert( this.onGetError( resSingin.showError ) );
           return;
         }
-        const pkDriver = resSingin.data.pkDriver;
-        const pkVehicle = resSingin.data.pkVehicle;
+        const pkDriver: number = resSingin.data.pkDriver;
+        const pkVehicle: number = resSingin.data.pkVehicle;
+        const pkUser: number = resSingin.data.pkUser;
+        const tokenApi = resSingin.token;
 
-        this.st.token = resSingin.token || '';
-        await this.st.onSaveCredentials( resSingin.token, resSingin.data );
-        // subiendo imagen perfil del conductor
-        this.uploadSvc.onUploadImg( this.bodyDriver.img, resSingin.data.pkUser, resSingin.token ).then( async (resUp) => {
+        this.st.token = tokenApi || '';
+        await this.st.onSaveCredentials( tokenApi, resSingin.data );
+        this.uploadSvc.onUploadImg( this.bodyDriver.img, pkUser, tokenApi ).then( (resUp) => {
+
           const resJson: IResApi = JSON.parse( resUp.response );
           if (!resJson.ok) {
-            throw new Error( resJson.error );
+            console.log('Error al subir img perfil', resJson.error);
           }
           resSingin.data.img = resJson.data[0].nameFile || 'xd.png';
+        }).catch( (e) => console.log(e));
 
-          let idEntity = 0;
-          let resUpDocs: any;
-          let resDocsJson: IResApi;
+        const arrFilesUploaded: any[] = [];
+        await Promise.all( this.driverFiles.filesDriver.map( async (item) => {
 
-          const arrFilesUploaded: any[] = [];
-          this.driverFiles.filesDriver.forEach( async (item) => {
+          if (item.pathFile !== '') {
 
-            if (item.pathFile !== '') {
+            const idEntity = item.entity === 'DRIVER' ? pkDriver : pkVehicle;
 
-              idEntity = item.entity === 'DRIVER' ? pkDriver : pkVehicle;
-
-              resUpDocs = await this.uploadSvc.onUploadDocuments( item.pathFile
-                                              , item.entity
-                                              , idEntity
-                                              , item.typeFile
-                                              , resSingin.token
-                                              , item.isPdf );
-              resDocsJson = JSON.parse( resUpDocs.response );
-              if (!resDocsJson.ok) {
-                throw new Error( resDocsJson.error );
-              }
-              arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
+            const resUpDocs = await this.uploadSvc.onUploadDocuments( item.pathFile
+                                            , item.entity
+                                            , idEntity
+                                            , item.typeFile
+                                            , tokenApi
+                                            , item.isPdf );
+            const resDocsJson: IResApi = JSON.parse( resUpDocs.response );
+            if (!resDocsJson.ok) {
+              throw new Error( resDocsJson.error );
             }
+            arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
+          }
+        }) );
 
-          });
-
-          this.onRedirecHome(resSingin);
-
-        }).catch( (e) => {
-          console.error('Error al subir imagen de perfil conductor');
-          throw new Error( e );
-        });
-
+        this.onRedirecHome(resSingin);
       });
     }
 
@@ -205,42 +200,47 @@ export class SinginPage implements OnInit, OnDestroy {
       console.log('Cambiando estado conductor', resOccupied);
     });
     await this.uiSvc.onHideLoading();
-    await this.st.onSetItem( 'current-page', '/home', false );
+    await this.st.onSetItem( 'current-page', '/welcome', false );
     this.navCtrl.navigateRoot('welcome', {animated: true});
   }
 
   onGetError( showError: number ) {
 
     let arrError = showError === 0 ? ['Cuenta creada exitosamente'] : ['Error ya existe un usuario'];
-
+    
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {
-      arrError.push('asociado con este email');
-    }
-
-    // tslint:disable-next-line: no-bitwise
-    if (showError & 2) {
-      arrError.push('se encuentra inactivo');
-    }
-
-    // tslint:disable-next-line: no-bitwise
-    if (showError & 4) {
       arrError.push('con este nombre de usuario');
     }
 
     // tslint:disable-next-line: no-bitwise
+    if (showError & 2) {
+      arrError.push('asociado con este email');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 4) {
+      arrError.push('se encuentra inactivo');
+    }    
+
+    // tslint:disable-next-line: no-bitwise
     if (showError & 8) {
-      arrError.push('asociado con este numero de placa');
+      arrError = ['Error', 'ya existe un conductor con este nro de documento'];
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 16) {
-      arrError = ['Tipo de documento inválido'];
+      arrError = ['Error', 'ya existe un vehículo con este nro de placa'];
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 32) {
-      arrError = ['Nacionalidad inválida'];
+      arrError = ['Error', 'Tipo de documento inválido'];
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 32) {
+      arrError = ['Error', 'nacionalidad inválida'];
     }
 
     return arrError.join(', ');
@@ -248,6 +248,10 @@ export class SinginPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.menuCtrl.swipeGesture(true);
+
+    if (this.driverSbc) {
+      this.driverSbc.unsubscribe();
+    }
   }
 
 }

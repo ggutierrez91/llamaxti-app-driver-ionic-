@@ -165,6 +165,7 @@ export class HomePage implements OnInit, OnDestroy {
 
         const latlng = new google.maps.LatLng( lat, lng );
         this.marker.setPosition( latlng );
+        this.map.setCenter( latlng );
 
         this.io.onEmit('current-position-driver', {lat, lng }, (resSocket: IResSocket) => {
           console.log('Emitiendo ubicación conductor', resSocket.message);

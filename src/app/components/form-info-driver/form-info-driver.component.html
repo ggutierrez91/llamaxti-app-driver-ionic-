@@ -53,7 +53,7 @@
                     </ion-select>
 
                     <!-- (ionChange)="onVerifyDni($event)" -->
-                    <ion-input type="text" placeholder="# documento" class="ion-text-right" clearInput="true" inputmode="numeric" debounce="750" name="document" #document="ngModel" [(ngModel)]="bodyDriver.document" required="true" [minlength]="longTypeDoc">
+                    <ion-input type="text" placeholder="# documento" class="ion-text-right" clearInput="true" inputmode="tel" debounce="750" name="document" #document="ngModel" [(ngModel)]="bodyDriver.document" required="true" [minlength]="longTypeDoc" (ionChange)="onVerifyDni($event)">
 
                     </ion-input>
 
@@ -139,7 +139,7 @@
                     </ion-select>
 
 
-                    <ion-input mode="ios" type="text" placeholder="000 000 000" inputmode="numeric" class="ion-text-right" clearInput="true" name="phone" #phone="ngModel" [(ngModel)]="bodyDriver.phone" pattern="^[0-9]{0,9}$" minlength="9" maxlength="9">
+                    <ion-input mode="ios" type="text" placeholder="000 000 000" inputmode="tel" class="ion-text-right" clearInput="true" name="phone" #phone="ngModel" [(ngModel)]="bodyDriver.phone" pattern="^[0-9]{0,9}$" minlength="9" maxlength="9">
                     </ion-input>
                 </ion-item>
 

@@ -128,11 +128,12 @@
 }
 
 .is-valid {
-    border: 1px solid var(--ion-color-primary) !important;
+    border: 1px solid #ced4da !important;
     ion-icon {
         font-size: 18.5px;
         margin-bottom: 15px;
-        color: var(--ion-color-primary) !important;
+        color: #f96332 !important;
+        // color: var(--ion-color-primary) !important;
     }
 }
 

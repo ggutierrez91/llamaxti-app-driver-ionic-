@@ -13,6 +13,7 @@ import { IResApi } from '../../interfaces/response-api.interface';
 import { UploadService } from '../../services/upload.service';
 import { EEntity } from 'src/app/models/user-driver-files.model';
 import { Subscription } from 'rxjs';
+// import { setTimeout } from 'timers';
 
 const URI_SERVER = environment.URL_SERVER;
 declare var window: any;
@@ -28,6 +29,8 @@ export class VehicleModalPage implements OnInit, OnDestroy {
   @ViewChild('driverContent', {static: true}) content: IonContent;
   @Input() loadData: boolean;
   @Input() data: IVehicle;
+  @Input() token: string;
+  
 
   bodyVehicle: VehicleModel;
   filesVehicle: VehicleFilesModel;
@@ -87,7 +90,7 @@ export class VehicleModalPage implements OnInit, OnDestroy {
   pathDriver = URI_SERVER + `/Driver/Img/Get/vehicle/`;
 
   // tslint:disable-next-line: max-line-length
-  constructor(private modalCtrl: ModalController, private pickerCtrl: PickerController, private sheetCtrl: ActionSheetController, private camera: Camera, private uiSvc: UiUtilitiesService, private vehicleSvc: VehicleService, public st: StorageService, private uploadSvc: UploadService, private device: Platform) { }
+  constructor(private modalCtrl: ModalController, private pickerCtrl: PickerController, private sheetCtrl: ActionSheetController, private camera: Camera, private uiSvc: UiUtilitiesService, private vehicleSvc: VehicleService, public st: StorageService, private uploadSvc: UploadService) { }
 
   ngOnInit() {
 
@@ -184,7 +187,7 @@ export class VehicleModalPage implements OnInit, OnDestroy {
   onLoadFiles() {
     const path = this.pathDriver + `${ this.data.pkVehicle }/`;
     const param = `?idDriver=${ this.data.fkDriver || 0 }&token=${ this.st.token }`;
-    console.log('params', param);
+    // console.log('params', param);
     let pathSoat =  path + this.data.imgSoat + param;
     let pathPropertyCard =  path + this.data.imgPropertyCard + param;
     let pathFrontal =  path + this.data.imgTaxiFrontal + param;
@@ -348,7 +351,7 @@ export class VehicleModalPage implements OnInit, OnDestroy {
     this.content.scrollToTop(50);
   }
 
-  async onSubmit() {
+  onSubmit() {
     let verifyFiles = false;
     const arrMsg = ['Error'];
     if (this.filesVehicle.onGetSrc( ETypeFile.taxiFrontal ) === '') {
@@ -370,69 +373,40 @@ export class VehicleModalPage implements OnInit, OnDestroy {
       return this.uiSvc.onShowToast(arrMsg.join(', '), 4500);
     }
 
-    await this.uiSvc.onShowLoading('Guardando...');
+    this.uiSvc.onShowLoading('Guardando...');
 
     if (!this.loadData) {
-      this.vhSbc = this.vehicleSvc.onAddVehicle( this.bodyVehicle ).subscribe( async ( res ) => {
-          if (!res.ok) {
-            throw new Error( res.error );
-          }
-          console.log('respuesta grabar vehiculo', res);
-          if (res.showError === 0) {
-            let resDocsJson: IResApi;
-            let resUpDocs: any;
-            const arrFilesUploaded: any[] = [];
-            this.filesVehicle.filesVehicle.forEach( async (item) => {
-              // pkVehicleDriver
-              if (item.pathFile !== '') {
 
-                resUpDocs = await this.uploadSvc.onUploadDocuments( item.pathFile
-                                                , EEntity.vehicle
-                                                , res.data.pkVehicleDriver
-                                                , item.typeFile
-                                                , this.st.token
-                                                , false );
-                resDocsJson = JSON.parse( resUpDocs.response );
-                if (!resDocsJson.ok) {
-                  throw new Error( resDocsJson.error );
-                }
-                arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
-              }
-            });
-            await this.uiSvc.onHideLoading();
+      this.onAddVehicle();
 
-            await this.uiSvc.onShowToast( this.onGetError(res.showError) );
-            this.modalCtrl.dismiss({
-              ok: true,
-              arrUpload: arrFilesUploaded,
-              data: res
-            });
-          } else {
-            await this.uiSvc.onHideLoading();
-            await this.uiSvc.onShowToast( this.onGetError(res.showError) );
-          }
-
-      });
     } else {
 
-      this.vhSbc = this.vehicleSvc.onUpdateVehicle( this.bodyVehicle ).subscribe( async ( res ) => {
+      this.onUpdateVehicle();
+
+    }
+
+  }
+
+  onAddVehicle() {
+    this.vhSbc = this.vehicleSvc.onAddVehicle( this.bodyVehicle ).subscribe( async ( res ) => {
         if (!res.ok) {
           throw new Error( res.error );
         }
-
+        console.log('respuesta grabar vehiculo', res);
         if (res.showError === 0) {
           let resDocsJson: IResApi;
-          let resUpDocs: any;
+          // let resUpDocs: any;
           const arrFilesUploaded: any[] = [];
-          this.filesVehicle.filesVehicle.forEach( async (item) => {
-            // pkVehicleDriver
-            if (item.changed) {
 
-              resUpDocs = await this.uploadSvc.onUploadDocuments( item.pathFile
+          await Promise.all( this.filesVehicle.filesVehicle.map( async (item) => {
+
+            if (item.pathFile !== '') {
+
+              const resUpDocs = await this.uploadSvc.onUploadDocuments( item.pathFile
                                               , EEntity.vehicle
-                                              , this.data.pkVehicle
+                                              , res.data.pkVehicleDriver
                                               , item.typeFile
-                                              , this.st.token
+                                              , this.token
                                               , false );
               resDocsJson = JSON.parse( resUpDocs.response );
               if (!resDocsJson.ok) {
@@ -440,28 +414,77 @@ export class VehicleModalPage implements OnInit, OnDestroy {
               }
               arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
             }
-          });
+
+          }) );
+
           await this.uiSvc.onHideLoading();
 
           await this.uiSvc.onShowToast( this.onGetError(res.showError) );
-          this.modalCtrl.dismiss({
+          await this.modalCtrl.dismiss({
             ok: true,
             arrUpload: arrFilesUploaded,
             data: res
-          });
+          }, 'inserted');
+  
         } else {
           await this.uiSvc.onHideLoading();
           await this.uiSvc.onShowToast( this.onGetError(res.showError) );
         }
 
     });
+  }
 
-    }
+  onUpdateVehicle() {
+    this.vhSbc = this.vehicleSvc.onUpdateVehicle( this.bodyVehicle ).subscribe( async ( res ) => {
+      if (!res.ok) {
+        throw new Error( res.error );
+      }
 
+      if (res.showError === 0) {
+        const arrFilesUploaded: any[] = [];
+
+        await Promise.all( this.filesVehicle.filesVehicle.map( async (item) => {
+
+          // console.log('file vehicle', item);
+          if (item.changed) {
+  
+            const resUpDocs = await this.uploadSvc.onUploadDocuments( item.pathFile
+                                            , EEntity.vehicle
+                                            , this.bodyVehicle.pkVehicle
+                                            , item.typeFile
+                                            , this.st.token
+                                            , false );
+            const resDocsJson: IResApi = JSON.parse( resUpDocs.response );
+            if (!resDocsJson.ok) {
+              throw new Error( resDocsJson.error );
+            }
+            arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
+          }
+        }) );
+        // this.filesVehicle.filesVehicle.forEach( async (item)  => {
+        //   // pkVehicleDriver
+        // });
+
+        await this.uiSvc.onHideLoading();
+
+        await this.uiSvc.onShowToast( this.onGetError(res.showError) );
+        await this.modalCtrl.dismiss({
+          ok: true,
+          arrUpload: arrFilesUploaded,
+          data: res
+        }, 'updated');
+
+
+      } else {
+        await this.uiSvc.onHideLoading();
+        await this.uiSvc.onShowToast( this.onGetError(res.showError) );
+      }
+
+    });
   }
 
   onCloseModal() {
-    this.modalCtrl.dismiss({ ok: false });
+    this.modalCtrl.dismiss( {ok: false}, 'cancel');
   }
 
   onGetError( showError: number ) {
@@ -485,10 +508,6 @@ export class VehicleModalPage implements OnInit, OnDestroy {
 
     return arrError.join(', ');
 
-  }
-
-  onClose() {
-    this.modalCtrl.dismiss();
   }
 
   ngOnDestroy() {

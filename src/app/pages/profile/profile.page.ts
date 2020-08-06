@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { IProfile } from '../../interfaces/profile.interface';
 import { Subscription } from 'rxjs';
+import { retry } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { StorageService } from '../../services/storage.service';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
@@ -38,9 +39,9 @@ export class ProfilePage implements OnInit, OnDestroy {
   // tslint:disable-next-line: max-line-length
   constructor( public st: StorageService, private ui: UiUtilitiesService, private modalCtrl: ModalController, private userSvc: UserService ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.loading = true;
-    this.ui.onShowLoading('Espere...');
+    await this.ui.onShowLoading('Espere...');
 
     this.st.onLoadToken().then( async () => {
       this.loading = false;
@@ -52,7 +53,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   onLoadProfile() {
-    this.profileSbc = this.userSvc.onGetProfile().subscribe( async (res) => {
+    this.profileSbc = this.userSvc.onGetProfile().pipe( retry() ).subscribe( async (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
@@ -103,6 +104,12 @@ export class ProfilePage implements OnInit, OnDestroy {
         this.pathCriminalRecord = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgCriminalRecord }?token=${ this.st.token }`;
         this.pathCheck = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgPhotoCheck }?token=${ this.st.token }`;
         console.log('upload info', resModal.data.arrFilesUploaded);
+        const newDataUser = this.st.dataUser;
+        newDataUser.name = this.dataProfile.name;
+        newDataUser.nameComplete = this.dataProfile.nameComplete;
+        newDataUser.img = this.dataProfile.img;
+        this.st.dataUser = newDataUser;
+        this.st.onSetItem('dataUser', newDataUser, true);
       }
     });
 

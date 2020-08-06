@@ -14,6 +14,7 @@ import { SocketService } from '../../services/socket.service';
 import { NavController, AlertController } from '@ionic/angular';
 import { IOffer } from 'src/app/interfaces/offer.interface';
 import { PushModel } from '../../models/push.model';
+import { Insomnia } from '@ionic-native/insomnia/ngx';
 
 const URI_SERVER = environment.URL_SERVER;
 
@@ -44,13 +45,18 @@ export class ServicesListPage implements OnInit, OnDestroy {
   bodyPush: PushModel;
 
   // tslint:disable-next-line: max-line-length
-  constructor(private services: TaxiService, public st: StorageService, private ui: UiUtilitiesService, private os: PushService, private notySvc: NotificationService, private io: SocketService, private navCtrl: NavController, private alertCtrl: AlertController) { }
+  constructor(private services: TaxiService, public st: StorageService, private ui: UiUtilitiesService, private os: PushService, private notySvc: NotificationService, private io: SocketService, private navCtrl: NavController, private alertCtrl: AlertController, private zombie: Insomnia) { }
 
   ngOnInit() {
 
     this.bodyOffer = new OfferModel();
     this.bodyAcceptOffer = new OfferModel();
     this.bodyPush = new PushModel();
+
+    this.zombie.keepAwake().then(
+      (success) => { console.log('Teléfono en estado zombie :D', success); },
+      (e) => { console.log('Error al prevenir bloqueo de pantalla', e); }
+    );
 
     this.st.onLoadVehicle();
     this.st.onLoadToken().then( (res) => {

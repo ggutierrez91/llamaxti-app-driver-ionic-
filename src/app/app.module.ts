@@ -26,6 +26,7 @@ import { PipesModule } from './pipes/pipes.module';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
+import { Globalization } from '@ionic-native/globalization/ngx';
 
 // the second parameter 'fr-FR' is optional
 registerLocaleData(localeEs, 'es');
@@ -56,6 +57,8 @@ const configIO: SocketIoConfig = { url: environment.URL_SERVER, options: {} };
     OneSignal,
     Insomnia,
     SocialSharing,
+    // tslint:disable-next-line: deprecation
+    Globalization,
     LaunchNavigator,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],

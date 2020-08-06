@@ -1,15 +1,22 @@
 .iconImg {
-    position: relative;
-    top: -115px;
-    right: -123px;
-    font-size: 19px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 28px;
+}
+
+.iconHoriz {
+    position: absolute;
+    top: 65px;
+    right: 25px;
+    font-size: 28px;
 }
 
 .iconFile {
-    position: relative;
-    top: -220px;
-    right: -60px;
-    font-size: 19px;
+    position: absolute;
+    top: 65px;
+    right: 17px;
+    font-size: 28px;
 }
 
 .photo-driver {

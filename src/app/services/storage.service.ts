@@ -15,7 +15,8 @@ export class StorageService {
     pkDriver: 0,
     role: '',
     userName: '',
-    nameComplete: ''
+    nameComplete: '',
+    img: ''
   };
   public dataVehicle: any = null;
   public role = '';
@@ -62,6 +63,7 @@ export class StorageService {
     const value = await this.storage.get( 'dataUser' );
     if (value) {
       this.dataUser =  JSON.parse( value );
+      this.nameComplete = this.dataUser.nameComplete;
     }
   }
 

@@ -35,7 +35,7 @@ export class VehiclePage implements OnInit, OnDestroy {
     this.st.onLoadToken().then( () => {
 
       this.tokenPath = `?idDriver=${ this.st.pkDriver }&token=${ this.st.token }`;
-      console.log(this.tokenPath );
+      // console.log(this.tokenPath );
       this.onGetVehicles();
 
     });
@@ -49,6 +49,7 @@ export class VehiclePage implements OnInit, OnDestroy {
       mode: 'ios',
       componentProps: {
         loadData: false,
+        token: this.st.token,
         data: {
           imgSoat: '',
           imgPropertyCard: '',
@@ -61,6 +62,7 @@ export class VehiclePage implements OnInit, OnDestroy {
 
     await modalAdd.present();
     modalAdd.onDidDismiss().then( (resModal) => {
+      console.log('respuesta modal', resModal);
       if (resModal.data.ok) {
         this.onGetVehicles();
       }
@@ -71,20 +73,23 @@ export class VehiclePage implements OnInit, OnDestroy {
 
     const modalAdd = await this.modalCtrl.create({
       component: VehicleModalPage,
+      // id: 'modalVehicle',
       animated: true,
       // mode: 'ios',
       componentProps: {
         loadData: true,
+        token: this.st.token,
         data: vh
       }
     });
 
     await modalAdd.present();
-    modalAdd.onDidDismiss().then( (resModal) => {
-      if (resModal.data.ok) {
-        this.onGetVehicles();
-      }
-    });
+    const { data, role} = await modalAdd.onDidDismiss();
+
+    console.log('res modal edit', data, role);
+    if (data.ok) {
+      this.onGetVehicles();
+    }
 
   }
 
@@ -141,7 +146,7 @@ export class VehiclePage implements OnInit, OnDestroy {
 
       this.dataVehicle.forEach( (vh) => {
         vh.srcTaxiFrontal = this.pathImg + vh.pkVehicle + `/${ vh.imgTaxiFrontal || 'xd.png' }${ this.tokenPath }`;
-        console.log(vh.imgTaxiFrontal);
+        // console.log(vh.imgTaxiFrontal);
       });
       this.loading = false;
     });
@@ -157,15 +162,15 @@ export class VehiclePage implements OnInit, OnDestroy {
       message: `¿Está seguro de pasar a usar ${ finded.nameBrand }-${ finded.numberPlate }?`,
       mode: 'ios',
       buttons: [{
-        text: 'Aceptar',
-        handler: () => {
-            this.onChangeUsingVehicle( pkVehicle );
-        }
-      }, {
         text: 'Cerrar',
         cssClass: 'text-danger',
         role: 'cancel',
         handler: () => { }
+      },{
+        text: 'Aceptar',
+        handler: () => {
+            this.onChangeUsingVehicle( pkVehicle );
+        }
       }]
     });
 

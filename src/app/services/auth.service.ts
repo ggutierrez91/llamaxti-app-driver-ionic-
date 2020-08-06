@@ -27,7 +27,7 @@ export class AuthService {
   }
 
   onReniecDni( dni: string ) {
-    return this.http.get(`/dni/${ dni }`);
+    return this.http.get( URI_API +  `/dni?q=${ dni }`);
   }
 
   onSaveClient( body: UserModel ) {

@@ -31,12 +31,11 @@ export class UploadService {
     const optUpload: FileUploadOptions = {
       fileKey: 'file',
       httpMethod: 'put',
-      
       headers: {
         Authorization: token
       }
     };
-    
+
     if (isPf) {
       optUpload.fileName = 'doc.pdf';
       optUpload.mimeType = 'application/pdf';

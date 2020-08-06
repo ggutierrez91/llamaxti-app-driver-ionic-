@@ -8,7 +8,6 @@ import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
 import { DriverFilesModel, EEntity, ETypeFile } from '../../models/user-driver-files.model';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
-import { FilePath } from '@ionic-native/file-path/ngx';
 import { NgForm } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { UploadService } from '../../services/upload.service';
@@ -106,9 +105,11 @@ export class ModalProfilePage implements OnInit, OnDestroy {
   pathDriver = URI_SERVER + `/Driver/Img/Get/driver/`;
 
   // tslint:disable-next-line: max-line-length
-  constructor( private camera: Camera, private modalCtrl: ModalController, private pickerCtrl: PickerController, private authSvc: AuthService, private sheetCtrl: ActionSheetController, private ui: UiUtilitiesService, private filePath: FilePath, private userSvc: UserService, private upload: UploadService ) { }
+  constructor( private camera: Camera, private modalCtrl: ModalController, private pickerCtrl: PickerController, private authSvc: AuthService, private sheetCtrl: ActionSheetController, private ui: UiUtilitiesService, private userSvc: UserService, private upload: UploadService ) { }
 
   ngOnInit() {
+
+    // this.st.onLoadData();
 
     this.driverFiles = new DriverFilesModel();
     const pkDriver = this.bodyProfile.pkDriver;
@@ -495,11 +496,14 @@ export class ModalProfilePage implements OnInit, OnDestroy {
         error: null
       };
       await this.ui.onShowLoading('Guardando...');
+      this.bodyProfile.nameComplete = `${ this.bodyProfile.surname }, ${ this.bodyProfile.name }`;
       this.userSbc =  this.userSvc.onUpdateProfi( this.bodyProfile, this.token ).subscribe( async(res) => {
 
         if (!res.ok) {
           throw new Error( res.error );
         }
+
+        // this.st.dataUser.nameComplete = this.bodyProfile.nameComplete;
 
         if (this.imgProfileNew !== '') {
           const resImg = await this.upload.onUploadImg( this.imgProfileNew, this.bodyProfile.pkUser, this.token );
@@ -516,42 +520,44 @@ export class ModalProfilePage implements OnInit, OnDestroy {
         let resDocsJson: any;
         const arrFilesUploaded: any[] = [];
 
-        this.driverFiles.filesDriver.forEach( async (item) => {
-            if (item.changeed) {
-              const resDoc = await this.upload.onUploadDocuments(item.pathFile
-                                                                , item.entity
-                                                                , this.bodyProfile.pkDriver
-                                                                , item.typeFile
-                                                                , this.token
-                                                                , item.isPdf);
-              resDocsJson = JSON.parse( resDoc.response );
-              if (!resDocsJson.ok) {
-                console.error( 'Error al subir imagen', resDocsJson.error );
-                return;
-              }
-
-              if (item.typeFile === this.typeFile.license ) {
-                this.bodyProfile.imgLicense = resDocsJson.newFile;
-              }
-
-              if (item.typeFile === this.typeFile.photoCheck ) {
-                this.bodyProfile.imgPhotoCheck = resDocsJson.newFile;
-              }
-              if (item.typeFile === this.typeFile.criminalRecord ) {
-                this.bodyProfile.imgCriminalRecord = resDocsJson.newFile;
-              }
-              if (item.typeFile === this.typeFile.policialRecord ) {
-                this.bodyProfile.imgPolicialRecord = resDocsJson.newFile;
-              }
-
-              arrFilesUploaded.push( {
-                img: resDocsJson.newFile,
-                doc: resDocsJson.document,
-                msg: `Se subio archivo ${ item.typeFile }`
-              });
-
+        await Promise.all( this.driverFiles.filesDriver.map( async (item) => {
+          if (item.changeed) {
+            const resDoc = await this.upload.onUploadDocuments(item.pathFile
+                                                              , item.entity
+                                                              , this.bodyProfile.pkDriver
+                                                              , item.typeFile
+                                                              , this.token
+                                                              , item.isPdf);
+            resDocsJson = JSON.parse( resDoc.response );
+            if (!resDocsJson.ok) {
+              console.error( 'Error al subir imagen', resDocsJson.error );
+              return;
             }
-        });
+
+            if (item.typeFile === this.typeFile.license ) {
+              this.bodyProfile.imgLicense = resDocsJson.newFile;
+            }
+
+            if (item.typeFile === this.typeFile.photoCheck ) {
+              this.bodyProfile.imgPhotoCheck = resDocsJson.newFile;
+            }
+            if (item.typeFile === this.typeFile.criminalRecord ) {
+              this.bodyProfile.imgCriminalRecord = resDocsJson.newFile;
+            }
+            if (item.typeFile === this.typeFile.policialRecord ) {
+              this.bodyProfile.imgPolicialRecord = resDocsJson.newFile;
+            }
+
+            arrFilesUploaded.push( {
+              img: resDocsJson.newFile,
+              doc: resDocsJson.document,
+              msg: `Se subio archivo ${ item.typeFile }`
+            });
+
+          }
+
+        }));
+
         await this.ui.onHideLoading();
         this.modalCtrl.dismiss({
           ok: true,

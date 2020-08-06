@@ -167,13 +167,18 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
     }
     this.loadingReniec = true;
     this.sbcClient = this.authSvc.onReniecDni( this.bodyDriver.document ).subscribe( (res: any) => {
-
-      if (res) {
-        this.bodyDriver.verifyReniec = true;
-        this.bodyDriver.name = res.nombres || '';
-        this.bodyDriver.surname = `${ res.apellido_paterno} ${ res.apellido_materno }` || '';
-      }
       this.loadingReniec = false;
+
+      if (!res.ok || !res.data.dni || res.data.dni === '') {
+        this.bodyDriver.verifyReniec = false;
+        this.bodyDriver.name = '';
+        this.bodyDriver.surname = '';
+        return;
+      }
+
+      this.bodyDriver.verifyReniec = true;
+      this.bodyDriver.name = res.data.nombres;
+      this.bodyDriver.surname = `${ res.data.apellido_paterno} ${ res.data.apellido_materno }`;
     });
   }
 
@@ -195,17 +200,18 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
 
   onShowCamera() {
     this.camera.getPicture(this.optCamera).then((imageData) => {
+      this.bodyDriver.img = imageData;
       const src: string = window.Ionic.WebView.convertFileSrc(imageData);
       let arrImg = src.split('.');
       arrImg = arrImg[ arrImg.length - 1 ].split('?');
       const extension = arrImg[ 0 ].toLowerCase();
 
       if ( !this.imgValid.includes( extension ) ) {
+        this.bodyDriver.img = '';
         this.uiSvc.onShowToast('Solo se permiten imágenes de tipo: ' + this.imgValid.join(', '), 2000);
         return;
       }
 
-      this.bodyDriver.img = imageData;
       this.bodyDriver.srcImg = src;
       this.photoValid = true;
 

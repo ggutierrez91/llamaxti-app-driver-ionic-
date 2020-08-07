@@ -1,34 +1,45 @@
+import { ICoords } from '../models/service.model';
 export interface IServices {
 
     pkService?: number;
     fkClient?: number;
     fkDriver?: number;
-    pkOfferService?: number;
-    img?: string;
-    nameComplete?: string;
-    prefix?: string;
-    document?: string;
-    phone?: string;
-    nameCountry?: string;
-    rateHistory?: number;
+    fkJournal?: number;
+    fkRate?: number;
+    fkCategory?: number;
+    codeCategory?: string;
+    coordsOrigin?: ICoords;
     latOrigin?: number;
-	lngOrigin?: number;
+    lngOrigin?: number;
+    coordsDestination?: ICoords;
     streetOrigin?: string;
     streetDestination?: string;
-    distanceText?: string;
-    minutesText?: string;
-    rateService?: number;
-    minRatePercent?: number;
-    rateOffer?: number;
-    rateOfferHistory?: number;
-    created?: string;
-    changeRate?: number;
-    osId?: string;
-    isMinRate?: boolean;
 
-    pkCategory?: number;
+    codeJournal?: string;
+    distance?: number;
+    distanceText?: string;
+    minutes?: number;
+    minutesText?: string;
+    rateHistory?: number;
+    rateService?: number;
+    rateOfferHistory?: number;
+    rateOffer?: number;
+    minRate?: number;
+    minRatePercent?: number;
+    isMinRate?: boolean;
+    paymentType?: string;
+    indexHex?: string;
+
+    // datos de relleno para que el conductor identifique al cliente
+    img?: string;
+    nameComplete?: string;
+    // otros
+    created?: any;
+    osId?: string;
     aliasCategory?: string;
-    codeCategory?: string;
+    changeRate?: boolean;
+    pkOfferService?: number;
+
     color?: string;
     numberPlate?: string;
     year?: number;

@@ -81,7 +81,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
       // recibimos la data del nuevo servicio
       const newService: IServices = resSocket.data;
 
-      this.ui.onShowToast('Nuevo servicio cerca de aquí', 4000);
+      // this.ui.onShowToast('Nuevo servicio cerca de aquí', 4000);
       this.dataServices.unshift( newService );
       // this.onGetServices(1);
     });
@@ -92,6 +92,22 @@ export class ServicesListPage implements OnInit, OnDestroy {
       console.log('llego una oferta cliente', res);
       if (res.accepted) {
         const offer: IOffer = res.dataOffer;
+        await this.ui.onShowLoading('Espere....');
+
+        await this.st.onSetItem('runDestination', false, false);
+        await this.st.onSetItem('finishDestination', false, false);
+        await this.st.onSetItem('current-service', offer, true);
+        await this.st.onSetItem('current-page', '/service-run', false);
+        await this.st.onSetItem('occupied-driver', true, false);
+
+        this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
+          console.log('Cambiando estado conductor', resOccupied);
+        });
+        this.navCtrl.navigateRoot('/service-run', {animated: true}).then( async () => {
+          await this.ui.onHideLoading();
+        });
+
+
         const alertService = await this.alertCtrl.create({
           header: 'Mensaje al usuario',
           subHeader: 'Iniciando servicio de taxi',
@@ -100,22 +116,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
           buttons: [{
             text: 'Ok',
             cssClass: 'text-info',
-            handler: async () => {
-              await this.ui.onShowLoading('Espere....');
-
-              await this.st.onSetItem('runDestination', false, false);
-              await this.st.onSetItem('finishDestination', false, false);
-              await this.st.onSetItem('current-service', offer, true);
-              await this.st.onSetItem('current-page', '/service-run', false);
-              await this.st.onSetItem('occupied-driver', true, false);
-
-              this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
-                console.log('Cambiando estado conductor', resOccupied);
-              });
-              this.navCtrl.navigateRoot('/service-run', {animated: true}).then( async () => {
-                await this.ui.onHideLoading();
-              });
-            }
+            handler: async () => {}
           }]
         });
         await alertService.present();
@@ -144,15 +145,20 @@ export class ServicesListPage implements OnInit, OnDestroy {
     const percent = service.minRatePercent;
     const minrate = (service.rateHistory * percent)  / 100;
     console.log(` tarifa minima ${ minrate } -> ${  percent }`);
-    if ( (service.rateOffer - 0.50) < minrate ) {
-      return await this.ui.onShowToast(`La tarifa mìnima es de ${ formatNumber( minrate, 'es', '.2-2' ) }`, 4500);
+    if ( (service.rateOffer - 0.50) < minrate || (service.rateOffer - 0.50) < service.minRate ) {
+      let msg = `La tarifa mìnima es de ${ formatNumber( minrate, 'es', '.2-2' ) }`;
+      if ((service.rateOffer - 0.50) < service.minRate) {
+        msg = `La tarifa mìnima es de ${ formatNumber( service.minRate, 'es', '.2-2' ) }`;
+      }
+
+      return await this.ui.onShowToast(msg, 4500);
     }
     service.rateOffer -= 0.50;
 
     if (service.rateOfferHistory !== service.rateOffer) {
-      service.changeRate = 1;
+      service.changeRate = true;
     } else {
-      service.changeRate = 0;
+      service.changeRate = false;
     }
 
   }
@@ -167,9 +173,9 @@ export class ServicesListPage implements OnInit, OnDestroy {
     service.rateOffer += 0.50;
 
     if (service.rateOfferHistory !== service.rateOffer) {
-      service.changeRate = 1;
+      service.changeRate = true;
     } else {
-      service.changeRate = 0;
+      service.changeRate = false;
     }
 
   }
@@ -211,7 +217,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
       this.ui.onShowToast( this.onGetError( res.showError ), 4500 );
 
       let msg = `${ this.st.nameComplete }, ha aceptado tu oferta de S/ ${ formatNumber( service.rateOffer, 'en', '.2-2' ) }`;
-      if (service.changeRate === 1) {
+      if (service.changeRate) {
         msg = `${ this.st.nameComplete }, acepta llevarte por S/ ${ formatNumber( service.rateOffer, 'en', '.2-2' ) }`;
       }
       this.bodyNoty.notificationTitle = `Nueva oferta`;
@@ -221,7 +227,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
       if (res.showError === 0 ) {
 
         const payloadService: IServices = service;
-        payloadService.pkCategory = this.st.fkCategory;
+        payloadService.fkCategory = this.st.fkCategory;
         payloadService.aliasCategory = this.st.category;
         payloadService.codeCategory = this.st.codeCategory;
         payloadService.color = this.st.color;
@@ -232,14 +238,16 @@ export class ServicesListPage implements OnInit, OnDestroy {
         payloadService.pkVehicle = this.st.pkVehicle;
 
         payloadService.nameComplete = this.st.dataUser.nameComplete;
-        payloadService.document = this.st.dataUser.document;
-        payloadService.prefix = this.st.dataUser.prefix;
-        payloadService.nameCountry = this.st.dataUser.nameCountry;
+        // payloadService.document = this.st.dataUser.document;
+        // payloadService.prefix = this.st.dataUser.prefix;
+        // payloadService.nameCountry = this.st.dataUser.nameCountry;
         payloadService.img = this.st.dataUser.img;
         payloadService.fkDriver = this.st.dataUser.pkUser;
         payloadService.osId = this.st.osID;
-        payloadService.changeRate = 0;
+        payloadService.changeRate = false;
+        payloadService.pkOfferService = res.data.pkOffer;
 
+        console.log('payload offer to client', payloadService);
         this.st.onLoadVehicle().then( (val) => {
 
           this.io.onEmit('newOffer-driver', { pkClient: service.fkClient,
@@ -348,6 +356,9 @@ export class ServicesListPage implements OnInit, OnDestroy {
       this.declineSbc.unsubscribe();
     }
 
+    if (this.osSbc) {
+      this.osSbc.unsubscribe();
+    }
   }
 
 }

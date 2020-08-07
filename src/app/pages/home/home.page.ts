@@ -69,7 +69,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.st.onLoadToken().then( () => {
       this.onLoadJournal();
       // this.onTotalServices();
-      
+
       this.st.onLoadVehicle().then( () => {
         console.log(this.st.dataVehicle);
         if (this.st.pkVehicle === 0) {

@@ -8,7 +8,7 @@ import { NavController } from '@ionic/angular';
 })
 export class AppUtilitiesService {
 
-  arrPagesRoot: string[] = [ '/service-run', '/login', '/home' ];
+  arrPagesRoot: string[] = [ '/service-run', '/home' ]; //  '/login',
 
   constructor(private st: Storage, private router: Router, private navCtrl: NavController) { }
 

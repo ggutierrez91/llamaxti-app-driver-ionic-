@@ -79,6 +79,10 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     this.onLoadMap();
 
+    setTimeout(() => {
+      this.onLoadMap();
+    }, 2000);
+
     this.st.onLoadToken().then( async() => {
       this.onLoadService();
       const cJournal = await this.st.onGetItem('codeJournal', false);

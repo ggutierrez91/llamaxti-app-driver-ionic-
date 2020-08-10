@@ -7,7 +7,7 @@
             </ion-back-button>
         </ion-buttons>
 
-        <ion-title>Servicios ceranos</ion-title>
+        <ion-title>Servicios cercanos</ion-title>
 
         <ion-buttons slot="end">
             <ion-menu-button menu="main-menu"></ion-menu-button>
@@ -69,17 +69,17 @@
                 <!-- <p class="card-text">{{ ts.nameComplete }}</p> -->
                 <p class="card-text text-service">
                     <b>De</b>&nbsp;
-                    <span *ngIf="ts.streetOrigin.length > 40">
-                        {{ ts.streetOrigin | slice:0:40 }}...
+                    <span *ngIf="ts.streetOrigin.length > 35">
+                        {{ ts.streetOrigin | slice:0:35 }}...
                     </span>
-                    <span *ngIf="ts.streetOrigin.length < 40">
+                    <span *ngIf="ts.streetOrigin.length < 35">
                         {{ ts.streetOrigin }}
                     </span>&nbsp;
                     <b>hasta</b>
-                    <span *ngIf="ts.streetDestination.length > 35">
-                        {{ ts.streetDestination | slice:0:35 }}...
+                    <span *ngIf="ts.streetDestination.length > 33">
+                        {{ ts.streetDestination | slice:0:33 }}...
                     </span>
-                    <span *ngIf="ts.streetDestination.length < 35">
+                    <span *ngIf="ts.streetDestination.length < 33">
                         {{ ts.streetDestination }}
                     </span>
                 </p>

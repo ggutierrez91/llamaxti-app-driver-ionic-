@@ -7,14 +7,12 @@ import { IonicModule } from '@ionic/angular';
 import { ServicesListPageRoutingModule } from './services-list-routing.module';
 
 import { ServicesListPage } from './services-list.page';
-import { ComponentsModule } from '../../components/components.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ComponentsModule,
     ServicesListPageRoutingModule
   ],
   declarations: [ServicesListPage]

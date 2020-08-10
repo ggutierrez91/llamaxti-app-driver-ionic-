@@ -21,6 +21,8 @@ export class LoginPage implements OnInit, OnDestroy {
   sbcLogin: Subscription;
 
   loading = false;
+  viewPass = false;
+  typeInput = 'password';
   // tslint:disable-next-line: max-line-length
   constructor( private authScv: AuthService, private st: StorageService, private uiSvc: UiUtilitiesService, private navCtrl: NavController, private menuCtrl: MenuController, private io: SocketService, private router: Router ) { }
 
@@ -45,8 +47,6 @@ export class LoginPage implements OnInit, OnDestroy {
           await this.st.onClearStorage();
         } else {
           await this.st.onSaveCredentials( res.token, res.data );
-
-          
 
           this.io.onSingUser().then( async (resSocket) => {
             // console.log('configurando usuario socket', resSocket);
@@ -98,9 +98,14 @@ export class LoginPage implements OnInit, OnDestroy {
     return arrErrors.join(', ');
   }
 
+  onViewPassword() {
+    this.viewPass = !this.viewPass;
+    this.typeInput = this.viewPass ? 'text' : 'password';
+  }
+
   async onNavSingin() {
     await this.uiSvc.onShowLoading('Espere...');
-    await this.st.onSetItem( 'current-page', '/singin', false );
+    // await this.st.onSetItem( 'current-page', '/singin', false );
     this.router.navigateByUrl('/singin').then( async () => {
       await this.uiSvc.onHideLoading();
     }).catch(e => console.error('Error al navegar a crear cuenta', e) );

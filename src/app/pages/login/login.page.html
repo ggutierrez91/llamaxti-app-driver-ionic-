@@ -6,7 +6,7 @@
 
                 <div class="navbar-translate">
                     <a class="navbar-brand" rel="tooltip" title="Designed by Invision. Coded by Creative Tim" data-placement="bottom" target="_blank">
-                        Bienvenido conductor v 1.0.9
+                        Bienvenido conductor v 1.0.11
                     </a>
                 </div>
 
@@ -32,7 +32,7 @@
                                     <div class="input-group no-border input-lg">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">
-                                                <i style="font-size: 22px; padding-right: 42px;" class="now-ui-icons users_circle-08"></i>
+                                                <i style="font-size: 16px; padding-right: 38px;" class="now-ui-icons users_circle-08"></i>
                                             </span>
                                         </div>
                                         <input type="text" class="form-control" placeholder="Usuario" name="userName" #user="ngModel" [(ngModel)]="bodyLogin.userName" [ngClass]="{'is-invalid': user.errors?.required && user.touched,
@@ -44,11 +44,17 @@
                                     <div class="input-group no-border input-lg">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">
-                                                <i style="font-size: 22px; padding-right: 42px;" class="fas fa-key"></i>
+                                                <i style="font-size: 16px; padding-right: 38px;" class="fas fa-key"></i>
                                             </span>
                                         </div>
-                                        <input type="password" placeholder="Contrase&ntilde;a" class="form-control" name="nameComplete" #password="ngModel" [(ngModel)]="bodyLogin.userPassword" [ngClass]="{'is-invalid': password.errors?.required && password.touched,
+                                        <input [type]="typeInput" placeholder="Contrase&ntilde;a" class="form-control" name="nameComplete" #password="ngModel" [(ngModel)]="bodyLogin.userPassword" [ngClass]="{'is-invalid': password.errors?.required && password.touched,
                                         'is-valid': !password.errors?.required && password.touched}" required />
+
+                                        <div class="input-group-append">
+                                            <div class="input-group-text" (click)="onViewPassword()">
+                                                <i style="font-size: 16px; padding-right: 35px;" class="fa fa-eye" aria-hidden="true"></i>
+                                            </div>
+                                        </div>
                                     </div>
                                     <small class="text-danger" *ngIf="password.errors?.required && password.touched">
                                         *Requerido

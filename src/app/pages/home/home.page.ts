@@ -65,6 +65,10 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.onLoadMap();
 
+    setTimeout(() => {
+      this.onLoadMap();
+    }, 2000);
+
     this.onListenNewService();
     this.st.onLoadToken().then( () => {
       this.onLoadJournal();

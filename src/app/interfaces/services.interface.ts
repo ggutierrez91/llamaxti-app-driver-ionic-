@@ -34,7 +34,8 @@ export interface IServices {
     img?: string;
     nameComplete?: string;
     // otros
-    created?: any;
+    dateOfferClient?: any; // fecha de registro cliente
+    dateOfferDriver?: any; // fecha de registro conductor
     osId?: string;
     aliasCategory?: string;
     changeRate?: boolean;

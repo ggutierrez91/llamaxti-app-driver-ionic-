@@ -3,6 +3,7 @@ import { IServices } from 'src/app/interfaces/services.interface';
 import { TaxiService } from '../../services/taxi.service';
 import { StorageService } from '../../services/storage.service';
 import { Subscription } from 'rxjs';
+import { retry } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { formatNumber } from '@angular/common';
@@ -79,10 +80,11 @@ export class ServicesListPage implements OnInit, OnDestroy {
   onListenNewService() {
     this.socketServicesSbc = this.io.onListen('new-service').subscribe( (resSocket: any) => {
       // recibimos la data del nuevo servicio
+      console.log('nuevo servicio socket ==========>', resSocket);
       const newService: IServices = resSocket.data;
 
       // this.ui.onShowToast('Nuevo servicio cerca de aquí', 4000);
-      this.dataServices.unshift( newService );
+      this.dataServices.unshift( ...[newService] );
       // this.onGetServices(1);
     });
   }
@@ -99,8 +101,8 @@ export class ServicesListPage implements OnInit, OnDestroy {
         await this.st.onSetItem('current-service', offer, true);
         await this.st.onSetItem('current-page', '/service-run', false);
         await this.st.onSetItem('occupied-driver', true, false);
-
-        this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
+        this.dataServices = [];
+        this.io.onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
           console.log('Cambiando estado conductor', resOccupied);
         });
         this.navCtrl.navigateRoot('/service-run', {animated: true}).then( async () => {
@@ -130,7 +132,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
 
   onGetServices( page: number ) {
     this.loading = true;
-    this.servicesSbc = this.services.onGetServices( page ).subscribe( (res) => {
+    this.servicesSbc = this.services.onGetServices( page ).pipe( retry() ).subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
@@ -203,7 +205,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
     this.bodyAcceptOffer.pkService = service.pkService;
     this.bodyAcceptOffer.pkOffer = service.pkOfferService;
     this.bodyAcceptOffer.rateOffer = service.rateOffer;
-    this.bodyAcceptOffer.fkDriver = this.st.dataUser.pkUser || 0;
+    this.bodyAcceptOffer.fkDriver = this.st.pkUser;
     this.bodyAcceptOffer.fkVehicle = this.st.pkVehicle;
 
     await this.ui.onShowLoading('Enviando oferta...');
@@ -227,6 +229,12 @@ export class ServicesListPage implements OnInit, OnDestroy {
       if (res.showError === 0 ) {
 
         const payloadService: IServices = service;
+        payloadService.streetOrigin = service.streetOrigin;
+        payloadService.streetDestination = service.streetDestination;
+        payloadService.distanceText = service.distanceText;
+        payloadService.minutesText = service.minutesText;
+        payloadService.minutes = service.minutes;
+        payloadService.distance = service.distance;
         payloadService.fkCategory = this.st.fkCategory;
         payloadService.aliasCategory = this.st.category;
         payloadService.codeCategory = this.st.codeCategory;
@@ -236,6 +244,8 @@ export class ServicesListPage implements OnInit, OnDestroy {
         payloadService.nameBrand = this.st.brand;
         payloadService.nameModel = this.st.nameModel;
         payloadService.pkVehicle = this.st.pkVehicle;
+        payloadService.rateOfferHistory = this.bodyAcceptOffer.rateOffer;
+        payloadService.rateOffer = this.bodyAcceptOffer.rateOffer;
 
         payloadService.nameComplete = this.st.dataUser.nameComplete;
         // payloadService.document = this.st.dataUser.document;
@@ -246,8 +256,9 @@ export class ServicesListPage implements OnInit, OnDestroy {
         payloadService.osId = this.st.osID;
         payloadService.changeRate = false;
         payloadService.pkOfferService = res.data.pkOffer;
+        payloadService.dateOfferDriver = res.data.dateOffer;
 
-        console.log('payload offer to client', payloadService);
+        console.log('payload offer to client======================================>', payloadService);
         this.st.onLoadVehicle().then( (val) => {
 
           this.io.onEmit('newOffer-driver', { pkClient: service.fkClient,
@@ -266,40 +277,54 @@ export class ServicesListPage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number ) {
-
-    let arrErr = showError === 0 ? ['Oferta enviada con éxito'] : ['Error'];
+    let arrError = showError === 0 ? ['Contra-oferta enviada con éxito'] : ['Error'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {
-      arrErr = ['Error', 'no se encontró servicio'];
+      arrError = ['Error', 'no se encontró servicio'];
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 2) {
-      arrErr.push('servicio no disponible');
+      arrError.push('servicio no disponible');
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 4) {
-      arrErr.push('servicio deshabilitado');
+      arrError.push('servicio cancelado por el cliente');
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 8) {
-      arrErr = ['Error', 'no se encontró conductor'];
+      arrError = ['Error', 'no se encontró conductor'];
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 16) {
-      arrErr.push('conductor pendiente de verificación');
+      arrError = ['Error', 'conductor pendiente de verificación'];
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 32) {
-      arrErr.push('conductor deshabilitado');
+      arrError.push('conductor inactivo');
     }
 
-    return arrErr.join(', ');
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 64) {
+      arrError = ['Error', 'vehículo no identificado'];
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 128) {
+      arrError.push('vehículo pendiente de verificación');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 256) {
+      arrError.push('no se encontró oferta');
+    }
+
+    return arrError.join(', ');
 
   }
 

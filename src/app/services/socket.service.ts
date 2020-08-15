@@ -16,7 +16,8 @@ export class SocketService {
     osID: '',
     device: 'MOVILE',
     pkCategory: 0,
-    codeCategory: 'no especificado'
+    codeCategory: 'no especificado',
+    occupied: false
   };
 
   public statusSocket = false;
@@ -55,22 +56,24 @@ export class SocketService {
 
   async onLoadUser() {
     await this.st.onLoadToken();
-    const pkCategory = await this.st.onGetItem('fkCategory', false);
-    const codeCategory =  await this.st.onGetItem('codeCategory', false);
+    await this.st.onLoadVehicle();
+    // const pkCategory = await this.st.onGetItem('fkCategory', false);
+    // const codeCategory =  await this.st.onGetItem('codeCategory', false);
 
     this.usersocket.pkUser = this.st.dataUser.pkUser;
     this.usersocket.userName = this.st.dataUser.userName;
     this.usersocket.nameComplete = this.st.dataUser.nameComplete;
     this.usersocket.role = this.st.dataUser.role;
     this.usersocket.osID = this.st.osID;
-    this.usersocket.pkCategory = pkCategory || 0;
-    this.usersocket.codeCategory = codeCategory || 'no especificado';
+    this.usersocket.pkCategory = this.st.fkCategory;
+    this.usersocket.codeCategory = this.st.codeCategory;
+    this.usersocket.occupied = this.st.occupied;
   }
 
   onSingUser(): Promise<IResSocket> {
     return new Promise( async ( resolve, reject ) => {
       await this.onLoadUser();
-      // console.log('enviando socket user', this.usersocket);
+      console.log('enviando socket user', this.usersocket);
       if( this.st.token !== '' ) {
         this.onEmit('sing-user', this.usersocket, (resSocket: IResSocket) => {
           console.log('autenticando usuario socket !!', resSocket);

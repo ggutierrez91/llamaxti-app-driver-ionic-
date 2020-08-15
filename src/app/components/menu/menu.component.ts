@@ -53,7 +53,7 @@ export class MenuComponent implements OnInit {
 
     this.router.navigateByUrl( path ).then( async (ok) => {
       await this.ui.onHideLoading();
-      await this.st.onSetItem( 'current-page', path, false );
+      // await this.st.onSetItem( 'current-page', path, false );
       this.menuCtrl.close();
     }).catch(e => {
       throw new Error( e );

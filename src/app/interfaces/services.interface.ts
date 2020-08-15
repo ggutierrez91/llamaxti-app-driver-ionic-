@@ -50,6 +50,14 @@ export interface IServices {
 
 }
 
+export interface IServiceSocket {
+    data: IServices;
+    polygon: number[][];
+    center: number[];
+    indexHex: string;
+    totalDrivers: number;
+}
+
 export interface IPolygons {
     center: number[];
     indexHex: string;
@@ -61,16 +69,14 @@ export interface IPolygons {
 export interface IServiceAccepted {
 
     pkService?: number;
-    fkClient?: number;
-	fkDriver?: number;
     nameClient: string;
     imgClient?: string;
     phoneClient?: string;
     emailClient?: string;
-    documentClient: string;
+    documentClient?: string;
     typeDocClient?: string;
     osIdClient?: string;
-    nameDriver?: string;
+    nameDriver: string;
     imgDriver?: string;
     phoneDriver?: string;
     emailDriver?: string;
@@ -82,18 +88,26 @@ export interface IServiceAccepted {
     lngOrigin?: number;
     latDestination?: number;
     lngDestination?: number;
-    latDriver?: number;
-    lngDriver?: number;
     streetOrigin?: string;
     streetDestination?: string;
     distanceText?: string;
     minutesText?: string;
     rateOffer?: number;
 
+    latDriver?: number;
+    lngDriver?: number;
+
     numberPlate?: string;
     year?: number;
     color?: string;
     aliasCategory?: string;
+    imgTaxiFrontal: string;
+    fkVehicle: number;
+    pkDriver: number;
+    fkClient: number;
+    nameModel: string;
+    nameBrand: string;
+    paymentType: string;
 
     runDestination?: boolean;
     finishDestination?: boolean;

@@ -35,7 +35,7 @@ export class LoginPage implements OnInit, OnDestroy {
 
     if (frm.valid) {
       this.loading = true;
-      this.sbcLogin = this.authScv.onLogin( this.bodyLogin ).pipe( retry(2) ).subscribe( async (res) => {
+      this.sbcLogin = this.authScv.onLogin( this.bodyLogin ).pipe( retry() ).subscribe( async (res) => {
         if (!res.ok) {
           throw new Error( res.error );
         }
@@ -49,9 +49,9 @@ export class LoginPage implements OnInit, OnDestroy {
           await this.st.onSaveCredentials( res.token, res.data );
 
           this.io.onSingUser().then( async (resSocket) => {
-            // console.log('configurando usuario socket', resSocket);
+            console.log('configurando usuario socket', resSocket);
 
-            this.io.onEmit('occupied-driver', {occupied: false}, (resOccupied) => {
+            this.io.onEmit('occupied-driver', {occupied: false, pkUser: res.data.pkUser}, (resOccupied) => {
               console.log('Cambiando estado conductor', resOccupied);
             });
 

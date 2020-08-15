@@ -7,6 +7,7 @@ export interface IUerSocket {
     device: string;
     pkCategory: number;
     codeCategory: string;
+    occupied: boolean;
 }
 
 

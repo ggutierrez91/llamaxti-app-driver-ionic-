@@ -10,6 +10,7 @@ import { ServiceRunPage } from './service-run.page';
 import { ComponentsModule } from '../../components/components.module';
 import { ModalCalificationPageModule } from '../modal-calification/modal-calification.module';
 import { ModalCalificationPage } from '../modal-calification/modal-calification.page';
+import { PipesModule } from '../../pipes/pipes.module';
 
 @NgModule({
   entryComponents:[
@@ -19,6 +20,7 @@ import { ModalCalificationPage } from '../modal-calification/modal-calification.
     CommonModule,
     FormsModule,
     IonicModule,
+    PipesModule,
     ComponentsModule,
     ServiceRunPageRoutingModule,
     ModalCalificationPageModule

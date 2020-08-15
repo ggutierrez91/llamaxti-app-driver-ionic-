@@ -196,11 +196,11 @@ export class SinginPage implements OnInit, OnDestroy {
     this.io.onEmit('send-notification-web', payload, (resSocket: any) => {
       console.log('respuesta socket', resSocket);
     });
-    this.io. onEmit('occupied-driver', {occupied: false}, (resOccupied) => {
+    this.io. onEmit('occupied-driver', {occupied: false, pkUser: resSingin.data.pkUser}, (resOccupied) => {
       console.log('Cambiando estado conductor', resOccupied);
     });
     await this.uiSvc.onHideLoading();
-    await this.st.onSetItem( 'current-page', '/welcome', false );
+    // await this.st.onSetItem( 'current-page', '/welcome', false );
     this.navCtrl.navigateRoot('welcome', {animated: true});
   }
 

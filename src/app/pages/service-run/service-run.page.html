@@ -6,7 +6,8 @@
         <ion-buttons slot="end">
 
             <button *ngIf="!runDestination && !finishDestination" class="btn btn-outline-primary" (click)="onRun()">
-                Iniciar viaje&nbsp;<i class="fas fa-paper-plane"></i>
+                Iniciar viaje&nbsp;<i *ngIf="!loadingConfirmNav" class="fas fa-paper-plane"></i>
+                <i *ngIf="loadingConfirmNav" class="fas fa-spinner fa-pulse"></i>
             </button>
             <button *ngIf="runDestination" class="btn btn-outline-primary" (click)="onFinish()">
                 Finalizar&nbsp;<i class="fas fa-tags"></i>
@@ -36,7 +37,111 @@
 
     </div>
 
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="margin-bottom: 75px;" (click)="onSharedGeo()">
+    <!-- width: 20rem; -->
+    <div *ngIf="!showMoreCard" class="cardSmall animated " [ngClass]="{'fadeInUp': !viewMore, 'fadeOutDown': viewMore}">
+        <div class="card-header bg-danger">
+
+            <div class="row">
+                <div class="col-8 text-white">
+                    {{ dataServiceInfo.aliasCategory }}
+                </div>
+                <div class="col-4 text-right text-white" (click)="onMoreInfo()">
+                    <i class="now-ui-icons   fontIcon" [ngClass]="{'arrows-1_minimal-down': viewMore, 'arrows-1_minimal-up': !viewMore}"></i>
+
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- <div class="card-title">
+            </div> -->
+            <div class="row">
+                <div class="col-4">
+                    <img [src]="pathUser + dataServiceInfo.imgClient + '?token=' + st.token " alt="" style="width: 90px; height: 85px;">
+                </div>
+                <div class="col-8">
+
+                    <p class="card-text text-center">
+                        <strong class="text-primary">{{ dataServiceInfo.nameClient }}</strong><br>
+                        <!-- <span> <i class="fas fa-star"></i> 4.5 </span><br> -->
+                        <span>
+                            <i style="font-size: 20px;" [ngClass]="{'fa-money-check': dataServiceInfo.paymentType === 'CARD', 'fa-money-bill-alt': dataServiceInfo.paymentType !== 'CARD'}" class="fas"></i>&nbsp;
+                            <b>
+
+                                {{ dataServiceInfo.paymentType | payment }}
+                                &nbsp;
+                                S/ {{ dataServiceInfo.rateOffer | number: '.2-2' }}
+                            </b>
+                        </span>
+
+                    </p>
+                </div>
+            </div>
+            <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+        </div>
+    </div>
+
+
+    <div *ngIf="showMoreCard" class="cardSmall cardBorder animated " [ngClass]="{'fadeInUp': viewMore, 'fadeOutDown': !viewMore}">
+        <!-- right: 20px; -->
+        <div style="position: absolute; bottom: 185px; right: 20px;">
+
+            <i class="now-ui-icons fontIcon text-primary" [ngClass]="{'arrows-1_minimal-down': viewMore, 'arrows-1_minimal-up': !viewMore}" (click)="onMoreInfo()"></i>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-4">
+                    <img [src]="pathUser + dataServiceInfo.imgClient + '?token=' + st.token" alt="" style="width: 90px; height: 85px;">
+                </div>
+                <div class="col-8">
+
+                    <p class="card-text text-center">
+                        <strong class="text-primary">{{ dataServiceInfo.nameClient }}</strong><br>
+                        <span> <i class="fas fa-star"></i> 4.5 </span><br>
+                        <span>
+                            <i style="font-size: 20px;" [ngClass]="{'fa-money-check': dataServiceInfo.paymentType === 'CARD', 'fa-money-bill-alt': dataServiceInfo.paymentType !== 'CARD'}" class="fas"></i>&nbsp;
+                            <b>
+    
+                                {{ dataServiceInfo.paymentType | payment }}
+                                &nbsp;
+                                S/ {{ dataServiceInfo.rateOffer | number: '.2-2' }}
+                            </b>
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-4">
+                    <ion-button expand="block" fill="outline" shape="round" color="medium" (click)="onSharedGeo()">
+                        <ion-icon slot="icon-only" name="share-social-outline"></ion-icon>
+                    </ion-button>
+                </div>
+
+                <div class="col-4">
+                    <ion-button *ngIf="!runDestination" expand="block" fill="outline" shape="round" color="medium">
+                        <ion-icon slot="icon-only" name="chatbubbles-outline"></ion-icon>
+                    </ion-button>
+
+                    <ion-button *ngIf="runDestination" expand="block" fill="outline" shape="round" color="medium">
+                        <ion-icon slot="icon-only" name="alert-circle-outline"></ion-icon>
+                    </ion-button>
+                </div>
+
+                <div class="col-4">
+                    <!-- (click)="onClick()" -->
+                    <ion-button *ngIf="!this.runDestination" expand="block" fill="outline" shape="round" color="danger" (click)="onConfirmDel()">
+                        <ion-icon *ngIf="!loadingConfirm" slot="icon-only" name="close-outline"></ion-icon>
+
+                        <i *ngIf="loadingConfirm" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+
+                    </ion-button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="margin-bottom: 75px;" (click)="onSharedGeo()">
         <ion-fab-button color="primary">
             <ion-icon name="share-social-outline"></ion-icon>
         </ion-fab-button>
@@ -52,6 +157,6 @@
         <ion-fab-button color="danger">
             <ion-icon name="alert-circle-outline"></ion-icon>
         </ion-fab-button>
-    </ion-fab>
+    </ion-fab> -->
 
 </ion-content>

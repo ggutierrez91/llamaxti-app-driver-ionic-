@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, OnChanges } from '@angular/core';
 import { SocketService } from '../../services/socket.service';
 import { Subscription } from 'rxjs';
-import { IResSocket } from '../../interfaces/response-socket.interface';
+import { IResSocket, IResSocketCoors } from '../../interfaces/response-socket.interface';
 import { TaxiService } from '../../services/taxi.service';
 import { environment } from '../../../environments/environment';
 import { StorageService } from '../../services/storage.service';
-import { GeolocationOptions, Geolocation } from '@ionic-native/geolocation/ngx';
-import { IServices, IPolygons } from '../../interfaces/services.interface';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { IPolygons, IServiceSocket } from '../../interfaces/services.interface';
 import { Router } from '@angular/router';
 import { VehicleService } from '../../services/vehicle.service';
 import { AlertController, NavController } from '@ionic/angular';
@@ -39,19 +39,21 @@ export class HomePage implements OnInit, OnDestroy {
 
   codeJournal = 'DIURN';
 
-  // dataServices: IServices[] = [];
   totalServices = 0;
 
   totalServicesZone = 0;
   totalDriverZone = 0;
 
   infoWindowPolygon: google.maps.InfoWindow;
+  dataPolygons: IPolygons[] = [];
   arrPolygons: google.maps.Polygon[] = [];
 
   lat = -12.054825;
   lng = -77.040627;
-
+  indexColor = 0;
   demandColors = ['#0091F2', '#209FF4', '#40ADF5', '#60BAF7', '#80C8F8', '#9FD6FA'];
+
+  currentIdService = 0;
 
   // tslint:disable-next-line: max-line-length
   constructor( private io: SocketService,  private geo: Geolocation,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia ) { }
@@ -67,16 +69,16 @@ export class HomePage implements OnInit, OnDestroy {
 
     setTimeout(() => {
       this.onLoadMap();
+      this.onEmitGeo();
     }, 2000);
 
     this.onListenNewService();
     this.st.onLoadToken().then( () => {
       this.onLoadJournal();
-      // this.onTotalServices();
 
       this.st.onLoadVehicle().then( () => {
         console.log(this.st.dataVehicle);
-        if (this.st.pkVehicle === 0) {
+        if (this.st.pkVehicle === 0 ) {
           this.onGetVehicleUsing();
         }
       });
@@ -113,7 +115,7 @@ export class HomePage implements OnInit, OnDestroy {
               await this.st.onSetItem('current-page', '/service-run', false);
               await this.st.onSetItem('occupied-driver', true, false);
 
-              this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
+              this.io.onEmit('occupied-driver', { occupied: true, pkUser: this.st.pkUser }, (resOccupied) => {
                 console.log('Cambiando estado conductor', resOccupied);
               });
               this.navCtrl.navigateRoot('/service-run', {animated: true}).then( async () => {
@@ -134,17 +136,32 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onListenCancelService() {
-    this.cancelSbc = this.io.onListen('client-cancel-service').subscribe( (res: any) => {
+    this.cancelSbc = this.io.onListen('disposal-service').subscribe( (res: any) => {
 
-      if (this.arrPolygons.length > 0) {
-        console.log('eliminando poligonos');
+      if (res.indexHex === this.st.indexHex) {
+        this.totalServices -= 1;
+      }
+
+      const polygonFinded = this.dataPolygons.find( polygon => polygon.indexHex === res.indexHex );
+
+      if (polygonFinded) {
+
         this.arrPolygons.forEach( (polygon)  => {
           polygon.setMap(null);
         });
         this.arrPolygons = [];
+
+        polygonFinded.total -= 1;
+
+        if (polygonFinded.total === 0) {
+          this.dataPolygons = this.dataPolygons.filter( polygon => polygon.indexHex !== res.indexHex  );
+        }
+
+        this.onLoadPolygons();
       }
-      this.onTotalServices();
-      this.onGetDemand();
+
+
+
     });
   }
 
@@ -171,10 +188,17 @@ export class HomePage implements OnInit, OnDestroy {
         this.marker.setPosition( latlng );
         this.map.setCenter( latlng );
 
-        this.io.onEmit('current-position-driver', {lat, lng }, (resSocket: IResSocket) => {
-          console.log('Emitiendo ubicación conductor', resSocket.message);
-          // this.onTotalServices();
-          // this.onGetDemand();
+        this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
+          console.log('Emitiendo ubicación conductor', res.message);
+          if (res.ok) {
+
+            if ( this.st.indexHex !== res.indexHex ) {
+              this.st.indexHex = res.indexHex;
+              this.st.onSetItem('indexHex', res.indexHex, false);
+              this.onTotalServices();
+            }
+
+          }
 
         });
 
@@ -232,8 +256,6 @@ export class HomePage implements OnInit, OnDestroy {
 
       });
 
-      this.onEmitGeo();
-
     });
   }
 
@@ -269,7 +291,6 @@ export class HomePage implements OnInit, OnDestroy {
       if (!res.ok) {
         throw new Error( res.error );
       }
-      console.log('using data', res.data);
       if ( !res.data ) {
         // console.log('mostrando alerta');
         return this.onShowAlertUsing();
@@ -287,11 +308,12 @@ export class HomePage implements OnInit, OnDestroy {
       this.st.dataVehicle = res.data;
 
       await this.st.onSetItem('dataVehicle', res.data, true);
+      await this.st.onSetItem('codeCategory', res.data.codeCategory, false);
 
       this.io.onEmit('change-category',
                       { pkCategory: res.data.pkCategory, codeCategory: res.data.codeCategory },
                       ( resSocket: IResSocket ) => {
-        console.log('Notificando a backend =>', resSocket);
+        console.log('Configurando categoría conductor =>', resSocket);
       });
 
     });
@@ -325,59 +347,97 @@ export class HomePage implements OnInit, OnDestroy {
       if (!res.ok) {
         throw new Error( res.error );
       }
-      const dataP: IPolygons[] = res.data;
+      this.dataPolygons = res.data;
 
-      let indexColor = 0;
+      this.indexColor = 0;
 
-      dataP.forEach( dataPolygon => {
-        // const arrayCoords: any[] = dataPolygon.polygon;
-        const polygonCoords: google.maps.LatLng[] = [];
-        dataPolygon.polygon.forEach( (coords) => {
-          polygonCoords.push( new google.maps.LatLng( coords[0], coords[1] ) );
-        });
-
-        const demandPolygon = new google.maps.Polygon({
-          paths: polygonCoords,
-          strokeColor: this.demandColors[indexColor],
-          strokeOpacity: 0.7,
-          strokeWeight: 2,
-          fillColor: this.demandColors[indexColor],
-          fillOpacity: 0.35
-        });
-
-        demandPolygon.setMap( this.map );
-
-        // Add a listener for the click event.
-        demandPolygon.addListener('click', (data: any) => {
-          this.infoWindowPolygon.setContent(this.infoPolygon.nativeElement);
-          this.infoWindowPolygon.setPosition( new google.maps.LatLng( dataPolygon.center[0], dataPolygon.center[1] ) );
-
-          this.totalServicesZone = dataPolygon.total || 0;
-          this.totalDriverZone = dataPolygon.totalDrivers || 0;
-
-          this.infoWindowPolygon.open(this.map);
-        });
-        this.arrPolygons.push( demandPolygon );
-
-        if (indexColor <= 5) {
-          indexColor++;
-        }
-
-      });
+      this.onLoadPolygons();
 
       // console.log( 'poligonos', res );
     });
   }
 
+  onLoadPolygons() {
+    this.dataPolygons.forEach( dataPolygon => {
+      const polygonCoords: google.maps.LatLng[] = [];
+      dataPolygon.polygon.forEach( (coords) => {
+        polygonCoords.push( new google.maps.LatLng( coords[0], coords[1] ) );
+      });
+
+      const demandPolygon = new google.maps.Polygon({
+        paths: polygonCoords,
+        strokeColor: this.demandColors[this.indexColor],
+        strokeOpacity: 0.7,
+        strokeWeight: 2,
+        fillColor: this.demandColors[this.indexColor],
+        fillOpacity: 0.35,
+        map: this.map
+      });
+
+      // demandPolygon.setMap( this.map );
+
+      // Add a listener for the click event.
+      demandPolygon.addListener('click', (data: any) => {
+        this.infoWindowPolygon.setContent(this.infoPolygon.nativeElement);
+        this.infoWindowPolygon.setPosition( new google.maps.LatLng( dataPolygon.center[0], dataPolygon.center[1] ) );
+
+        this.totalServicesZone = dataPolygon.total || 0;
+        this.totalDriverZone = dataPolygon.totalDrivers || 0;
+
+        this.infoWindowPolygon.open(this.map);
+      });
+      this.arrPolygons.push( demandPolygon );
+
+      if (this.indexColor <= 5) {
+        this.indexColor++;
+      }
+
+    });
+  }
+
   onListenNewService() {
-    this.socketServicesSbc = this.io.onListen('new-service').subscribe( (resSocket: any) => {
+    this.socketServicesSbc = this.io.onListen('new-service').subscribe( (resSocket: IServiceSocket) => {
       // recibimos la data del nuevo servicio
+
+      if (this.currentIdService === resSocket.data.pkService) {
+        return false;
+      }
+
+      this.currentIdService = resSocket.data.pkService;
+
       this.arrPolygons.forEach( (polygon)  => {
         polygon.setMap(null);
       });
       this.arrPolygons = [];
-      this.onTotalServices();
-      this.onGetDemand();
+
+      if (resSocket.data.indexHex === this.st.indexHex) {
+        this.totalServices += 1;
+      }
+
+      const polygonFinded = this.dataPolygons.find( polygon => polygon.indexHex === resSocket.indexHex );
+
+      if (!polygonFinded) {
+
+        const newDataPolygon: IPolygons = {
+          indexHex: resSocket.indexHex,
+          total: 1,
+          totalDrivers: resSocket.totalDrivers,
+          polygon: resSocket.polygon,
+          center: resSocket.center
+        };
+
+        this.dataPolygons.push( newDataPolygon );
+
+      } else {
+
+        polygonFinded.total += 1;
+        polygonFinded.totalDrivers = resSocket.totalDrivers;
+
+      }
+
+      this.onLoadPolygons();
+
+      // this.onGetDemand();
       // this.onGetServices(1);
     });
   }

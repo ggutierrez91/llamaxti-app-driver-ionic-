@@ -6,7 +6,7 @@
 
                 <div class="navbar-translate">
                     <a class="navbar-brand" rel="tooltip" title="Designed by Invision. Coded by Creative Tim" data-placement="bottom" target="_blank">
-                        Bienvenido conductor v 1.0.11
+                        Bienvenido conductor v 1.0.12
                     </a>
                 </div>
 
@@ -52,7 +52,7 @@
 
                                         <div class="input-group-append">
                                             <div class="input-group-text" (click)="onViewPassword()">
-                                                <i style="font-size: 16px; padding-right: 35px;" class="fa fa-eye" aria-hidden="true"></i>
+                                                <i style="font-size: 16px; padding-right: 35px;" class="fa fa-eye" [ngClass]="{'text-primary': viewPass, 'text-white': !viewPass}" aria-hidden="true"></i>
                                             </div>
                                         </div>
                                     </div>

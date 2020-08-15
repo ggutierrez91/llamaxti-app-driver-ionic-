@@ -68,4 +68,9 @@ export class TaxiService {
     return this.http.put<IResApi>( URI_API + `/Service/Calification/${ pkService }`, body, { headers: {Authorization: token} } );
   }
 
+  onDeleteRun( pkService: number, isClient: boolean ) {
+    // tslint:disable-next-line: max-line-length
+    return this.http.put<IResApi>( URI_API + `/Service/DeleteRun/${ pkService }/${ isClient }`, {}, { headers: {Authorization: this.st.token} } );
+  }
+
 }

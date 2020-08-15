@@ -24,35 +24,65 @@ export class PushService {
 
     this.oneSignal.inFocusDisplaying(this.oneSignal.OSInFocusDisplayOption.InAppAlert);
 
-    this.oneSignal.handleNotificationReceived().subscribe((osNoti) => {
+    this.oneSignal.handleNotificationReceived().subscribe(async (osNoti) => {
      // do something when notification is received
-     console.log('push recibida', osNoti);
+    //  console.log('push recibida', osNoti);
+      const declined = osNoti.payload.additionalData.declined || false;
+      if (declined) {
+        await this.st.onLoadToken();
+        await this.st.onSetItem('current-page', '/home', false);
+        await this.st.onSetItem('occupied-driver', false, false);
+        await this.st.onSetItem('listenOffer', false, false);
+        await this.st.onSetItem('runService', false, false);
+        await this.st.onSetItem('current-service', null, false);
+        await this.st.onSetItem('runDestination', false, false);
+        await this.st.onSetItem('finishDestination', false, false);
+        this.io.onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
+          console.log('Cambiando estado conductor', resOccupied);
+        });
+        this.navCtrl.navigateRoot('/home');
+      }
     });
 
     this.oneSignal.handleNotificationOpened().subscribe(async (osNoti) => {
       // do something when a notification is opened
-      console.log('push abierta', osNoti);
+      // console.log('push abierta', osNoti);
       const accepted = osNoti.notification.payload.additionalData.accepted || false;
       if (accepted) {
         await this.st.onSetItem('current-service', osNoti.notification.payload.additionalData.dataOffer, true);
-
         await this.st.onSetItem('occupied-driver', true, false);
-
         await this.st.onSetItem('runDestination', false, false);
         await this.st.onSetItem('finishDestination', false, false);
 
-        this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
-          console.log('Cambiando estado conductor', resOccupied);
-        });
+        // this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
+        //   console.log('Cambiando estado conductor', resOccupied);
+        // });
 
         await this.st.onSetItem( 'current-page', '/service-run', false );
         this.navCtrl.navigateRoot('/service-run', { animated: true } );
 
       } else {
+
+        // const declined = osNoti.notification.payload.additionalData.declined || false;
         const url = osNoti.notification.payload.additionalData.url || '';
+
+        // if (declined) {
+        //   await this.st.onSetItem('current-page', '/home', false);
+        //   await this.st.onSetItem('current-service', null, false);
+        //   await this.st.onSetItem('occupied-driver', false, false);
+        //   await this.st.onSetItem('runDestination', false, false);
+        //   await this.st.onSetItem('finishDestination', false, false);
+
+        // }
+
         if (url !== '') {
-          await this.st.onSetItem( 'current-page', url, false );
-          this.router.navigateByUrl(url );
+
+          if (url === '/home') {
+            return this.navCtrl.navigateRoot('/home', { animated: true } );
+          } else {
+            this.router.navigateByUrl( url );
+          }
+
         }
       }
     });

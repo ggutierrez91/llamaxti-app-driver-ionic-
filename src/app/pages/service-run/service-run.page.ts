@@ -14,6 +14,10 @@ import { ModalCalificationPage } from '../modal-calification/modal-calification.
 import { PushModel } from '../../models/push.model';
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
+import { IResSocketCoors } from '../../interfaces/response-socket.interface';
+
+
+const URI_API = environment.URL_SERVER;
 
 @Component({
   selector: 'app-service-run',
@@ -35,9 +39,16 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   };
   dataServiceInfo: IServiceAccepted = {
     fkClient: 0,
+    color: '',
     nameClient: '',
-    documentClient: '',
-    phoneClient: '',
+    nameDriver: '',
+    numberPlate: '',
+    imgTaxiFrontal: 'xd.png',
+    fkVehicle: 0,
+    pkDriver: 0,
+    nameModel: '',
+    nameBrand: '',
+    paymentType: 'CASH'
   };
   distance = 0;
   minutes = 0;
@@ -46,16 +57,24 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   infoServiceSbc: Subscription;
   osSbc: Subscription;
   geoSbc: Subscription;
+  deleteSbc: Subscription;
+  cancelRunSbc: Subscription;
   lat = 0;
   lng = 0;
 
   runDestination = false;
   finishDestination = false;
-
+  codeJournal = 'DIURN';
   bodyPush: PushModel;
 
+  viewMore = false;
+  showMoreCard = false;
+  // pathVehicle = URI_API + `/Driver/Img/Get/vehicle/`;
+  pathUser = URI_API + '/User/Img/Get/';
+  loadingConfirm = false;
+  loadingConfirmNav = false;
   // tslint:disable-next-line: max-line-length
-  constructor(  private st: StorageService,
+  constructor(  public st: StorageService,
                 private geo: Geolocation,
                 private io: SocketService,
                 private sh: SocialSharing,
@@ -79,29 +98,32 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     this.onLoadMap();
 
-    setTimeout(() => {
+    // setTimeout(() => {
+    // }, 1500);
+    
+    this.st.onLoadToken().then( async () => {
       this.onLoadMap();
-    }, 2000);
-
-    this.st.onLoadToken().then( async() => {
       this.onLoadService();
-      const cJournal = await this.st.onGetItem('codeJournal', false);
-      const styleMap: any = cJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
+      this.codeJournal = await this.st.onGetItem('codeJournal', false);
+      const styleMap: any = this.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
       this.map.setOptions({
         styles: styleMap
       });
     } ).catch(e => console.error('error al cargar token storage', e) );
-
+    
+    this.onListenCancelRun();
   }
 
   onLoadMap() {
+    const styleMap: any = this.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
 
     const optMap: google.maps.MapOptions = {
       center: new google.maps.LatLng( -12.054825, -77.040627 ),
       zoom: 7.5,
       streetViewControl: false,
       disableDefaultUI: true,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      styles: styleMap
     };
 
     this.map = new google.maps.Map( this.mapService.nativeElement, optMap );
@@ -136,6 +158,15 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     });
 
+  }
+
+  onListenCancelRun() {
+
+    this.cancelRunSbc = this.io.onListen('cancel-service-run-receptor').subscribe( async (res) => {
+      await this.onResetStorage();
+      this.navCtrl.navigateRoot('/home');
+    });
+    
   }
 
   async onLoadService() {
@@ -189,22 +220,44 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
   }
 
-  onRun() {
+  async onRun() {
+    this.loadingConfirmNav = true;
+    const navConfirm = await this.alertCtrl.create({
+      header: 'Confirmación',
+      message: '¿Está seguro de <b>iniciar navegación</b> hacia el punto de destino?; una vez iniciado no podrá cancelar el servicio',
+      mode: 'ios',
+      buttons: [{
+        text: 'No',
+        role: 'not',
+        cssClass: 'text-dark',
+        handler: () => {}
+      }, {
+        text: 'Iniciar',
+        role: 'yes',
+        cssClass: 'text-success',
+        handler: () => {
 
-    this.runDestination = true;
-    this.onLoadRoute();
-    const payload = {
-      runDestination: this.runDestination,
-      finishDestination: this.finishDestination,
-      pkClient: this.dataServiceInfo.fkClient,
-      pkService: this.dataService.pkService
-    };
+          this.runDestination = true;
+          this.onLoadRoute();
+          const payload = {
+            runDestination: this.runDestination,
+            finishDestination: this.finishDestination,
+            pkClient: this.dataServiceInfo.fkClient,
+            pkService: this.dataService.pkService
+          };
 
-    this.io.onEmit('status-travel-driver', payload, (ioRes: any) => {
-      console.log('Emitiendo estado de servicio a cliente', ioRes);
+          this.io.onEmit('status-travel-driver', payload, (ioRes: any) => {
+            console.log('Emitiendo estado de servicio a cliente', ioRes);
+          });
+          this.onLaunchNav();
+
+        }
+      }]
     });
-    this.onLaunchNav();
 
+    navConfirm.present().then( () => {
+      this.loadingConfirmNav = false;
+    }).catch( e => console.log('Error al abrir confirm nav', e) );
   }
 
   onLaunchNav() {
@@ -261,6 +314,21 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
       this.lat = lat;
       this.lng = lng;
+
+      this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
+        // console.log('Emitiendo ubicación conductor', res.message);
+        if (res.ok) {
+
+          if ( this.st.indexHex !== res.indexHex ) {
+            this.st.indexHex = res.indexHex;
+            this.st.onSetItem('indexHex', res.indexHex, false);
+            // this.onTotalServices();
+          }
+
+        }
+
+      });
+
       this.onLoadDistance();
       const latlng = new google.maps.LatLng( lat, lng );
 
@@ -360,15 +428,9 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     modalCalif.onDidDismiss().then( async (res) => {
 
-      await this.st.onSetItem('current-page', '/home', false);
-      await this.st.onSetItem('current-service', null, false);
+      await this.onResetStorage();
 
-      await this.st.onSetItem('occupied-driver', false, false);
-
-      await this.st.onSetItem('runDestination', false, false);
-      await this.st.onSetItem('finishDestination', false, false);
-
-      this.io. onEmit('occupied-driver', { occupied: false }, (resOccupied) => {
+      this.io. onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
         console.log('Cambiando estado conductor', resOccupied);
       });
       if (res.data.ok) {
@@ -408,13 +470,114 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     }).catch( e => console.error( 'Error al compartir ubicación', e ) );
   }
 
+  onMoreInfo() {
+    this.viewMore = !this.viewMore;
+    setTimeout(() => {
+      this.showMoreCard = !this.showMoreCard;
+    }, 1500);
+  }
+
+  async onConfirmDel() {
+    this.loadingConfirm = true;
+    const confirmDel = await this.alertCtrl.create({
+      header: 'Confirmación',
+      message: '¿Está seguro de <b class="text-danger">cancelar</b> el servicio de taxi?',
+      cssClass: 'alert-confirm',
+      mode: 'ios',
+      buttons: [{
+        text: 'No',
+        role: 'not',
+        cssClass: 'text-dark',
+        handler: () => {}
+      }, {
+        text: 'Aceptar',
+        role: 'yes',
+        cssClass: 'text-primary',
+        handler: async () => {
+
+          await this.ui.onShowLoading('Cancelando servicio...');
+          this.onDeleteRun();
+        }
+      }]
+    });
+
+    confirmDel.present().then( () => {
+      this.loadingConfirm = false;
+    }).catch( e => console.log('Error al abrir confirmación') );
+  }
+
+  onDeleteRun() {
+
+    // console.log('id servicio', this.dataServiceInfo.pkService);
+    // // tslint:disable-next-line: no-debugger
+    // debugger;
+    this.deleteSbc = this.serviceSvc.onDeleteRun( this.dataServiceInfo.pkService, false ).subscribe( async (res) => {
+
+      if (!res.ok) {
+        throw new Error( res.error );
+      }
+      console.log('res backend', res);
+      if (res.showError === 1) {
+        await this.ui.onHideLoading();
+        await this.ui.onShowToast('No se encontró servicio', 3500);
+      } else if (res.showError === 2) {
+        await this.onResetStorage();
+        await this.ui.onHideLoading();
+        await this.ui.onShowToast('Este servicio ya ha sido cancelado', 3500);
+        this.io. onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
+          console.log('Cambiando estado conductor', resOccupied);
+        });
+        this.navCtrl.navigateRoot('/home');
+      } else {
+        await this.onResetStorage();
+        this.io. onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
+          console.log('Cambiando estado conductor', resOccupied);
+        });
+        // await this.ui.onHideLoading();
+        await this.ui.onShowToast('Servicio cancelado con éxito ', 3500);
+        this.onEmitCancel();
+      }
+
+    });
+  }
+
+  async onResetStorage() {
+    await this.st.onSetItem('current-page', '/home', false);
+    await this.st.onSetItem('current-service', null, false);
+    await this.st.onSetItem('occupied-driver', false, false);
+    await this.st.onSetItem('runDestination', false, false);
+    await this.st.onSetItem('finishDestination', false, false);
+    // this.navCtrl.navigateRoot('/home');
+  }
+
+  onEmitCancel() {
+    this.bodyPush.title = 'Llamataxi-app';
+    this.bodyPush.message = `${ this.dataServiceInfo.nameDriver }, ha cancelado el servicio.`;
+    this.bodyPush.osId = [ this.dataServiceInfo.osIdClient ];
+    this.bodyPush.data = { declined: true, url: '/home' };
+    const payloadDel = { msg: this.bodyPush.message, pkUser: this.dataServiceInfo.fkClient };
+    this.io.onEmit('cancel-service-run', payloadDel, (res) => {
+      console.log('emitiendo cancelación de servicio');
+    });
+
+    this.osSbc = this.os.onSendPushUser( this.bodyPush ).subscribe( async (resOs) => {
+      console.log('push enviada', resOs);
+      await this.ui.onHideLoading();
+      this.navCtrl.navigateRoot('/home');
+    });
+  }
+
   ngOnDestroy() {
+    this.infoServiceSbc.unsubscribe();
+    this.cancelRunSbc.unsubscribe();
     if (this.geoSbc) {
       this.geoSbc.unsubscribe();
     }
-    this.infoServiceSbc.unsubscribe();
     if (this.osSbc) {
       this.osSbc.unsubscribe();
+    }
+    if (this.deleteSbc) {
+      this.deleteSbc.unsubscribe();
     }
   }
 

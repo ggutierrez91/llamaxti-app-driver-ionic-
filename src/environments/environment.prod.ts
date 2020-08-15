@@ -5,15 +5,82 @@ export const environment = {
   OS_APP: 'caa68993-c7a5-4a17-bebf-6963ba72519b',
   OS_KEY : 'YTE5MmRjYjQtMjRkZi00Y2Q0LThkZDMtYWY3YjEyNjg0NzRh',
   styleMapDiur: [
-      {featureType: 'landscape', elementType: 'all', stylers: [{visibility: 'on'} ] },
-      {featureType: 'poi.business', elementType: 'all', stylers: [{visibility: 'simplified'} ] },
-      {featureType: 'poi.business', elementType: 'labels', stylers: [{visibility: 'simplified'} ] },
-      {featureType: 'poi.park', elementType: 'all', stylers: [{visibility: 'off'} ] },
-      {featureType: 'poi.school', elementType: 'all', stylers: [{visibility: 'on'} ] },
-      {featureType: 'poi.sports_complex', elementType: 'all', stylers: [{visibility: 'off'} ] },
-      {featureType: 'transit.station.bus', elementType: 'all', stylers: [{visibility: 'on'},
-      {saturation: '21'}, {weight: '4.05'} ] }
+    {
+        featureType: 'landscape',
+        elementType: 'geometry',
+        stylers: [{ saturation: '-100'  }]
+    },
+    {
+        featureType: 'poi',
+        elementType: 'labels',
+        stylers: [{ visibility: 'off'  }]
+    },
+    {
+        featureType: 'poi',
+        elementType: 'labels.text.stroke',
+        stylers: [ { visibility: 'off' }]
+    },
+    {
+        featureType: 'road',
+        elementType: 'labels.text',
+        stylers: [ { color: '#545454' }]
+    },
+    {
+        featureType: 'road',
+        elementType: 'labels.text.stroke',
+        stylers: [ { visibility: 'off' }]
+    },
+    {
+        featureType: 'road.highway',
+        elementType: 'geometry.fill',
+        stylers: [ { saturation: '-87' }, { lightness: '-40' }, { color: '#ffffff'}]
+    },
+    {
+        featureType: 'road.highway',
+        elementType: 'geometry.stroke',
+        stylers: [{ visibility: 'off' }]
+    },
+    {
+        featureType: 'road.highway.controlled_access',
+        elementType: 'geometry.fill',
+        stylers: [{ color: '#f0f0f0'}, { saturation: '-22'}, { lightness: '-16'} ]
+    },
+    {
+        featureType: 'road.highway.controlled_access',
+        elementType: 'geometry.stroke',
+        stylers: [{ visibility: 'off' }]
+    },
+    {
+        featureType: 'road.highway.controlled_access',
+        elementType: 'labels.icon',
+        stylers: [{ visibility: 'on' }]
+    },
+    {
+        featureType: 'road.arterial',
+        elementType: 'geometry.stroke',
+        stylers: [{    visibility: 'off'}]
+    },
+    {
+        featureType: 'road.local',
+        elementType: 'geometry.stroke',
+        stylers: [{    visibility: 'off'}]
+    },
+    {
+        featureType: 'water',
+        elementType: 'geometry.fill',
+        stylers: [{    saturation: '-52'}, {hue: '#00e4ff'}, {lightness: '-16'} ]
+    }
   ],
+  // styleMapDiur: [
+  //     {featureType: 'landscape', elementType: 'all', stylers: [{visibility: 'on'} ] },
+  //     {featureType: 'poi.business', elementType: 'all', stylers: [{visibility: 'simplified'} ] },
+  //     {featureType: 'poi.business', elementType: 'labels', stylers: [{visibility: 'simplified'} ] },
+  //     {featureType: 'poi.park', elementType: 'all', stylers: [{visibility: 'off'} ] },
+  //     {featureType: 'poi.school', elementType: 'all', stylers: [{visibility: 'on'} ] },
+  //     {featureType: 'poi.sports_complex', elementType: 'all', stylers: [{visibility: 'off'} ] },
+  //     {featureType: 'transit.station.bus', elementType: 'all', stylers: [{visibility: 'on'},
+  //     {saturation: '21'}, {weight: '4.05'} ] }
+  // ],
 
   styleMapNocturn: [
     {

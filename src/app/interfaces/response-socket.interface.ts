@@ -4,3 +4,11 @@ export interface IResSocket {
     message?: string;
     data?: any;
 }
+
+
+export interface IResSocketCoors {
+    ok: boolean;
+    message: string;
+    indexHex?: string;
+    error?: any;
+}

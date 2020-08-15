@@ -71,9 +71,11 @@ export class ServicesListPage implements OnInit, OnDestroy {
   }
 
   onListenCancelService() {
-    this.cancelSbc = this.io.onListen('client-cancel-service').subscribe( async (next: any) => {
-      this.dataServices = this.dataServices.filter( svc => svc.pkService !== next.pkService );
-      await this.ui.onShowToast( next.msg );
+    this.cancelSbc = this.io.onListen('disposal-service').subscribe( async (res: any) => {
+
+      console.log('se elimino un servicio', res);
+      this.dataServices = this.dataServices.filter( svc => svc.pkService !== Number( res.pkService ) );
+      await this.ui.onShowToast( res.msg );
     });
   }
 
@@ -81,11 +83,14 @@ export class ServicesListPage implements OnInit, OnDestroy {
     this.socketServicesSbc = this.io.onListen('new-service').subscribe( (resSocket: any) => {
       // recibimos la data del nuevo servicio
       console.log('nuevo servicio socket ==========>', resSocket);
-      const newService: IServices = resSocket.data;
 
-      // this.ui.onShowToast('Nuevo servicio cerca de aquí', 4000);
-      this.dataServices.unshift( ...[newService] );
-      // this.onGetServices(1);
+      if (resSocket.indexHex === this.st.indexHex) {
+        const newService: IServices = resSocket.data;
+        // this.ui.onShowToast('Nuevo servicio cerca de aquí', 4000);
+        this.dataServices.unshift( newService );
+        // this.onGetServices(1);
+      }
+
     });
   }
 
@@ -102,7 +107,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
         await this.st.onSetItem('current-page', '/service-run', false);
         await this.st.onSetItem('occupied-driver', true, false);
         this.dataServices = [];
-        this.io.onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
+        this.io.onEmit('occupied-driver', { occupied: true, pkUser: this.st.pkUser }, (resOccupied) => {
           console.log('Cambiando estado conductor', resOccupied);
         });
         this.navCtrl.navigateRoot('/service-run', {animated: true}).then( async () => {
@@ -333,7 +338,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
     this.bodyPush.message = msg;
     this.bodyPush.title = title;
     this.bodyPush.osId = [osId];
-    this.bodyPush.data = { url: '/offer-list' };
+    this.bodyPush.data = { url: '/offer-list', declined: false };
 
     this.osSbc = this.os.onSendPushUser( this.bodyPush ).subscribe( (res) => {
         console.log('push enviado con èxito', res);

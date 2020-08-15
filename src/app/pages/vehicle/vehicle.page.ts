@@ -206,7 +206,8 @@ export class VehiclePage implements OnInit, OnDestroy {
 
           res.data.pkVehicle = pkVehicle;
           await this.st.onSetItem('dataVehicle', res.data, true);
-          
+          await this.st.onSetItem('codeCategory', res.data.codeCategory, false);
+
           this.dataVehicle.forEach( vh => {
             vh.driverUsing = 0;
           });

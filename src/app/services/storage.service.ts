@@ -34,6 +34,8 @@ export class StorageService {
   public nameComplete = '';
   public pkPerson = 0;
   public osID = '';
+  public indexHex = '';
+  public occupied = false;
 
   constructor( private storage: Storage, private authSvc: AuthService ) { }
 
@@ -70,6 +72,8 @@ export class StorageService {
   async onLoadToken() {
     this.token = await this.storage.get('token') || '';
     this.osID = await this.storage.get('osID') || '';
+    this.indexHex = await this.storage.get('indexHex') || '';
+    this.occupied = await this.storage.get('occupied-driver') || false;
     const value = await this.storage.get( 'dataUser' );
     if (value) {
       this.dataUser =  JSON.parse( value );
@@ -87,9 +91,9 @@ export class StorageService {
 
       const dataVehicle = dataJson;
       this.pkVehicle = Number( dataVehicle.pkVehicle ) || 0;
-      this.fkCategory = dataVehicle.pkCategory || 0;
+      this.fkCategory = dataVehicle.pkCategory;
       this.category = dataVehicle.aliasCategory  || '';
-      this.codeCategory = dataVehicle.codeCategory  || '';
+      this.codeCategory = dataVehicle.codeCategory;
       this.brand = dataVehicle.nameBrand  || '';
       this.nameModel = dataVehicle.nameModel  || '';
       this.numberPlate = dataVehicle.numberPlate  || '';

@@ -2,8 +2,12 @@ export const environment = {
   production: true,
   URL_SERVER: 'https://admin.llamataxiperu.com',
   // URL_SERVER: 'http://192.168.1.40:3000',
-  OS_APP: 'caa68993-c7a5-4a17-bebf-6963ba72519b',
-  OS_KEY : 'YTE5MmRjYjQtMjRkZi00Y2Q0LThkZDMtYWY3YjEyNjg0NzRh',
+  // OS_APP: 'caa68993-c7a5-4a17-bebf-6963ba72519b',
+  // OS_KEY : 'YTE5MmRjYjQtMjRkZi00Y2Q0LThkZDMtYWY3YjEyNjg0NzRh',
+
+  // nuevas credenciales grupo 8
+  OS_APP: '8e919063-5003-4974-b566-b15a1da7eabe',
+  OS_KEY : 'MGMwMzViY2YtMmJmYi00ZmZmLWJhZGMtNGQxY2EwMDQ2ZGRk',
   styleMapDiur: [
     {
         featureType: 'landscape',

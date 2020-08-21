@@ -47,6 +47,8 @@ export interface IServices {
     nameBrand?: string;
     nameModel?: string;
     pkVehicle?: number;
+    imgTaxiFrontal?: string;
+    pkDriver?: number;
 
 }
 

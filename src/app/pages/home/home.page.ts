@@ -5,8 +5,7 @@ import { IResSocket, IResSocketCoors } from '../../interfaces/response-socket.in
 import { TaxiService } from '../../services/taxi.service';
 import { environment } from '../../../environments/environment';
 import { StorageService } from '../../services/storage.service';
-import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { IPolygons, IServiceSocket } from '../../interfaces/services.interface';
+import { IPolygons, IServiceSocket, IServices } from '../../interfaces/services.interface';
 import { Router } from '@angular/router';
 import { VehicleService } from '../../services/vehicle.service';
 import { AlertController, NavController } from '@ionic/angular';
@@ -14,6 +13,15 @@ import { IOffer } from '../../interfaces/offer.interface';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { retry } from 'rxjs/operators';
 import { Insomnia } from '@ionic-native/insomnia/ngx';
+import { GeoService } from 'src/app/services/geo.service';
+import { IHotPolygons } from 'src/app/interfaces/hotZones.interface';
+import { formatNumber } from '@angular/common';
+import { OfferModel } from '../../models/offer.model';
+import { PushModel } from '../../models/push.model';
+import { NotyModel } from '../../models/notify.model';
+import { PushService } from '../../services/push.service';
+
+const URI_SERVER = environment.URL_SERVER;
 
 @Component({
   selector: 'app-home',
@@ -23,43 +31,67 @@ import { Insomnia } from '@ionic-native/insomnia/ngx';
 export class HomePage implements OnInit, OnDestroy {
   @ViewChild('mapDriver', {static: true}) mapDriver: ElementRef;
   @ViewChild('infoPolygon', {static: true}) infoPolygon: ElementRef;
-  
+
   geoSbc: Subscription;
   journalSbc: Subscription;
   serviceSbc: Subscription;
   usingSbc: Subscription;
   demandSbc: Subscription;
+  cardsSbc: Subscription;
+  declineSbc: Subscription;
+  offerSbc: Subscription;
+  osSbc: Subscription;
   socktJournalbc: Subscription;
   socketServicesSbc: Subscription;
   socketOfferSbc: Subscription;
-  cancelSbc: Subscription;
+  soketCancelSbc: Subscription;
 
   map: google.maps.Map;
   marker: google.maps.Marker;
 
   codeJournal = 'DIURN';
 
-  totalServices = 0;
 
   totalServicesZone = 0;
   totalDriverZone = 0;
 
   infoWindowPolygon: google.maps.InfoWindow;
   dataPolygons: IPolygons[] = [];
-  arrPolygons: google.maps.Polygon[] = [];
+  arrPolygons: IHotPolygons[] = [];
 
   lat = -12.054825;
   lng = -77.040627;
   indexColor = 0;
+  indexHex = '';
   demandColors = ['#0091F2', '#209FF4', '#40ADF5', '#60BAF7', '#80C8F8', '#9FD6FA'];
 
   currentIdService = 0;
 
+  // variables para cards
+  bodyAcceptOffer: OfferModel;
+  bodyPush: PushModel;
+  bodyNoty: NotyModel;
+  dataServices: IServices[] = [];
+  pathImg = URI_SERVER + '/User/Img/Get/';
+
+  slidesOptions = {
+    spaceBetween: 2.5,
+    slidesPerView: 1.5,
+  };
+
+  showMoreCard = false;
+  hideSlideCard = false;
+  dataMore: IServices;
+  originRate = 0;
+
   // tslint:disable-next-line: max-line-length
-  constructor( private io: SocketService,  private geo: Geolocation,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia ) { }
+  constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService ) { }
 
   ngOnInit() {
-
+    
+    this.bodyAcceptOffer = new OfferModel();
+    this.bodyPush = new PushModel();
+    this.bodyNoty = new NotyModel('/notification', this.st.pkUser);
     this.zombie.keepAwake().then(
       (success) => { console.log('Teléfono en estado zombie :D', success); },
       (e) => { console.log('Error al prevenir bloqueo de pantalla', e); }
@@ -68,34 +100,381 @@ export class HomePage implements OnInit, OnDestroy {
     this.onLoadMap();
 
     setTimeout(() => {
-      this.onLoadMap();
       this.onEmitGeo();
-    }, 2000);
+    }, 3000);
 
-    this.onListenNewService();
     this.st.onLoadToken().then( () => {
-      this.onLoadJournal();
+      this.onLoadMap();
+
+      this.onLoadJournal(); // extraemos la jornada del backend
+      this.onGetPosition(); // extraemos posición actual y listamos las zonas calientes
 
       this.st.onLoadVehicle().then( () => {
-        console.log(this.st.dataVehicle);
         if (this.st.pkVehicle === 0 ) {
           this.onGetVehicleUsing();
         }
       });
       this.onListenOfferClient();
+      this.onListenNewService();
       this.onListenJournal();
       this.onListenCancelService();
     });
 
-
     this.infoWindowPolygon = new google.maps.InfoWindow();
+
+  }
+
+  // funciones para cards services
+
+  onGetServices( page: number ) {
+    this.cardsSbc = this.taxiSvc.onGetServices( page ).pipe( retry() ).subscribe( (res) => {
+      if (!res.ok) {
+        throw new Error( res.error );
+      }
+
+      this.dataServices = res.data;
+
+      if (this.hideSlideCard) {
+        this.hideSlideCard = false;
+    
+        setTimeout(() => {
+          this.showMoreCard = false;
+        }, 2100);
+      }
+
+    });
+
+  }
+
+  onCloseService( service: IServices ) {
+    const body = {
+      pkOffer: service.pkOfferService,
+      pkService: service.pkService
+    };
+
+    this.dataServices = this.dataServices.filter( item => item.pkService !== service.pkService );
+    if (this.declineSbc) {
+      this.declineSbc.unsubscribe();
+    }
+    this.declineSbc = this.taxiSvc.onDeclineOffer( body ).subscribe( (res) => {
+      if (!res.ok) {
+        throw new Error( res.error );
+      }
+
+    });
+  }
+
+  onShowMoreCard( service: IServices ) {
+    this.originRate = service.rateOffer;
+    this.dataMore = service;
+    this.hideSlideCard = true;
+    setTimeout(() => {
+      this.showMoreCard = true;
+    }, 100);
+  }
+
+  onHideMoreCard() {
+    this.hideSlideCard = false;
+    
+    setTimeout(() => {
+      this.dataMore.rateOffer = this.originRate;
+    }, 500);
+
+    setTimeout(() => {
+      this.showMoreCard = false;
+    }, 2100);
+  }
+
+  async onMinusRate(  ) {
+    const percent = this.dataMore.minRatePercent;
+    const minrate = (this.dataMore.rateHistory * percent)  / 100;
+    if ( (this.dataMore.rateOffer - 0.50) < minrate || (this.dataMore.rateOffer - 0.50) < this.dataMore.minRate ) {
+      let msg = `La tarifa mìnima es de ${ formatNumber( minrate, 'es', '.2-2' ) }`;
+      if ((this.dataMore.rateOffer - 0.50) < this.dataMore.minRate) {
+        msg = `La tarifa mìnima es de ${ formatNumber( this.dataMore.minRate, 'es', '.2-2' ) }`;
+      }
+
+      return await this.ui.onShowToast(msg, 4500);
+    }
+    this.dataMore.rateOffer -= 0.50;
+
+    if (this.dataMore.rateOfferHistory !== this.dataMore.rateOffer) {
+      this.dataMore.changeRate = true;
+    } else {
+      this.dataMore.changeRate = false;
+    }
+
+  }
+
+  async onAcceptOffer(  ) {
+
+    if (this.st.pkVehicle === 0) {
+      const alertVerify = await this.alertCtrl.create({
+        header: 'Mensaje al usuario',
+        message: 'Por favor verifique tener un vehículo seleccionado',
+        mode: 'ios',
+        animated: true,
+        buttons: [{
+          text: 'Ok',
+          handler: () => {}
+        }]
+      });
+
+      await alertVerify.present();
+      return;
+    }
+
+    const osIdClient = this.dataMore.osId;
+
+    this.bodyAcceptOffer.pkService = this.dataMore.pkService;
+    this.bodyAcceptOffer.pkOffer = this.dataMore.pkOfferService;
+    this.bodyAcceptOffer.rateOffer = this.dataMore.rateOffer;
+    this.bodyAcceptOffer.fkDriver = this.st.pkUser;
+    this.bodyAcceptOffer.fkVehicle = this.st.pkVehicle;
+
+    await this.ui.onShowLoading('Enviando oferta...');
+
+    this.offerSbc = this.taxiSvc.onNewOffer( this.bodyAcceptOffer ).subscribe( async (res) => {
+
+      if (!res.ok) {
+        throw new Error( res.error );
+      }
+
+      this.hideSlideCard = false;
+      setTimeout(() => {
+        this.showMoreCard = false;
+      }, 500);
+
+      await this.ui.onHideLoading();
+      this.ui.onShowToast( this.onGetError( res.showError ), 4500 );
+
+      let msg = `${ this.st.nameComplete }, ha aceptado tu oferta de S/ ${ formatNumber( this.dataMore.rateOffer, 'en', '.2-2' ) }`;
+      if (this.dataMore.changeRate) {
+        msg = `${ this.st.nameComplete }, acepta llevarte por S/ ${ formatNumber( this.dataMore.rateOffer, 'en', '.2-2' ) }`;
+      }
+      this.bodyNoty.notificationTitle = `Nueva oferta`;
+      this.bodyNoty.notificationSubTitle = `De ${ this.dataMore.streetOrigin } hasta ${ this.dataMore.streetDestination }`;
+      this.bodyNoty.notificationMessage = msg;
+
+      if (res.showError === 0 ) {
+
+        const payloadService: IServices = this.dataMore;
+        payloadService.streetOrigin = this.dataMore.streetOrigin;
+        payloadService.streetDestination = this.dataMore.streetDestination;
+        payloadService.distanceText = this.dataMore.distanceText;
+        payloadService.minutesText = this.dataMore.minutesText;
+        payloadService.minutes = this.dataMore.minutes;
+        payloadService.distance = this.dataMore.distance;
+        payloadService.fkCategory = this.st.fkCategory;
+        payloadService.aliasCategory = this.st.category;
+        payloadService.codeCategory = this.st.codeCategory;
+        payloadService.color = this.st.color;
+        payloadService.numberPlate = this.st.numberPlate;
+        payloadService.year = this.st.year;
+        payloadService.nameBrand = this.st.brand;
+        payloadService.nameModel = this.st.nameModel;
+        payloadService.pkVehicle = this.st.pkVehicle;
+        payloadService.rateOfferHistory = this.bodyAcceptOffer.rateOffer;
+        payloadService.rateOffer = this.bodyAcceptOffer.rateOffer;
+
+        payloadService.nameComplete = this.st.dataUser.nameComplete;
+
+        payloadService.img = this.st.dataUser.img;
+        payloadService.fkDriver = this.st.dataUser.pkUser;
+        payloadService.pkDriver = this.st.dataUser.pkDriver;
+        payloadService.osId = this.st.osID;
+        payloadService.changeRate = false;
+        payloadService.pkOfferService = res.data.pkOffer;
+        payloadService.dateOfferDriver = res.data.dateOffer;
+        payloadService.imgTaxiFrontal = this.st.imgTaxiFrontal || 'xd.png';
+
+        this.st.onLoadVehicle().then( (val) => {
+
+          this.io.onEmit('newOffer-driver', { pkClient: this.dataMore.fkClient,
+                                              dataOffer: payloadService }, (resSocket) => {
+            console.log('Enviando nueva oferta socket', resSocket);
+          });
+
+        });
+
+        this.dataServices = this.dataServices.filter( ts => ts.pkService !== this.dataMore.pkService );
+        this.onSendPush('Nueva oferta - llamataxi app', msg, osIdClient);
+      }
+
+    });
+
+  }
+
+  onGetError( showError: number ) {
+    let arrError = showError === 0 ? ['Contra-oferta enviada con éxito'] : ['Error'];
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 1) {
+      arrError = ['Error', 'no se encontró servicio'];
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 2) {
+      arrError.push('servicio no disponible');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 4) {
+      arrError.push('servicio cancelado por el cliente');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 8) {
+      arrError = ['Error', 'no se encontró conductor'];
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 16) {
+      arrError = ['Error', 'conductor pendiente de verificación'];
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 32) {
+      arrError.push('conductor inactivo');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 64) {
+      arrError = ['Error', 'vehículo no identificado'];
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 128) {
+      arrError.push('vehículo pendiente de verificación');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 256) {
+      arrError.push('no se encontró oferta');
+    }
+
+    return arrError.join(', ');
+
+  }
+
+  onSendPush( title: string, msg: string, osId: string ) {
+
+    this.bodyPush.message = msg;
+    this.bodyPush.title = title;
+    this.bodyPush.osId = [osId];
+    this.bodyPush.data = { declined: false };
+
+    this.osSbc = this.os.onSendPushUser( this.bodyPush ).subscribe( (res) => {
+        console.log('push enviado con èxito', res);
+    });
+
+  }
+
+  async onPlusRate(  ) {
+    const maxrate = this.dataMore.rateHistory + 5;
+
+    if ( (this.dataMore.rateOffer + 0.50) > maxrate ) {
+      return await this.ui.onShowToast(`La tarifa máxima es de ${ formatNumber( maxrate, 'es', '.2-2' ) }`, 4500);
+    }
+
+    this.dataMore.rateOffer += 0.50;
+
+    if (this.dataMore.rateOfferHistory !== this.dataMore.rateOffer) {
+      this.dataMore.changeRate = true;
+    } else {
+      this.dataMore.changeRate = false;
+    }
+
+  }
+
+  // funciones para cards services
+
+  onLoadMap() {
+    const styleMap: any = this.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
+    const optMap: google.maps.MapOptions = {
+      center: new google.maps.LatLng( -12.054825, -77.040627 ),
+      zoom: 4.5,
+      streetViewControl: false,
+      disableDefaultUI: true,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      styles: styleMap
+    };
+
+    this.map = new google.maps.Map( this.mapDriver.nativeElement, optMap );
+  }
+
+  onGetPosition() {
+    this.geo.onGetGeo().then( (geo) => {
+
+      const lat = geo.coords.latitude;
+      const lng = geo.coords.longitude;
+
+      this.map.setCenter( new google.maps.LatLng( lat, lng ) );
+      this.map.setZoom(13.4);
+
+      this.marker = new google.maps.Marker({
+        position: new google.maps.LatLng( lat, lng ),
+        animation: google.maps.Animation.DROP,
+        map: this.map
+      });
+
+      this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
+        if (res.ok) {
+
+            this.indexHex = res.indexHex;
+            this.st.onSetItem('indexHex', res.indexHex, false);
+            this.onGetHotZones();
+            this.onGetServices(1);
+
+        } else {
+          console.error('Error al actualizar coordenadas socket');
+        }
+
+      });
+
+    });
+  }
+
+  onEmitGeo() {
+    console.log('me estoy subscribiendo al geo :D');
+    this.geoSbc = this.geo.onListenGeo( ).pipe( retry(3) ).subscribe(
+      (position) => {
+
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        const latlng = new google.maps.LatLng( lat, lng );
+        this.marker.setPosition( latlng );
+        this.map.setCenter( latlng );
+
+        this.onEmitCurrentPosition(lat, lng);
+
+      },
+      (e) => console.error('Surgio un errora l observar geo', e));
+
+  }
+
+  onLoadJournal() {
+
+    this.journalSbc = this.taxiSvc.onGetJournal().subscribe( (res) => {
+      if (!res.ok) {
+        throw new Error( res.error );
+      }
+
+      this.codeJournal = res.data.codeJournal;
+      this.st.onSetItem('codeJournal', res.data.codeJournal, false);
+      const styleMap: any = this.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
+
+      this.map.setOptions({
+        styles: styleMap
+      });
+    });
 
   }
 
   onListenOfferClient() {
     this.socketOfferSbc = this.io.onListen( 'newOffer-service-client' ).subscribe( async (res: any) => {
 
-      console.log('oferta del cliente', res);
       if (res.accepted) {
         const offer: IOffer = res.res.dataOffer;
         const alertService = await this.alertCtrl.create({
@@ -129,82 +508,51 @@ export class HomePage implements OnInit, OnDestroy {
         // el cliente acepto la oferta y comienza el servicio de taxi
       } else {
         // el cliente hizo una contra oferta
-         // this.dataServices.unshift(...res.dataOffer);
-         this.onTotalServices();
+         this.dataServices.unshift( res.dataOffer );
        }
     });
   }
 
-  onListenCancelService() {
-    this.cancelSbc = this.io.onListen('disposal-service').subscribe( (res: any) => {
 
-      if (res.indexHex === this.st.indexHex) {
-        this.totalServices -= 1;
-      }
+  onEmitCurrentPosition( lat: number, lng: number ) {
+    this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
+      if (res.ok) {
+        
+        const oldIndexHex = this.indexHex;
+        if ( this.indexHex !== res.indexHex ) {
+          this.indexHex = res.indexHex;
+          this.st.onSetItem('indexHex', res.indexHex, false);
+          this.onGetServices(1);
+          
+          const findCurrentPolygon = this.arrPolygons.find( pp => pp.indexHex === res.indexHex );
+          if (findCurrentPolygon) {
+            
+            const oldColor = findCurrentPolygon.color;
 
-      const polygonFinded = this.dataPolygons.find( polygon => polygon.indexHex === res.indexHex );
+            findCurrentPolygon.polygon.setOptions({
+              strokeColor: '#f7793fd8',
+              fillColor: '#f7793fd8'
+            });
 
-      if (polygonFinded) {
+            const oldPolygon = this.arrPolygons.find( pp => pp.indexHex === oldIndexHex );
 
-        this.arrPolygons.forEach( (polygon)  => {
-          polygon.setMap(null);
-        });
-        this.arrPolygons = [];
-
-        polygonFinded.total -= 1;
-
-        if (polygonFinded.total === 0) {
-          this.dataPolygons = this.dataPolygons.filter( polygon => polygon.indexHex !== res.indexHex  );
-        }
-
-        this.onLoadPolygons();
-      }
-
-
-
-    });
-  }
-
-  onTotalServices() {
-    
-    this.serviceSbc = this.taxiSvc.onGetTotalServices().subscribe( (res) => {
-      if (!res.ok) {
-        throw new Error( res.error );
-      }
-
-      this.totalServices = res.total;
-    });
-  }
-
-  onEmitGeo() {
-
-    this.geoSbc = this.geo.watchPosition( ).pipe( retry(3) ).subscribe(
-      (position) => {
-
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        const latlng = new google.maps.LatLng( lat, lng );
-        this.marker.setPosition( latlng );
-        this.map.setCenter( latlng );
-
-        this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
-          console.log('Emitiendo ubicación conductor', res.message);
-          if (res.ok) {
-
-            if ( this.st.indexHex !== res.indexHex ) {
-              this.st.indexHex = res.indexHex;
-              this.st.onSetItem('indexHex', res.indexHex, false);
-              this.onTotalServices();
+            if (oldPolygon) {
+              oldPolygon.polygon.setOptions({
+                strokeColor: oldColor,
+                fillColor: oldColor
+              });
             }
 
           }
 
-        });
+          // this.onGetHotZones();
+        }
 
-      },
-      (e) => console.error('Surgio un errora l observar geo', e));
+      } else {
+        console.error('Error al actualizar coordenadas socket');
+      }
 
+    });
   }
 
   onListenJournal() {
@@ -217,72 +565,6 @@ export class HomePage implements OnInit, OnDestroy {
     });
   }
 
-  onLoadJournal() {
-
-    this.journalSbc = this.taxiSvc.onGetJournal().subscribe( (res) => {
-      if (!res.ok) {
-        throw new Error( res.error );
-      }
-
-      this.codeJournal = res.data.codeJournal;
-      this.st.onSetItem('codeJournal', res.data.codeJournal, false);
-      const styleMap: any = this.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
-
-      this.map.setOptions({
-        styles: styleMap
-      });
-    });
-
-  }
-
-  onGetPosition() {
-    this.geo.getCurrentPosition().then( (geo) => {
-
-      const lat = geo.coords.latitude;
-      const lng = geo.coords.longitude;
-
-      setTimeout( () => {
-        this.map.setCenter( new google.maps.LatLng( lat, lng ) );
-        this.map.setZoom(14.5);
-  
-        this.marker.setMap( this.map );
-        this.marker.setPosition(new google.maps.LatLng( lat, lng ));
-      }, 2500 );
-
-      this.io.onEmit('current-position-driver', {lat, lng }, (resSocket: IResSocket) => {
-        console.log('Emitiendo ubicación conductor', resSocket.message);
-        this.onTotalServices();
-        this.onGetDemand();
-
-      });
-
-    });
-  }
-
-  onLoadMap() {
-    const styleMap: any = this.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
-    const optMap: google.maps.MapOptions = {
-      center: new google.maps.LatLng( -12.054825, -77.040627 ),
-      zoom: 4.5,
-      streetViewControl: false,
-      disableDefaultUI: true,
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-      styles: styleMap
-    };
-
-    this.map = new google.maps.Map( this.mapDriver.nativeElement, optMap );
-
-    this.marker = new google.maps.Marker({
-      draggable: true
-    });
-
-    this.onGetPosition();
-
-  }
-
-  onRedirectServices() {
-    this.router.navigateByUrl('/services-list');
-  }
 
   onGetVehicleUsing() {
 
@@ -292,7 +574,6 @@ export class HomePage implements OnInit, OnDestroy {
         throw new Error( res.error );
       }
       if ( !res.data ) {
-        // console.log('mostrando alerta');
         return this.onShowAlertUsing();
       }
 
@@ -313,7 +594,6 @@ export class HomePage implements OnInit, OnDestroy {
       this.io.onEmit('change-category',
                       { pkCategory: res.data.pkCategory, codeCategory: res.data.codeCategory },
                       ( resSocket: IResSocket ) => {
-        console.log('Configurando categoría conductor =>', resSocket);
       });
 
     });
@@ -321,6 +601,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async onShowAlertUsing() {
+
     const alertUsing = await this.alertCtrl.create({
       header: 'Mensaje al usuario',
       message: 'Por favor especificar el auto que usará en la jornada',
@@ -339,111 +620,121 @@ export class HomePage implements OnInit, OnDestroy {
     });
 
     await alertUsing.present();
+
   }
 
-  onGetDemand() {
+  onGetHotZones() {
 
-    this.demandSbc = this.taxiSvc.onGetDemand().subscribe( (res) => {
+    this.demandSbc = this.taxiSvc.onGetDemand().pipe( retry() ).subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
+
       this.dataPolygons = res.data;
-
       this.indexColor = 0;
+      this.dataPolygons.forEach( dp => {
+        this.onBuildPolygon( dp.indexHex, dp.center, dp.polygon, dp.total, dp.totalDrivers );
+      });
 
-      this.onLoadPolygons();
-
-      // console.log( 'poligonos', res );
     });
   }
 
-  onLoadPolygons() {
-    this.dataPolygons.forEach( dataPolygon => {
-      const polygonCoords: google.maps.LatLng[] = [];
-      dataPolygon.polygon.forEach( (coords) => {
-        polygonCoords.push( new google.maps.LatLng( coords[0], coords[1] ) );
-      });
+  onBuildPolygon(indexHex: string, center: number[], vertices: number[][], totalServices = 0, totalDrivers = 0) {
 
-      const demandPolygon = new google.maps.Polygon({
-        paths: polygonCoords,
-        strokeColor: this.demandColors[this.indexColor],
-        strokeOpacity: 0.7,
-        strokeWeight: 2,
-        fillColor: this.demandColors[this.indexColor],
-        fillOpacity: 0.35,
-        map: this.map
-      });
-
-      // demandPolygon.setMap( this.map );
-
-      // Add a listener for the click event.
-      demandPolygon.addListener('click', (data: any) => {
-        this.infoWindowPolygon.setContent(this.infoPolygon.nativeElement);
-        this.infoWindowPolygon.setPosition( new google.maps.LatLng( dataPolygon.center[0], dataPolygon.center[1] ) );
-
-        this.totalServicesZone = dataPolygon.total || 0;
-        this.totalDriverZone = dataPolygon.totalDrivers || 0;
-
-        this.infoWindowPolygon.open(this.map);
-      });
-      this.arrPolygons.push( demandPolygon );
-
-      if (this.indexColor <= 5) {
-        this.indexColor++;
-      }
-
+    const positionPolygon = new google.maps.LatLng( center[0], center[1] );
+    const verticesCoords: google.maps.LatLng[] = [];
+    const color = this.demandColors[this.indexColor];
+    vertices.forEach( (coords) => {
+      verticesCoords.push( new google.maps.LatLng( coords[0], coords[1] ) );
     });
+
+    const hotPolygon = new google.maps.Polygon({
+      paths: verticesCoords,
+      strokeColor: this.indexHex === indexHex ? '#f7793fd8' : color,
+      strokeOpacity: 0.7,
+      strokeWeight: 2,
+      fillColor: this.indexHex === indexHex ? '#f7793fd8' : color,
+      fillOpacity: 0.35,
+      map: this.map
+    });
+
+
+    // Add a listener for the click event.
+    hotPolygon.addListener('click', (data: any) => {
+      this.infoWindowPolygon.setContent(this.infoPolygon.nativeElement);
+      this.infoWindowPolygon.setPosition( positionPolygon );
+
+      const tServices = this.arrPolygons.find( pp => pp.indexHex === indexHex ).totalServices || 0;
+      const tDrivers = this.arrPolygons.find( pp => pp.indexHex === indexHex ).totalDrivers || 0;
+
+      this.totalServicesZone = totalServices;
+      this.totalDriverZone = totalDrivers;
+
+      this.infoWindowPolygon.open(this.map);
+    });
+    this.arrPolygons.push( { indexHex,
+                            totalServices,
+                            totalDrivers,
+                            polygon: hotPolygon,
+                            color} );
+
+    if (this.indexColor <= 5) {
+      this.indexColor++;
+    }
   }
 
   onListenNewService() {
     this.socketServicesSbc = this.io.onListen('new-service').subscribe( (resSocket: IServiceSocket) => {
       // recibimos la data del nuevo servicio
+      const indexHex = resSocket.indexHex;
 
-      if (this.currentIdService === resSocket.data.pkService) {
-        return false;
+      if ( indexHex === this.st.indexHex) {
+        this.dataServices.unshift( resSocket.data );
       }
 
-      this.currentIdService = resSocket.data.pkService;
-
-      this.arrPolygons.forEach( (polygon)  => {
-        polygon.setMap(null);
-      });
-      this.arrPolygons = [];
-
-      if (resSocket.data.indexHex === this.st.indexHex) {
-        this.totalServices += 1;
-      }
-
-      const polygonFinded = this.dataPolygons.find( polygon => polygon.indexHex === resSocket.indexHex );
+      const polygonFinded = this.arrPolygons.find( polygon => polygon.indexHex === indexHex );
 
       if (!polygonFinded) {
 
-        const newDataPolygon: IPolygons = {
-          indexHex: resSocket.indexHex,
-          total: 1,
-          totalDrivers: resSocket.totalDrivers,
-          polygon: resSocket.polygon,
-          center: resSocket.center
-        };
-
-        this.dataPolygons.push( newDataPolygon );
+        this.onBuildPolygon( resSocket.indexHex, resSocket.center, resSocket.polygon, 1, resSocket.totalDrivers );
 
       } else {
 
-        polygonFinded.total += 1;
+        polygonFinded.totalServices += 1;
         polygonFinded.totalDrivers = resSocket.totalDrivers;
+
+        if (!polygonFinded.polygon.getMap()) {
+          polygonFinded.polygon.setMap(this.map);
+        }
 
       }
 
-      this.onLoadPolygons();
+    });
+  }
 
-      // this.onGetDemand();
-      // this.onGetServices(1);
+  onListenCancelService() {
+    this.soketCancelSbc = this.io.onListen('disposal-service').subscribe( (res: any) => {
+
+      if (res.indexHex === this.st.indexHex) {
+        this.dataServices = this.dataServices.filter( ss => ss.pkService !== Number( res.pkService ) );
+      }
+
+      const polygonFinded = this.arrPolygons.find( polygon => polygon.indexHex === res.indexHex );
+
+      if (polygonFinded && polygonFinded.totalServices > 0) {
+
+        polygonFinded.totalServices -= 1;
+
+        if (polygonFinded.totalServices === 0) {
+          polygonFinded.polygon.setMap(null);
+        }
+
+      }
+
     });
   }
 
   ngOnDestroy() {
-    console.log('destruyendo home');
     this.geoSbc.unsubscribe();
     this.journalSbc.unsubscribe();
     if (this.serviceSbc) {
@@ -452,9 +743,10 @@ export class HomePage implements OnInit, OnDestroy {
     if (this.demandSbc) {
       this.demandSbc.unsubscribe();
     }
-    if (this.socketOfferSbc) {
-      this.socketOfferSbc.unsubscribe();
-    }
+    
+    this.soketCancelSbc.unsubscribe();
+    this.socketOfferSbc.unsubscribe();
+    this.socketServicesSbc.unsubscribe();
     this.socktJournalbc.unsubscribe();
   }
 

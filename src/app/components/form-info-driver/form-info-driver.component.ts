@@ -143,7 +143,6 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
         icon: 'camera',
         text: 'Tomar foto',
         handler: () => {
-          console.log('Abrir cámara');
           this.optCamera.sourceType = this.camera.PictureSourceType.CAMERA;
           this.onShowCamera();
         }
@@ -151,7 +150,6 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
         text: 'Abrir galeria',
         icon: 'image',
         handler: () => {
-          console.log('Abrir galería');
           this.optCamera.sourceType = this.camera.PictureSourceType.SAVEDPHOTOALBUM;
           this.onShowCamera();
         }

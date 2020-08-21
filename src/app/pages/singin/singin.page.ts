@@ -10,6 +10,7 @@ import { IResApi } from '../../interfaces/response-api.interface';
 import { StorageService } from '../../services/storage.service';
 import { SocketService } from '../../services/socket.service';
 import { Subscription } from 'rxjs';
+import { retry } from 'rxjs/operators';
 
 @Component({
   selector: 'app-singin',
@@ -131,7 +132,7 @@ export class SinginPage implements OnInit, OnDestroy {
     if (frm.valid) {
       this.bodyDriver.numberPlate = this.bodyDriver.numberPlate.toUpperCase();
 
-      this.driverSbc = this.authSvc.onSaveDriver( this.bodyDriver ).subscribe( async (resSingin) => {
+      this.driverSbc = this.authSvc.onSaveDriver( this.bodyDriver ).pipe( retry(3) ).subscribe( async (resSingin) => {
         if (!resSingin.ok) {
           throw new Error( resSingin.error );
         }
@@ -171,10 +172,11 @@ export class SinginPage implements OnInit, OnDestroy {
                                             , tokenApi
                                             , item.isPdf );
             const resDocsJson: IResApi = JSON.parse( resUpDocs.response );
+            let msgUpload = `Se subio archivo ${ item.typeFile }`;
             if (!resDocsJson.ok) {
-              throw new Error( resDocsJson.error );
+              msgUpload = `Error al subir archivo archivo ${ item.typeFile }`;
             }
-            arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
+            arrFilesUploaded.push( msgUpload );
           }
         }) );
 
@@ -200,8 +202,7 @@ export class SinginPage implements OnInit, OnDestroy {
       console.log('Cambiando estado conductor', resOccupied);
     });
     await this.uiSvc.onHideLoading();
-    // await this.st.onSetItem( 'current-page', '/welcome', false );
-    this.navCtrl.navigateRoot('welcome', {animated: true});
+    this.navCtrl.navigateRoot('welcome');
   }
 
   onGetError( showError: number ) {

@@ -11,7 +11,7 @@ export class ImgSanitizerPipe implements PipeTransform {
   transform(srcImg: any): any {
 
     if (srcImg === '') {
-      srcImg = './assets/img/default-photo-2.png';
+      srcImg = './assets/img/profile.png';
     }
     return this.sanitizer.bypassSecurityTrustUrl( srcImg );
   }

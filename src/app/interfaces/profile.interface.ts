@@ -23,6 +23,7 @@ export interface IProfile {
     dateRegister?: string;
     userName?: string;
     yearsOld: number;
+    verifyReniec?: boolean;
 
     pkDriver?: number;
     dateLicenseExpiration?: string;

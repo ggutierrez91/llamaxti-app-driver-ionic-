@@ -3,7 +3,7 @@
         <ion-title *ngIf="!loadData">Nuevo veh&iacute;culo</ion-title>
         <ion-title *ngIf="loadData">Editar veh&iacute;culo</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="onCloseModal()">
+            <ion-button (click)="onCloseModal()" color="primary">
                 <ion-icon slot="start" name="close-outline"></ion-icon>
                 Cerrar
             </ion-button>
@@ -167,8 +167,9 @@
 
                         <div class="row">
                             <div class="col-12">
-                                <ion-button (click)="onNextVehicleTwo()" expand="block" fill="fill" shape="round" [disabled]="frmVehicle.invalid" color="primary">
+                                <ion-button (click)="onNextVehicleTwo()" [disabled]="frmVehicle.invalid" color="primary">
                                     SIGUIENTE
+                                    <ion-spinner *ngIf="loading" name="bubbles"></ion-spinner>
 
                                 </ion-button>
                             </div>
@@ -236,12 +237,13 @@
                     <div class="row">
                         <div class="col-6">
 
-                            <ion-button expand="block" fill="fill" shape="round" (click)="onBackSlide()">
+                            <ion-button color="primary" shape="round" (click)="onBackSlide()">
                                 ATRÁS
+                                <ion-spinner *ngIf="loading" name="bubbles"></ion-spinner>
                             </ion-button>
                         </div>
                         <div class="col-6">
-                            <ion-button expand="block" fill="fill" shape="round" (click)="onSubmit()">
+                            <ion-button color="primary" shape="round" (click)="onSubmit()">
                                 GUARDAR
                             </ion-button>
                         </div>

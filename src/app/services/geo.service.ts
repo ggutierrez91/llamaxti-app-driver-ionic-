@@ -10,11 +10,11 @@ export class GeoService {
 
   constructor(private geo: Geolocation, private nativegeocoder: NativeGeocoder) { }
 
-  onGetGeo(): Promise<Geoposition> {
+  onGetGeo() {
     return this.geo.getCurrentPosition();
   }
 
-  onListenGeo(): Observable<Geoposition> {
+  onListenGeo() {
     return this.geo.watchPosition();
   }
 

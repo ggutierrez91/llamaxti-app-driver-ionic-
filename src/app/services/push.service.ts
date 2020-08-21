@@ -20,71 +20,57 @@ export class PushService {
 
   onLoadConfig() {
     // console.log('iniciando one signal');
-    this.oneSignal.startInit('caa68993-c7a5-4a17-bebf-6963ba72519b', '514655229830');
+    this.oneSignal.startInit( environment.OS_APP , environment.OS_KEY);
 
     this.oneSignal.inFocusDisplaying(this.oneSignal.OSInFocusDisplayOption.InAppAlert);
 
     this.oneSignal.handleNotificationReceived().subscribe(async (osNoti) => {
      // do something when notification is received
     //  console.log('push recibida', osNoti);
+      const accepted = osNoti.payload.additionalData.accepted || false;
       const declined = osNoti.payload.additionalData.declined || false;
+
+      await this.st.onSetItem('runDestination', false, false);
+      await this.st.onSetItem('finishDestination', false, false);
+
+      await this.st.onLoadToken();
+      let occupied = false;
       if (declined) {
-        await this.st.onLoadToken();
         await this.st.onSetItem('current-page', '/home', false);
-        await this.st.onSetItem('occupied-driver', false, false);
         await this.st.onSetItem('listenOffer', false, false);
-        await this.st.onSetItem('runService', false, false);
         await this.st.onSetItem('current-service', null, false);
-        await this.st.onSetItem('runDestination', false, false);
-        await this.st.onSetItem('finishDestination', false, false);
-        this.io.onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
-          console.log('Cambiando estado conductor', resOccupied);
-        });
+        this.navCtrl.navigateRoot('/service-run' );
+
+      }
+
+      if (accepted) {
+        occupied = true;
+        await this.st.onSetItem('current-service', osNoti.payload.additionalData.dataOffer, true);
+        await this.st.onSetItem('listenOffer', true, false);
+        await this.st.onSetItem( 'current-page', '/service-run', false );
         this.navCtrl.navigateRoot('/home');
       }
+
+      await this.st.onSetItem('occupied-driver', occupied, false);
+
+      this.io.onEmit('occupied-driver', { occupied, pkUser: this.st.pkUser }, (resOccupied) => {
+        console.log('Cambiando estado conductor', resOccupied);
+      });
     });
 
     this.oneSignal.handleNotificationOpened().subscribe(async (osNoti) => {
       // do something when a notification is opened
       // console.log('push abierta', osNoti);
       const accepted = osNoti.notification.payload.additionalData.accepted || false;
+      const declined = Boolean( osNoti.notification.payload.additionalData.declined ) || false;
       if (accepted) {
-        await this.st.onSetItem('current-service', osNoti.notification.payload.additionalData.dataOffer, true);
-        await this.st.onSetItem('occupied-driver', true, false);
-        await this.st.onSetItem('runDestination', false, false);
-        await this.st.onSetItem('finishDestination', false, false);
-
-        // this.io. onEmit('occupied-driver', { occupied: true }, (resOccupied) => {
-        //   console.log('Cambiando estado conductor', resOccupied);
-        // });
-
-        await this.st.onSetItem( 'current-page', '/service-run', false );
-        this.navCtrl.navigateRoot('/service-run', { animated: true } );
-
-      } else {
-
-        // const declined = osNoti.notification.payload.additionalData.declined || false;
-        const url = osNoti.notification.payload.additionalData.url || '';
-
-        // if (declined) {
-        //   await this.st.onSetItem('current-page', '/home', false);
-        //   await this.st.onSetItem('current-service', null, false);
-        //   await this.st.onSetItem('occupied-driver', false, false);
-        //   await this.st.onSetItem('runDestination', false, false);
-        //   await this.st.onSetItem('finishDestination', false, false);
-
-        // }
-
-        if (url !== '') {
-
-          if (url === '/home') {
-            return this.navCtrl.navigateRoot('/home', { animated: true } );
-          } else {
-            this.router.navigateByUrl( url );
-          }
-
-        }
+        this.navCtrl.navigateRoot('/service-run' );
       }
+
+      if (declined) {
+        this.navCtrl.navigateRoot('/home');
+      }
+
     });
 
     this.oneSignal.endInit();

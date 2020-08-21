@@ -73,7 +73,6 @@ export class ServicesListPage implements OnInit, OnDestroy {
   onListenCancelService() {
     this.cancelSbc = this.io.onListen('disposal-service').subscribe( async (res: any) => {
 
-      console.log('se elimino un servicio', res);
       this.dataServices = this.dataServices.filter( svc => svc.pkService !== Number( res.pkService ) );
       await this.ui.onShowToast( res.msg );
     });
@@ -96,7 +95,6 @@ export class ServicesListPage implements OnInit, OnDestroy {
 
   onListenOfferClient() {
     this.socketOfferSbc = this.io.onListen( 'newOffer-service-client' ).subscribe( async (res: any) => {
-      console.log('llego una oferta cliente', res);
       if (res.accepted) {
         const offer: IOffer = res.dataOffer;
         await this.ui.onShowLoading('Espere....');
@@ -151,7 +149,6 @@ export class ServicesListPage implements OnInit, OnDestroy {
   async onMinusRate( service: IServices ) {
     const percent = service.minRatePercent;
     const minrate = (service.rateHistory * percent)  / 100;
-    console.log(` tarifa minima ${ minrate } -> ${  percent }`);
     if ( (service.rateOffer - 0.50) < minrate || (service.rateOffer - 0.50) < service.minRate ) {
       let msg = `La tarifa mìnima es de ${ formatNumber( minrate, 'es', '.2-2' ) }`;
       if ((service.rateOffer - 0.50) < service.minRate) {
@@ -253,9 +250,7 @@ export class ServicesListPage implements OnInit, OnDestroy {
         payloadService.rateOffer = this.bodyAcceptOffer.rateOffer;
 
         payloadService.nameComplete = this.st.dataUser.nameComplete;
-        // payloadService.document = this.st.dataUser.document;
-        // payloadService.prefix = this.st.dataUser.prefix;
-        // payloadService.nameCountry = this.st.dataUser.nameCountry;
+
         payloadService.img = this.st.dataUser.img;
         payloadService.fkDriver = this.st.dataUser.pkUser;
         payloadService.osId = this.st.osID;
@@ -263,7 +258,6 @@ export class ServicesListPage implements OnInit, OnDestroy {
         payloadService.pkOfferService = res.data.pkOffer;
         payloadService.dateOfferDriver = res.data.dateOffer;
 
-        console.log('payload offer to client======================================>', payloadService);
         this.st.onLoadVehicle().then( (val) => {
 
           this.io.onEmit('newOffer-driver', { pkClient: service.fkClient,

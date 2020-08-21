@@ -9,6 +9,7 @@ import { ModalController } from '@ionic/angular';
 import * as moment from 'moment';
 import { UserService } from '../../services/user.service';
 import { ModalProfilePage } from '../modal-profile/modal-profile.page';
+import { SocketService } from 'src/app/services/socket.service';
 
 const URI_SERVER = environment.URL_SERVER;
 
@@ -37,7 +38,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   pathCheck = '';
 
   // tslint:disable-next-line: max-line-length
-  constructor( public st: StorageService, private ui: UiUtilitiesService, private modalCtrl: ModalController, private userSvc: UserService ) { }
+  constructor( public st: StorageService, private ui: UiUtilitiesService, private modalCtrl: ModalController, private userSvc: UserService, public io: SocketService ) { }
 
   async ngOnInit() {
     this.loading = true;
@@ -103,7 +104,6 @@ export class ProfilePage implements OnInit, OnDestroy {
         this.pathPolicialRecord = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgPolicialRecord }?token=${ this.st.token }`;
         this.pathCriminalRecord = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgCriminalRecord }?token=${ this.st.token }`;
         this.pathCheck = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgPhotoCheck }?token=${ this.st.token }`;
-        console.log('upload info', resModal.data.arrFilesUploaded);
         const newDataUser = this.st.dataUser;
         newDataUser.name = this.dataProfile.name;
         newDataUser.nameComplete = this.dataProfile.nameComplete;

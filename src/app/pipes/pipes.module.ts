@@ -5,6 +5,7 @@ import { ImgDriverPipe } from './img-driver.pipe';
 import { ColorPipe } from './color.pipe';
 import { YesnoPipe } from './yesno.pipe';
 import { PaymentPipe } from './payment.pipe';
+import { NetworkPipe } from './network.pipe';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,8 @@ import { PaymentPipe } from './payment.pipe';
     ImgDriverPipe,
     ColorPipe,
     YesnoPipe,
-    PaymentPipe
+    PaymentPipe,
+    NetworkPipe
   ],
   imports: [
     CommonModule
@@ -22,7 +24,8 @@ import { PaymentPipe } from './payment.pipe';
     ImgDriverPipe,
     ColorPipe,
     YesnoPipe,
-    PaymentPipe
+    PaymentPipe,
+    NetworkPipe
   ]
 })
 export class PipesModule { }

@@ -234,6 +234,10 @@ export class ModalProfilePage implements OnInit, OnDestroy {
 
   async onShowTypeDoc() {
 
+    if (this.bodyProfile.verifyReniec) {
+      return false;
+    }
+
     const pickerTypeDoc = await this.pickerCtrl.create({
       animated: true,
       columns: [{
@@ -319,7 +323,6 @@ export class ModalProfilePage implements OnInit, OnDestroy {
         icon: 'camera',
         text: 'Tomar foto',
         handler: () => {
-          console.log('Abrir cámara');
           this.options.sourceType = this.camera.PictureSourceType.CAMERA;
           this.onShowCamera();
         }
@@ -327,7 +330,6 @@ export class ModalProfilePage implements OnInit, OnDestroy {
         text: 'Abrir galeria',
         icon: 'image',
         handler: () => {
-          console.log('Abrir galería');
           this.options.sourceType = this.camera.PictureSourceType.SAVEDPHOTOALBUM;
           this.onShowCamera();
         }

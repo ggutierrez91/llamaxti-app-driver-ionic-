@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/co
 import { AlertController, NavController, ModalController } from '@ionic/angular';
 import { StorageService } from '../../services/storage.service';
 import { environment } from '../../../environments/environment';
-import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { Subscription } from 'rxjs';
 import { SocketService } from '../../services/socket.service';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx';
@@ -15,6 +14,8 @@ import { PushModel } from '../../models/push.model';
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
 import { IResSocketCoors } from '../../interfaces/response-socket.interface';
+import { GeoService } from '../../services/geo.service';
+import { retry } from 'rxjs/operators';
 
 
 const URI_API = environment.URL_SERVER;
@@ -69,14 +70,13 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
   viewMore = false;
   showMoreCard = false;
-  // pathVehicle = URI_API + `/Driver/Img/Get/vehicle/`;
   pathUser = URI_API + '/User/Img/Get/';
   loadingConfirm = false;
   loadingConfirmNav = false;
   // tslint:disable-next-line: max-line-length
   constructor(  public st: StorageService,
-                private geo: Geolocation,
-                private io: SocketService,
+                private geo: GeoService,
+                public io: SocketService,
                 private sh: SocialSharing,
                 private ui: UiUtilitiesService,
                 private alertCtrl: AlertController,
@@ -98,9 +98,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     this.onLoadMap();
 
-    // setTimeout(() => {
-    // }, 1500);
-    
     this.st.onLoadToken().then( async () => {
       this.onLoadMap();
       this.onLoadService();
@@ -110,7 +107,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
         styles: styleMap
       });
     } ).catch(e => console.error('error al cargar token storage', e) );
-    
+
     this.onListenCancelRun();
   }
 
@@ -137,7 +134,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
   onLoadGeo() {
 
-    this.geo.getCurrentPosition().then( (val) => {
+    this.geo.onGetGeo().then( (val) => {
 
       this.lat =  val.coords.latitude;
       this.lng =  val.coords.longitude;
@@ -198,7 +195,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       if (!res.ok) {
         throw new Error( res.error );
       }
-      // console.log(res.data);
       this.dataServiceInfo = res.data;
       this.runDestination = this.dataServiceInfo.runDestination;
       this.finishDestination = this.dataServiceInfo.finishDestination;
@@ -209,11 +205,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       await this.ui.onHideLoading();
 
       this.onLoadRoute(); // mostarndo ruta
-
-      const infowindow = new google.maps.InfoWindow({
-        content: this.infoClient.nativeElement
-      });
-
       this.onListenGeo();
 
     });
@@ -307,7 +298,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   }
 
   onListenGeo() {
-    this.geoSbc = this.geo.watchPosition().subscribe( (position) => {
+    this.geoSbc = this.geo.onListenGeo().pipe( retry() ).subscribe( (position) => {
 
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
@@ -316,14 +307,12 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.lng = lng;
 
       this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
-        // console.log('Emitiendo ubicación conductor', res.message);
         if (res.ok) {
 
-          if ( this.st.indexHex !== res.indexHex ) {
-            this.st.indexHex = res.indexHex;
-            this.st.onSetItem('indexHex', res.indexHex, false);
-            // this.onTotalServices();
-          }
+          // if ( this.st.indexHex !== res.indexHex ) {
+          //   this.st.indexHex = res.indexHex;
+          //   this.st.onSetItem('indexHex', res.indexHex, false);
+          // }
 
         }
 
@@ -378,12 +367,16 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.minutes = distance.rows[0].elements[0].duration.value;
 
       if (!this.runDestination) {
-        if ((this.distance <= 250 && this.distance >= 200) || (this.distance <= 100 && this.distance >= 70 ) ) {
+        if ((this.distance <= 600 && this.distance >= 250) || (this.distance <= 250 && this.distance >= 10 ) ) {
 
           this.bodyPush.message = `Conductor a ${ this.distanceText } - ${ this.minutesText } de tu ubicación`;
 
           this.bodyPush.title = 'Llamataxi-app';
           this.bodyPush.osId = [ this.dataServiceInfo.osIdClient ];
+          this.bodyPush.data = {
+            accepted: false,
+            deleted: false
+          };
 
           this.os.onSendPushUser( this.bodyPush );
         }
@@ -424,6 +417,9 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     modalCalif.present().then( async () => {
       await this.ui.onHideLoading();
+      if (this.geoSbc) {
+        this.geoSbc.unsubscribe();
+      }
     });
 
     modalCalif.onDidDismiss().then( async (res) => {
@@ -474,7 +470,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.viewMore = !this.viewMore;
     setTimeout(() => {
       this.showMoreCard = !this.showMoreCard;
-    }, 1500);
+    }, 2000);
   }
 
   async onConfirmDel() {
@@ -508,15 +504,11 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
   onDeleteRun() {
 
-    // console.log('id servicio', this.dataServiceInfo.pkService);
-    // // tslint:disable-next-line: no-debugger
-    // debugger;
     this.deleteSbc = this.serviceSvc.onDeleteRun( this.dataServiceInfo.pkService, false ).subscribe( async (res) => {
 
       if (!res.ok) {
         throw new Error( res.error );
       }
-      console.log('res backend', res);
       if (res.showError === 1) {
         await this.ui.onHideLoading();
         await this.ui.onShowToast('No se encontró servicio', 3500);

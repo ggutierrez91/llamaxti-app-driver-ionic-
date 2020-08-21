@@ -31,6 +31,7 @@ export class StorageService {
   public numberPlate = '';
   public year = 0;
   public color = '';
+  public imgTaxiFrontal = '';
   public nameComplete = '';
   public pkPerson = 0;
   public osID = '';
@@ -40,7 +41,6 @@ export class StorageService {
   constructor( private storage: Storage, private authSvc: AuthService ) { }
 
   async onSaveCredentials( token: string, data: any ) {
-      // console.log(data);
       this.token = token;
       this.dataUser = data;
       this.pkDriver = data.pkDriver;
@@ -99,6 +99,7 @@ export class StorageService {
       this.numberPlate = dataVehicle.numberPlate  || '';
       this.year = dataVehicle.year  || 0;
       this.color = dataVehicle.color  || '';
+      this.imgTaxiFrontal = dataVehicle.imgTaxiFrontal || '';
       this.dataVehicle = dataVehicle || null;
     }
   }

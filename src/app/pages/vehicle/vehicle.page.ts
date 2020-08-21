@@ -28,14 +28,13 @@ export class VehiclePage implements OnInit, OnDestroy {
   tokenPath = '';
 
   // tslint:disable-next-line: max-line-length
-  constructor( private modalCtrl: ModalController, private vehicleSvc: VehicleService, public st: StorageService, private alertCtrl: AlertController, private ui: UiUtilitiesService, private io: SocketService) { }
+  constructor( private modalCtrl: ModalController, private vehicleSvc: VehicleService, public st: StorageService, private alertCtrl: AlertController, private ui: UiUtilitiesService, public io: SocketService) { }
 
   ngOnInit() {
     this.loading = true;
     this.st.onLoadToken().then( () => {
 
       this.tokenPath = `?idDriver=${ this.st.pkDriver }&token=${ this.st.token }`;
-      // console.log(this.tokenPath );
       this.onGetVehicles();
 
     });
@@ -62,7 +61,6 @@ export class VehiclePage implements OnInit, OnDestroy {
 
     await modalAdd.present();
     modalAdd.onDidDismiss().then( (resModal) => {
-      console.log('respuesta modal', resModal);
       if (resModal.data.ok) {
         this.onGetVehicles();
       }
@@ -86,7 +84,6 @@ export class VehiclePage implements OnInit, OnDestroy {
     await modalAdd.present();
     const { data, role} = await modalAdd.onDidDismiss();
 
-    console.log('res modal edit', data, role);
     if (data.ok) {
       this.onGetVehicles();
     }
@@ -146,7 +143,6 @@ export class VehiclePage implements OnInit, OnDestroy {
 
       this.dataVehicle.forEach( (vh) => {
         vh.srcTaxiFrontal = this.pathImg + vh.pkVehicle + `/${ vh.imgTaxiFrontal || 'xd.png' }${ this.tokenPath }`;
-        // console.log(vh.imgTaxiFrontal);
       });
       this.loading = false;
     });

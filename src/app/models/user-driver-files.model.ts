@@ -70,7 +70,6 @@ export class DriverFilesModel {
         const indexFind = this.filesDriver.findIndex(
             item => item.entity === entity && item.typeFile === typeFile
         );
-        console.log('indexFind', indexFind);
         if ( indexFind === -1 ) {
             return {
                 ok: false,

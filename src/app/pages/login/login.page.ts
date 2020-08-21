@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { LoginModel } from '../../models/login.model';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -39,7 +39,6 @@ export class LoginPage implements OnInit, OnDestroy {
         if (!res.ok) {
           throw new Error( res.error );
         }
-        // console.log(res);
 
         if (res.showError !== 0) {
           this.loading = false;
@@ -106,7 +105,7 @@ export class LoginPage implements OnInit, OnDestroy {
   async onNavSingin() {
     await this.uiSvc.onShowLoading('Espere...');
     // await this.st.onSetItem( 'current-page', '/singin', false );
-    this.router.navigateByUrl('/singin').then( async () => {
+    this.router.navigateByUrl('singin').then( async () => {
       await this.uiSvc.onHideLoading();
     }).catch(e => console.error('Error al navegar a crear cuenta', e) );
   }

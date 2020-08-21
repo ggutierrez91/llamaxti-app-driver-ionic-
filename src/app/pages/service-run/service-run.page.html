@@ -1,7 +1,18 @@
 <ion-header no-border>
     <ion-toolbar color="dark">
 
-        <ion-title>Servicio de taxi</ion-title>
+        <ion-label slot="start">
+
+            <ion-badge slot="start" *ngIf="io.statusSocket" color="success" mode="ios" class=" text-center">
+                {{ io.statusSocket | network }}
+            </ion-badge>
+
+            <ion-badge slot="start" *ngIf="!io.statusSocket" color="danger" mode="ios" class=" text-center">
+                {{ io.statusSocket | network }}
+            </ion-badge>
+        </ion-label>
+
+        <ion-title>Servicio taxi</ion-title>
 
         <ion-buttons slot="end">
 

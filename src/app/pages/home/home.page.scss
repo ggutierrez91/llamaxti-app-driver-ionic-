@@ -1,10 +1,78 @@
-.totalservices {
-    position: relative;
-    top: -11px;
-    left: -12px;
-    font-size: 9px;
+.netwoek {
+    position: absolute;
+    top: 14px;
+    left: 20px;
+    font-size: 10px;
 }
 
 .fontP {
     font-family: 'Patrick Hand';
+}
+
+.mapHome {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+.slidesServices {
+    position: absolute;
+    bottom: 5px;
+    width: 100%;
+    // height: 250px;
+}
+
+.cardTaxi {
+    // position: absolute;
+    width: 240px;
+    // max-width: 230px;
+    // min-width: 230px;
+    height: 180px;
+    // bottom: 5px;
+    border-radius: 15px 15px 15px 15px;
+}
+
+.cardLight {
+    background-color: rgba($color: #f7f2f2d8, $alpha: 0.9);
+}
+
+.cardDark {
+    background-color: rgba($color: #202020d8, $alpha: 0.9);
+    color: #FFF;
+    .text-primary {
+        color: rgb(236, 184, 14) !important;
+    }
+}
+
+.fontIcon {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.cardTouch {
+    background-color: rgba($color: #f7793fd8, $alpha: 0.9);
+}
+
+.cardMore {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: 240px;
+    // background-color: rgba($color: #f7f2f2d8, $alpha: 1.0);
+    border-radius: 15px 15px 0px 0px;
+}
+
+.text-rate {
+    position: relative;
+    top: 8px;
+    font-size: 22.5px;
+    // font-weight: bold;
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+}
+
+.text-service {
+    margin-top: 15px;
+    font-size: 12.3px;
+    font-display: initial;
 }

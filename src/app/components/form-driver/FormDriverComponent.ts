@@ -88,7 +88,6 @@ export class FormDriverComponent implements OnInit {
   }
 
   onClickAction(frm: NgForm, action: string) {
-    console.log('files driver', this.driverFiles);
     this.clickFrmDriver.emit({
       ok: true,
       frmValid: frm.valid,

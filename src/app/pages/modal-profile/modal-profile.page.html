@@ -2,7 +2,7 @@
     <ion-toolbar>
         <ion-title>Editar perfil</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="onCloseModal()">
+            <ion-button (click)="onCloseModal()" color="primary">
                 <ion-icon slot="start" name="close"></ion-icon>
                 Cerrar
             </ion-button>
@@ -64,7 +64,7 @@
                                     <input type="tel" class="form-control " name="document" #ndoc="ngModel" [(ngModel)]="bodyProfile.document" placeholder="Nro. documento" [ngClass]="{
                                      'form-control-danger': (ndoc.errors?.required || ndoc.errors?.pattern ) && ndoc.touched,
                                      'form-control-success': !ndoc.errors?.required && !ndoc.errors?.pattern && ndoc.touched
-                                   }" required pattern="^[0-9]{0,20}$" [minlength]="longitude" [maxlength]="longitude">
+                                   }" required pattern="^[0-9]{0,20}$" [minlength]="longitude" [maxlength]="longitude" [readOnly]="bodyProfile.verifyReniec">
 
                                 </div>
                                 <span *ngIf="ndoc.errors?.pattern && ndoc.touched">

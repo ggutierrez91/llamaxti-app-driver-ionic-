@@ -1,14 +1,21 @@
 <ion-header no-border>
     <ion-toolbar color="dark">
 
-        <ion-buttons slot="start">
-            <ion-button expand="block" fill="clear" shape="round" (click)="onRedirectServices()">
-                <ion-icon slot="icon-only" color="light" name="earth-outline"></ion-icon>
-            </ion-button>
-            <ion-badge *ngIf="totalServices > 0" color="danger" mode="ios" class="totalservices text-center">
-                {{totalServices}}
+        <ion-label slot="start">
+            <ion-icon *ngIf="io.statusSocket" slot="only-icon" name="radio-button-on-outline" color="success">
+            </ion-icon>
+
+            <ion-icon *ngIf="!io.statusSocket" slot="only-icon" name="radio-button-off-outline" color="danger">
+            </ion-icon>
+
+            <ion-badge slot="start" *ngIf="io.statusSocket" color="success" mode="ios" class=" text-center">
+                {{ io.statusSocket | network }}
             </ion-badge>
-        </ion-buttons>
+
+            <ion-badge slot="start" *ngIf="!io.statusSocket" color="danger" mode="ios" class=" text-center">
+                {{ io.statusSocket | network }}
+            </ion-badge>
+        </ion-label>
 
         <ion-title>Inicio</ion-title>
 
@@ -30,7 +37,7 @@
 
 <ion-content>
 
-    <div style="width: 100%; height: 100%;" #mapDriver>
+    <div class="mapHome" #mapDriver>
         <div #infoPolygon>
             <div class="">
                 <h4 class="card-title">Zonas calientes</h4>
@@ -42,6 +49,155 @@
               <a href="#" class="card-link">Another link</a> -->
             </div>
         </div>
+    </div>
+
+    <ion-slides class="slidesServices" [options]="slidesOptions">
+        <ion-slide *ngFor="let ts of dataServices">
+            <div class="cardTaxi animated fadeInRight " *ngIf="!hideSlideCard" [ngClass]="{'cardTouch': hideSlideCard, 'cardDark': codeJournal !== 'DIURN', 'cardLight': codeJournal === 'DIURN'}">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-10 text-left">
+                            <span style="font-size: 12px;">
+
+                                <span class="text-primary"> {{ ts.aliasCategory }} </span>
+                            <small style="font-size: 11px;">
+                                    <b> ({{ ts.distanceText }}-{{ ts.minutesText }}) </b>
+                                </small>
+                            </span>
+                        </div>
+                        <div class="col-2 text-right">
+                            <i class="fa fa-times text-danger" (click)="onCloseService( ts )" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body" (click)="onShowMoreCard( ts )">
+                    <div class="row">
+                        <div class="col-7 text-center">
+                            <img [src]=" pathImg + ts.img + '?token=' + st.token " alt="Cliente" class="rounded-circle " style="height: 70px; width: 80px;">
+                        </div>
+                        <div class="col-5 text-left">
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <span style="font-size: 12.5px;">
+                                        <i class="fa fa-star" aria-hidden="true"></i>&nbsp;
+                                        4.5
+                                    </span>
+                                </div>
+                                <div class="col-12">
+                                    <span style="font-size: 12.5px;">
+                                        <i [ngClass]="{'fa-money-check': ts.paymentType === 'CARD', 'fa-money-bill-alt': ts.paymentType !== 'CARD'}" class="fas"></i>
+                                        &nbsp;
+                                        {{ ts.rateOffer | number: '.2-2' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <p class="fontP text-primary" style="font-size: 12.5px; margin-top: 5px;">
+                                {{ ts.nameComplete.toUpperCase() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ion-slide>
+
+    </ion-slides>
+
+    <div class="cardMore animated " *ngIf="showMoreCard" [ngClass]="{'fadeOutDown': !hideSlideCard, 'fadeInUp': showMoreCard ,'cardDark': codeJournal !== 'DIURN', 'cardLight': codeJournal === 'DIURN' }">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-10 text-left">
+                    <span style="font-size: 14px;">
+
+                        <span class="text-primary"> {{ dataMore.aliasCategory }} </span>
+                    <small style="font-size: 12.5px;">
+                            <b> ({{ dataMore.distanceText }}-{{ dataMore.minutesText }}) </b>
+                        </small>
+                    </span>
+                </div>
+                <div class="col-2 text-right" (click)="onHideMoreCard(  )">
+                    <i class="now-ui-icons arrows-1_minimal-down fontIcon text-primary"></i>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-4 text-center">
+                    <img [src]=" pathImg + dataMore.img + '?token=' + st.token " alt="Cliente" class="rounded-circle img-raised" style="height: 85px; width: 90px;">
+                </div>
+                <div class="col-8 text-center">
+
+                    <div class="row">
+
+                        <div class="col-12">
+                            <button class="btn btn-sm btn-outline-danger btn-round" (click)="onMinusRate()" *ngIf="!dataMore.isMinRate">
+                                <i class="fa fa-minus" aria-hidden="true"></i>
+                            </button> &nbsp;
+                            <span class=" text-rate">
+                                {{ dataMore.rateOffer | number:'.2-2' }}
+                            </span> &nbsp;
+                            <button class="btn btn-sm btn-outline-success btn-round" (click)="onPlusRate()" *ngIf="!dataMore.isMinRate">
+                                <i class="fa fa-plus" aria-hidden="true"></i>
+                            </button>
+                        </div>
+
+                        <div class="col-12">
+                            <span class="fontP text-primary" style="font-size: 14.7px; margin-top: 5px;">
+                                {{ dataMore.nameComplete.toUpperCase() }}
+                            </span>
+                        </div>
+                        <div class="col-12">
+                            <span style="font-size: 13.7px;">
+                                <i class="fa fa-star" aria-hidden="true"></i>&nbsp;
+                                4.5 &nbsp;
+                                <i [ngClass]="{'fa-money-check': dataMore.paymentType === 'CARD', 'fa-money-bill-alt': dataMore.paymentType !== 'CARD'}" class="fas"></i>
+                                {{ dataMore.paymentType | payment }}
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10">
+                    <p class="card-text text-service">
+                        <!-- <b>De</b>&nbsp; -->
+                        <span *ngIf="dataMore.streetOrigin.length > 40">
+                            {{ dataMore.streetOrigin | slice:0:40 }}
+                        </span>
+                        <span *ngIf="dataMore.streetOrigin.length < 40">
+                            {{ dataMore.streetOrigin }}
+                        </span><br>
+                        <!-- <b>a</b> -->
+                        <span *ngIf="dataMore.streetDestination.length > 41">
+                            {{ dataMore.streetDestination | slice:0:41 }}
+                        </span>
+                        <span *ngIf="dataMore.streetDestination.length < 41">
+                            {{ dataMore.streetDestination }}
+                        </span>
+                    </p>
+                </div>
+
+                <div class=" col-2">
+
+                    <button class="btn btn-sm btn-info btn-round " (click)="onAcceptOffer(  )" style="font-size: 13px; position: absolute; top: 15px; right: 4px;">
+                        ACEPTAR
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
     </div>
 
 

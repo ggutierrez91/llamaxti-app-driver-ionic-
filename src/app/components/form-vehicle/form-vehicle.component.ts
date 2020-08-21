@@ -95,7 +95,6 @@ export class FormVehicleComponent implements OnInit {
       arrImg = arrImg[ arrImg.length - 1 ].split('?');
       const extension = arrImg[ 0 ].toLowerCase();
 
-      console.log(extension);
       if (this.imgValid.indexOf( extension ) === -1) {
         this.uiSvc.onShowToast('Solo se permiten imágenes de tipo: ' + this.imgValid.join(', '), 2000);
         return;

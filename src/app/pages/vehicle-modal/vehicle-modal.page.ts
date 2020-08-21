@@ -41,7 +41,7 @@ export class VehicleModalPage implements OnInit, OnDestroy {
   yearValues: any[] = [];
   colorValues: any[] = [];
 
-  // widthDevice = 0;
+  loading = false;
 
   imgValid = ['jpg', 'png', 'jpeg'];
 
@@ -172,10 +172,7 @@ export class VehicleModalPage implements OnInit, OnDestroy {
             if (!newDate.isValid()) {
               return false;
             }
-  
-            // console.log('fecha exp', newDate.format('YYYY-MM-DD'));
             this.bodyVehicle.dateSoatExpiration = newDate.format('YYYY-MM-DD');
-  
           }
         }]
   
@@ -187,7 +184,6 @@ export class VehicleModalPage implements OnInit, OnDestroy {
   onLoadFiles() {
     const path = this.pathDriver + `${ this.data.pkVehicle }/`;
     const param = `?idDriver=${ this.data.fkDriver || 0 }&token=${ this.st.token }`;
-    // console.log('params', param);
     let pathSoat =  path + this.data.imgSoat + param;
     let pathPropertyCard =  path + this.data.imgPropertyCard + param;
     let pathFrontal =  path + this.data.imgTaxiFrontal + param;
@@ -315,7 +311,6 @@ export class VehicleModalPage implements OnInit, OnDestroy {
       arrImg = arrImg[ arrImg.length - 1 ].split('?');
       const extension = arrImg[ 0 ].toLowerCase();
 
-      // console.log(extension);
       if (this.imgValid.indexOf( extension ) === -1) {
         this.uiSvc.onShowToast('Solo se permiten imágenes de tipo: ' + this.imgValid.join(', '), 2000);
         return;
@@ -336,19 +331,24 @@ export class VehicleModalPage implements OnInit, OnDestroy {
   }
 
   onNextVehicleTwo() {
-
+    this.loading = true;
     this.slideVehicle.lockSwipes(false);
-    this.slideVehicle.slideNext();
-    this.slideVehicle.lockSwipes(true);
-    this.content.scrollToTop(50);
+    this.slideVehicle.slideNext().then( async () => {
+      await this.slideVehicle.lockSwipes(true);
+      await this.content.scrollToTop(50);
+      this.loading = false;
+    });
 
   }
 
   onBackSlide() {
+    this.loading = true;
     this.slideVehicle.lockSwipes(false);
-    this.slideVehicle.slidePrev();
-    this.slideVehicle.lockSwipes(true);
-    this.content.scrollToTop(50);
+    this.slideVehicle.slidePrev().then( async () => {
+      await this.content.scrollToTop(50);
+      await this.slideVehicle.lockSwipes(true);
+      this.loading = false;
+    });
   }
 
   onSubmit() {
@@ -392,10 +392,8 @@ export class VehicleModalPage implements OnInit, OnDestroy {
         if (!res.ok) {
           throw new Error( res.error );
         }
-        console.log('respuesta grabar vehiculo', res);
         if (res.showError === 0) {
           let resDocsJson: IResApi;
-          // let resUpDocs: any;
           const arrFilesUploaded: any[] = [];
 
           await Promise.all( this.filesVehicle.filesVehicle.map( async (item) => {

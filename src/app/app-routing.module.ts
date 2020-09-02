@@ -52,6 +52,11 @@ const routes: Routes = [
     canLoad: [TokenGuard, AuthGuard],
     loadChildren: () => import('./pages/change-password/change-password.module').then( m => m.ChangePasswordPageModule)
   },
+  {
+    path: 'contacts',
+    canLoad: [TokenGuard, AuthGuard],
+    loadChildren: () => import('./pages/contacts/contacts.module').then( m => m.ContactsPageModule)
+  }
 ];
 
 @NgModule({

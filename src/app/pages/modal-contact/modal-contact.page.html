@@ -1,0 +1,153 @@
+<ion-header>
+    <ion-toolbar color="dark">
+        <ion-title>{{ title }}</ion-title>
+
+        <ion-buttons slot="end">
+            <ion-button (click)="onCloseModal()" color="danger">
+                <ion-icon slot="start" name="close"></ion-icon>
+                Cerrar
+            </ion-button>
+        </ion-buttons>
+
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+    <ion-slides style="width: 100%; height: 100%;">
+        <ion-slide>
+            <ion-grid fixed>
+                <ion-row>
+                    <ion-col size="12">
+                        <ion-text color="medium">
+                            <h1>Datos de contacto</h1>
+                        </ion-text>
+                    </ion-col>
+
+                    <ion-col size="12">
+
+                        <form #frmContact="ngForm">
+
+                            <ion-item class="ionitem" [ngClass]="{
+                  'is-invalid': 
+                      (names.errors?.required || names.errors?.minlength || names.errors?.maxlength || names.errors?.pattern) 
+                      && names.touched,
+                  'is-valid': 
+                      !names.errors?.required && !names.errors?.minlength && !names.errors?.maxlength && !names.errors?.pattern
+                      && names.touched      
+                  }">
+                                <ion-icon slot="start" name="language-outline"></ion-icon>
+
+                                <span class="msgValidation" *ngIf="names.errors?.required && names.touched">
+                      <small class="text-danger">*Requerido</small>
+                  </span>
+
+                                <span class="msgValidation" *ngIf="names.errors?.minlength && names.touched">
+                      <small class="text-danger">*M&iacute;nimo 3 caracteres</small>
+                  </span>
+
+                                <span class="msgValidation" *ngIf="names.errors?.maxlength && names.touched">
+                      <small class="text-danger">*M&aacute;nimo 40 caracteres</small>
+                  </span>
+
+                                <span class="msgValidation" *ngIf="names.errors?.pattern && names.touched">
+                      <small class="text-danger">*Solo letras</small>
+                  </span>
+
+                                <ion-input mode="ios" type="text" placeholder="Nombres" class="ion-text-right" clearInput="true" name="names" #names="ngModel" [(ngModel)]="bodyContact.name" required="true" pattern="^[a-zA-Z áéíóúüñÁÉÍÚÓÜÑ]{0,40}$" minlength="3" maxlength="40">
+                                </ion-input>
+                            </ion-item>
+
+                            <ion-item class="ionitem" [ngClass]="{
+            'is-invalid': 
+                (surname.errors?.required || surname.errors?.minlength || surname.errors?.maxlength || surname.errors?.pattern) 
+                && surname.touched,
+            'is-valid': 
+                !surname.errors?.required && !surname.errors?.minlength && !surname.errors?.maxlength && !surname.errors?.pattern
+                && surname.touched      
+            }">
+
+                                <ion-icon slot="start" name="language-outline"></ion-icon>
+
+                                <span class="msgValidation" *ngIf="surname.errors?.required && surname.touched">
+                          <small class="text-danger">*Requerido</small>
+                      </span>
+
+                                <span class="msgValidation" *ngIf="surname.errors?.minlength && surname.touched">
+                          <small class="text-danger">*M&iacute;nimo 3 caracteres</small>
+                      </span>
+
+                                <span class="msgValidation" *ngIf="surname.errors?.maxlength && surname.touched">
+                          <small class="text-danger">*M&aacute;nimo 40 caracteres</small>
+                      </span>
+
+                                <span class="msgValidation" *ngIf="surname.errors?.pattern && surname.touched">
+                          <small class="text-danger">*Solo letras</small>
+                      </span>
+
+                                <ion-input mode="ios" type="text" placeholder="Apellido paterno materno" class="ion-text-right" clearInput="true" name="surname" #surname="ngModel" [(ngModel)]="bodyContact.surname" required="true" pattern="^[a-zA-Z áéíóúüñÁÉÍÚÓÜÑ]{0,40}$" minlength="3"
+                                    maxlength="40"></ion-input>
+                            </ion-item>
+
+                            <ion-item class="ionitem" [ngClass]="{
+                    'is-invalid': 
+                        (email.errors?.required || email.errors?.pattern) && email.touched,
+                    'is-valid': 
+                        !email.errors?.required && !email.errors?.pattern && email.touched      
+                }">
+                                <ion-icon slot="start" name="mail-outline"></ion-icon>
+
+                                <span class="msgValidation" *ngIf="email.errors?.required && email.touched">
+                          <small class="text-danger">*Requerido</small>
+                      </span>
+
+                                <span class="msgValidation" *ngIf="email.errors?.pattern && email.touched">
+                          <small class="text-danger">*Email inv&aacute;lido</small>
+                      </span>
+
+                                <ion-input mode="ios" type="email" placeholder="example@dominio.com" class="ion-text-right" clearInput="true" inputmode="email" name="email" #email="ngModel" [(ngModel)]="bodyContact.email" pattern="^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$"
+                                    required="true"></ion-input>
+                            </ion-item>
+
+                            <ion-item class="ionitem" [ngClass]="{
+                        'is-invalid': 
+                            (phone.errors?.minlength || phone.errors?.maxlength || phone.errors?.pattern) 
+                            && phone.touched,
+                        'is-valid': 
+                            !phone.errors?.minlength && !phone.errors?.maxlength && !phone.errors?.pattern
+                            && phone.touched      
+                    }">
+                                <ion-icon slot="start" name="call-outline"></ion-icon>
+
+
+                                <ion-select (ionChange)="onChangeCountry()" [selectedText]="countryText" name="nationality" [(ngModel)]="bodyContact.fkNationality" okText="Ok" cancelText="Cerrar" [interfaceOptions]="countryAlertOptions">
+                                    <ion-select-option *ngFor="let country of dataNationality" [value]="country.pkNationality">
+                                        {{(country.nameCountry | slice :0 : 18) + ' ' + country.prefixPhone }}
+                                    </ion-select-option>
+                                </ion-select>
+
+
+                                <ion-input mode="ios" type="text" placeholder="000 000 000" inputmode="tel" class="ion-text-right" clearInput="true" name="phone" #phone="ngModel" [(ngModel)]="bodyContact.phone" pattern="^[0-9]{0,9}$" minlength="9" maxlength="9">
+                                </ion-input>
+                            </ion-item>
+                        </form>
+
+                    </ion-col>
+
+                    <ion-col size="12">
+                        <ion-button (click)="onSubmitContact( frmContact )" expand="block" fill="outline" shape="round" [disabled]="frmContact.invalid">
+                            <span *ngIf="!loadData">
+                                Guardar
+                            </span>
+                            <span *ngIf="loadData">
+                                Guardar cambios
+                            </span>
+                        </ion-button>
+                    </ion-col>
+
+                </ion-row>
+            </ion-grid>
+        </ion-slide>
+    </ion-slides>
+
+</ion-content>

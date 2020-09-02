@@ -24,7 +24,7 @@ export class LoginPage implements OnInit, OnDestroy {
   viewPass = false;
   typeInput = 'password';
   // tslint:disable-next-line: max-line-length
-  constructor( private authScv: AuthService, private st: StorageService, private uiSvc: UiUtilitiesService, private navCtrl: NavController, private menuCtrl: MenuController, private io: SocketService, private router: Router ) { }
+  constructor( private authScv: AuthService, private st: StorageService, private uiSvc: UiUtilitiesService, private navCtrl: NavController, private menuCtrl: MenuController, private io: SocketService, private router: Router) { }
 
   ngOnInit() {
     this.bodyLogin = new LoginModel();

@@ -1,5 +1,5 @@
 .mapService {
-    position: absolute;
+    position: relative;
     width: 100%;
     height: 100%;
 }
@@ -9,6 +9,30 @@
     top: 14px;
     left: 20px;
     font-size: 10px;
+}
+
+.cardService {
+    position: absolute;
+    top: 10px;
+    width: 90%;
+    left: 22px;
+    right: 22px;
+    border-radius: 15px 15px 15px 15px;
+}
+
+.cardLight {
+    background-color: rgba($color: #f7f2f2d8, $alpha: 0.9);
+    // border: 2px solid rgba($color: #3a3a42, $alpha: 1.0);
+    border: 1px solid rgba($color: #89898a, $alpha: 1.0);
+}
+
+.cardDark {
+    background-color: rgba($color: #202020d8, $alpha: 0.9);
+    color: #FFF;
+    border: 1px solid rgba($color: #707070, $alpha: 1.0);
+    .text-primary {
+        color: rgb(236, 184, 14) !important;
+    }
 }
 
 .fontIcon {
@@ -38,4 +62,37 @@
 
 .alert-confirm {
     background-color: rgba($color: #c04925, $alpha: 0.8);
+}
+
+.msgAlert {
+    font-size: 25px;
+    font-family: 'Patrick Hand';
+}
+
+.iconAlert {
+    font-size: 50px;
+    transform: rotate(20deg);
+}
+
+.iconResponse {
+    font-size: 30px;
+    color: rgba($color: #3d3d3dd8, $alpha: 1.0)
+}
+
+.btnCancelAlert {
+    font-size: 24px;
+    color: rgba($color: #3d3d3dd8, $alpha: 1.0)
+}
+
+.alertService {
+    position: absolute;
+    width: 90%;
+    height: 90%;
+    left: 20px;
+    top: 20px;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba($color: #f3900d, $alpha: 0.7);
+    border-radius: 20px 20px 20px 20px;
+    color: rgba($color: #3d3d3dd8, $alpha: 1.0)
 }

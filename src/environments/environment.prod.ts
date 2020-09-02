@@ -1,13 +1,25 @@
 export const environment = {
   production: true,
-  URL_SERVER: 'https://admin.llamataxiperu.com',
-  // URL_SERVER: 'http://192.168.1.40:3000',
+  // URL_SERVER: 'https://admin.llamataxiperu.com',
+  URL_SERVER: 'http://192.168.1.40:3000',
   // OS_APP: 'caa68993-c7a5-4a17-bebf-6963ba72519b',
   // OS_KEY : 'YTE5MmRjYjQtMjRkZi00Y2Q0LThkZDMtYWY3YjEyNjg0NzRh',
 
   // nuevas credenciales grupo 8
   OS_APP: '8e919063-5003-4974-b566-b15a1da7eabe',
   OS_KEY : 'MGMwMzViY2YtMmJmYi00ZmZmLWJhZGMtNGQxY2EwMDQ2ZGRk',
+  
+  firebase: {
+    apiKey: 'AIzaSyAPoeJJaWzDHeSo23y93RW5N_6R1VM23RQ',
+    authDomain: 'llamataxi.firebaseapp.com',
+    databaseURL: 'https://llamataxi.firebaseio.com',
+    projectId: 'llamataxi',
+    storageBucket: 'llamataxi.appspot.com',
+    messagingSenderId: '585390671765',
+    appId: '1:585390671765:web:deb4bd430735120a76989c',
+    measurementId: 'G-J4KE2WPNSM'
+  },
+
   styleMapDiur: [
     {
         featureType: 'landscape',

@@ -7,7 +7,7 @@ import { SocketService } from './services/socket.service';
 import { PushService } from './services/push.service';
 import { AppUtilitiesService } from './services/app-utilities.service';
 import { Globalization } from '@ionic-native/globalization/ngx';
-
+import { Howler} from 'howler';
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -29,6 +29,7 @@ export class AppComponent {
   }
 
   initializeApp() {
+    Howler.volume(1.0);
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();

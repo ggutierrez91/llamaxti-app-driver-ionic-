@@ -111,6 +111,8 @@ export interface IServiceAccepted {
     nameBrand: string;
     paymentType: string;
 
+    runOrigin?: boolean;
+    finishOrigin?: boolean;
     runDestination?: boolean;
     finishDestination?: boolean;
     dateRunOrigin?: string;

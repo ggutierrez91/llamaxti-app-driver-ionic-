@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/co
 import { AlertController, NavController, ModalController } from '@ionic/angular';
 import { StorageService } from '../../services/storage.service';
 import { environment } from '../../../environments/environment';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable, interval } from 'rxjs';
 import { SocketService } from '../../services/socket.service';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
@@ -13,9 +13,12 @@ import { ModalCalificationPage } from '../modal-calification/modal-calification.
 import { PushModel } from '../../models/push.model';
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import { LaunchNavigator, LaunchNavigatorOptions } from '@ionic-native/launch-navigator/ngx';
-import { IResSocketCoors } from '../../interfaces/response-socket.interface';
+import { IResSocketCoors, IResSocket } from '../../interfaces/response-socket.interface';
 import { GeoService } from '../../services/geo.service';
-import { retry } from 'rxjs/operators';
+import { retry, map, take } from 'rxjs/operators';
+import { Geoposition } from '@ionic-native/geolocation/ngx';
+import { formatNumber } from '@angular/common';
+import { ModalChatPage } from '../modal-chat/modal-chat.page';
 
 
 const URI_API = environment.URL_SERVER;
@@ -60,9 +63,23 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   geoSbc: Subscription;
   deleteSbc: Subscription;
   cancelRunSbc: Subscription;
+  pushDistance: Subscription;
+  intervalo: Subscription;
+
+  showAlert = false;
+  hideAlert = false;
+  seconds = 3;
+  loadingAlert = false;
+  successAlert = false;
+  dangerAlert = false;
+  msgAlert = '';
+
   lat = 0;
   lng = 0;
+  currentStreet = '';
 
+  runOrigin = false;
+  finishOrigin = false;
   runDestination = false;
   finishDestination = false;
   codeJournal = 'DIURN';
@@ -73,6 +90,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   pathUser = URI_API + '/User/Img/Get/';
   loadingConfirm = false;
   loadingConfirmNav = false;
+  loading = true;
   // tslint:disable-next-line: max-line-length
   constructor(  public st: StorageService,
                 private geo: GeoService,
@@ -100,6 +118,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     this.st.onLoadToken().then( async () => {
       this.onLoadMap();
+      this.onLoadGeo();
       this.onLoadService();
       this.codeJournal = await this.st.onGetItem('codeJournal', false);
       const styleMap: any = this.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
@@ -127,8 +146,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     this.directionService = new google.maps.DirectionsService();
     this.directionRender = new google.maps.DirectionsRenderer({map: this.map});
-
-    this.onLoadGeo();
 
   }
 
@@ -167,6 +184,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   }
 
   async onLoadService() {
+    this.loading = true;
     await this.ui.onShowLoading('Cargando información...');
     this.dataService = await this.st.onGetItem('current-service', true);
 
@@ -196,6 +214,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
         throw new Error( res.error );
       }
       this.dataServiceInfo = res.data;
+      this.runOrigin = this.dataServiceInfo.runOrigin;
+      this.finishOrigin = this.dataServiceInfo.finishOrigin;
       this.runDestination = this.dataServiceInfo.runDestination;
       this.finishDestination = this.dataServiceInfo.finishDestination;
 
@@ -203,72 +223,118 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.lng = this.dataServiceInfo.lngDriver;
 
       await this.ui.onHideLoading();
-
+      this.onStreet();
       this.onLoadRoute(); // mostarndo ruta
       this.onListenGeo();
+      this.loading = false;
 
     });
 
+  }
+
+  onStreet() {
+    this.geo.onGetStreet( this.lat, this.lng ).then( res => {
+
+      const streetStr = `${res[0].thoroughfare} #${ res[0].subThoroughfare } - ${ res[0].locality }`;
+
+      this.currentStreet = streetStr;
+      // console.log('calle donde estoy', streetStr);
+
+    }).catch( e => {
+      throw new Error( e );
+    });
   }
 
   async onRun() {
-    this.loadingConfirmNav = true;
-    const navConfirm = await this.alertCtrl.create({
-      header: 'Confirmación',
-      message: '¿Está seguro de <b>iniciar navegación</b> hacia el punto de destino?; una vez iniciado no podrá cancelar el servicio',
-      mode: 'ios',
-      buttons: [{
-        text: 'No',
-        role: 'not',
-        cssClass: 'text-dark',
-        handler: () => {}
-      }, {
-        text: 'Iniciar',
-        role: 'yes',
-        cssClass: 'text-success',
-        handler: () => {
+   if (this.runOrigin) {
 
-          this.runDestination = true;
-          this.onLoadRoute();
-          const payload = {
-            runDestination: this.runDestination,
-            finishDestination: this.finishDestination,
-            pkClient: this.dataServiceInfo.fkClient,
-            pkService: this.dataService.pkService
-          };
+      this.loadingConfirmNav = true;
+      const navConfirm = await this.alertCtrl.create({
+        header: 'Confirmación',
+        message: '¿Está seguro de <b>iniciar navegación</b> hacia el punto de destino?; una vez iniciado no podrá cancelar el servicio',
+        mode: 'ios',
+        buttons: [{
+          text: 'No',
+          role: 'not',
+          cssClass: 'text-dark',
+          handler: () => {}
+        }, {
+          text: 'Iniciar',
+          role: 'yes',
+          cssClass: 'text-success',
+          handler: () => {
+            this.runOrigin = true;
+            this.finishOrigin = true;
+            this.runDestination = true;
+            this.onLoadRoute();
+            this.onLaunchNav( );
 
-          this.io.onEmit('status-travel-driver', payload, (ioRes: any) => {
-            console.log('Emitiendo estado de servicio a cliente', ioRes);
-          });
-          this.onLaunchNav();
+          }
+        }]
+      });
 
-        }
-      }]
-    });
+      navConfirm.present().then( () => {
+        this.loadingConfirmNav = false;
+      }).catch( e => console.log('Error al abrir confirm nav', e) );
 
-    navConfirm.present().then( () => {
-      this.loadingConfirmNav = false;
-    }).catch( e => console.log('Error al abrir confirm nav', e) );
+   } else {
+     this.runOrigin = true;
+     this.onLaunchNav();
+   }
+
   }
 
-  onLaunchNav() {
+  onLaunchNav( ) {
+
+    const payload = {
+      runOrigin: this.runOrigin,
+      finishOrigin: this.finishOrigin,
+      runDestination: this.runDestination,
+      finishDestination: this.finishDestination,
+      pkClient: this.dataServiceInfo.fkClient,
+      pkService: this.dataService.pkService
+    };
+
+    this.io.onEmit('status-travel-driver', payload, (ioRes: any) => {
+      console.log('Emitiendo estado de servicio a cliente', ioRes);
+    });
+
+    const destination = !this.runDestination ? this.dataServiceInfo.streetOrigin : this.dataServiceInfo.streetDestination;
+
+    const lat = !this.runDestination ? this.dataServiceInfo.latOrigin : this.dataServiceInfo.latDestination;
+    const lng = !this.runDestination ? this.dataServiceInfo.lngOrigin : this.dataServiceInfo.lngDestination;
+
+    const latStart = !this.runDestination ? this.lat : this.dataServiceInfo.latOrigin;
+    const lngStart = !this.runDestination ? this.lng : this.dataServiceInfo.lngOrigin;
 
     const options: LaunchNavigatorOptions = {
-      start: [this.dataServiceInfo.latOrigin, this.dataServiceInfo.lngOrigin],
+      start: [latStart, lngStart],
       transportMode: this.launchNavigator.TRANSPORT_MODE.DRIVING,
-      startName: this.dataServiceInfo.streetOrigin,
-      destinationName: this.dataServiceInfo.streetDestination
+      startName: this.currentStreet,
+      destinationName: destination
       // app: 'USER_SELECT '
     };
 
-    const lat = this.dataServiceInfo.latDestination;
-    const lng = this.dataServiceInfo.lngDestination;
-
     this.launchNavigator.navigate( [lat, lng] , options)
-      .then(
-        (success) => console.log('Launched navigator', success),
-        (error) => console.log('Error launching navigator', error)
-      );
+      .then( (success) => {
+          // if (!end) {
+          //   this.runOrigin = true;
+          // } else {
+          //   // this.runOrigin = true;
+          //   this.finishOrigin = true;
+          //   this.runDestination = true;
+          // }
+          console.log('Launched navigator', success);
+      }).catch((e) => {
+        // if (!end) {
+        //   this.runOrigin = false;
+        // } else {
+        //   // this.runOrigin = true;
+        //   this.finishOrigin = false;
+        //   this.runDestination = false;
+        // }
+        console.log('Error launching navigator', e); 
+      });
   }
 
   async onFinish() {
@@ -298,7 +364,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   }
 
   onListenGeo() {
-    this.geoSbc = this.geo.onListenGeo().pipe( retry() ).subscribe( (position) => {
+    this.geoSbc = this.geo.onListenGeo().pipe( retry(3) ).subscribe( (position: Geoposition) => {
 
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
@@ -306,13 +372,15 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.lat = lat;
       this.lng = lng;
 
+      this.onStreet();
+
       this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
         if (res.ok) {
 
-          // if ( this.st.indexHex !== res.indexHex ) {
-          //   this.st.indexHex = res.indexHex;
-          //   this.st.onSetItem('indexHex', res.indexHex, false);
-          // }
+          if ( this.st.indexHex !== res.indexHex ) {
+            this.st.indexHex = res.indexHex;
+            this.st.onSetItem('indexHex', res.indexHex, false);
+          }
 
         }
 
@@ -361,15 +429,15 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       travelMode: google.maps.TravelMode.DRIVING
     }, (distance) => {
 
-      this.distanceText = distance.rows[0].elements[0].distance.text;
-      this.minutesText = distance.rows[0].elements[0].duration.text;
-      this.distance = distance.rows[0].elements[0].distance.value;
-      this.minutes = distance.rows[0].elements[0].duration.value;
+      this.distanceText = distance.rows[0].elements[0].distance.text || '';
+      this.minutesText = distance.rows[0].elements[0].duration.text || '';
+      this.distance = distance.rows[0].elements[0].distance.value || 0;
+      this.minutes = distance.rows[0].elements[0].duration.value || 0;
 
       if (!this.runDestination) {
-        if ((this.distance <= 600 && this.distance >= 250) || (this.distance <= 250 && this.distance >= 10 ) ) {
+        if ((this.distance <= 300 && this.distance >= 200) || (this.distance <= 150 && this.distance >= 10 ) ) {
 
-          this.bodyPush.message = `Conductor a ${ this.distanceText } - ${ this.minutesText } de tu ubicación`;
+          this.bodyPush.message = `Conductor en ${ this.currentStreet }, a ${ formatNumber( this.distance, 'en', '.1-1' ) } metros - ${ this.minutesText } de tu ubicación`;
 
           this.bodyPush.title = 'Llamataxi-app';
           this.bodyPush.osId = [ this.dataServiceInfo.osIdClient ];
@@ -378,7 +446,15 @@ export class ServiceRunPage implements OnInit, OnDestroy {
             deleted: false
           };
 
-          this.os.onSendPushUser( this.bodyPush );
+          if (this.pushDistance) {
+            this.pushDistance.unsubscribe();
+          }
+
+          this.pushDistance = this.os.onSendPushUser( this.bodyPush ).subscribe( async (resOs) => {
+            console.log('push enviada', resOs);
+            await this.ui.onHideLoading();
+            this.navCtrl.navigateRoot('/home');
+          });
         }
       }
 
@@ -394,6 +470,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.runDestination = false;
     this.finishDestination = true;
     const payload = {
+      runOrigin: this.runOrigin,
+      finishOrigin: this.finishOrigin,
       runDestination: this.runDestination,
       finishDestination: this.finishDestination,
       pkClient: this.dataService.fkClient,
@@ -423,7 +501,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     });
 
     modalCalif.onDidDismiss().then( async (res) => {
-
+      await this.ui.onShowLoading('Espere...');
       await this.onResetStorage();
 
       this.io. onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
@@ -432,7 +510,11 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       if (res.data.ok) {
         await this.ui.onHideLoading();
       }
-      this.navCtrl.navigateRoot('/home');
+      this.navCtrl.navigateRoot('/home').then( async () => {
+        
+        await this.ui.onHideLoading();
+
+      });
 
     });
   }
@@ -537,8 +619,11 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     await this.st.onSetItem('current-page', '/home', false);
     await this.st.onSetItem('current-service', null, false);
     await this.st.onSetItem('occupied-driver', false, false);
-    await this.st.onSetItem('runDestination', false, false);
-    await this.st.onSetItem('finishDestination', false, false);
+
+    // await this.st.onSetItem('runOrigin', false, false);
+    // await this.st.onSetItem('finishOrigin', false, false);
+    // await this.st.onSetItem('runDestination', false, false);
+    // await this.st.onSetItem('finishDestination', false, false);
     // this.navCtrl.navigateRoot('/home');
   }
 
@@ -559,9 +644,124 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     });
   }
 
+  async onShowAlert() {
+    this.showAlert = true;
+
+    if ( this.successAlert || this.dangerAlert) {
+
+      setTimeout(() => {
+        this.hideAlert = true;
+      }, 8000);
+      setTimeout(() => {
+        this.showAlert = false;
+        this.seconds = 0;
+        this.hideAlert = false;
+      }, 8500);
+      return false;
+    }
+
+    setTimeout(() => {
+      this.intervalo = this.getInterval().subscribe( (n) => {
+        this.seconds = n;
+
+        if (this.seconds === 0) {
+          // console.log('emitiendo alerta');
+
+          this.loadingAlert = true;
+          const payload = {
+            pkService: this.dataServiceInfo.pkService,
+            fkPerson: this.st.pkPerson,
+            fkUser: this.st.pkUser,
+            isClient: false,
+            lat: this.lat,
+            lng: this.lng,
+          };
+          this.io.onEmit('panic_travel', payload, (resSocket: IResSocket) => {
+            // console.log('respuesta socket alert', resSocket);
+
+            if (resSocket.ok) {
+
+              this.successAlert = resSocket.showError === 0 ? true : false;
+              this.dangerAlert = resSocket.showError === 0 ? false : true;
+              this.msgAlert = resSocket.message;
+
+              this.loadingAlert = false;
+
+              setTimeout(() => {
+                this.hideAlert = true;
+              }, 4000);
+
+              setTimeout(() => {
+
+                // this.seconds = resSocket.showError === 0 ? 5 : 0;
+                this.showAlert = false;
+                this.hideAlert = false;
+              }, 4500);
+
+            } else {
+              console.error('Error al emitir alerta');
+            }
+
+          });
+
+        }
+
+      });
+    }, 2000);
+
+  }
+
+  onCancelAlert() {
+    this.hideAlert = true;
+    setTimeout(() => {
+      this.showAlert = false;
+      this.seconds = 3;
+      this.hideAlert = false;
+    }, 1500);
+    this.intervalo.unsubscribe();
+    this.intervalo = null;
+  }
+
+  getInterval(): Observable<number> {
+    // seconds = 3;
+    return interval(1000).pipe(
+      map( () => this.seconds -= 1 ),
+      take(3)
+    );
+  
+    // obsAlert.subscribe();
+  }
+
+  // modal chat
+
+  async onShowChat() {
+    const modalChat = await this.modalCtrl.create({
+      mode: 'ios',
+      animated: true,
+      component: ModalChatPage,
+      componentProps: {
+        pkService: this.dataServiceInfo.pkService,
+        nameComplete: this.dataServiceInfo.nameDriver,
+        pkUser: this.st.pkUser
+      }
+    });
+
+    await modalChat.present();
+
+    modalChat.onWillDismiss().then( (res) => {
+        console.log('Cerrando chat' ,res.data);
+    });
+
+  }
+
   ngOnDestroy() {
-    this.infoServiceSbc.unsubscribe();
-    this.cancelRunSbc.unsubscribe();
+    if (this.infoServiceSbc) {
+      this.infoServiceSbc.unsubscribe();
+    }
+
+    if (this.cancelRunSbc) {
+      this.cancelRunSbc.unsubscribe();
+    }
     if (this.geoSbc) {
       this.geoSbc.unsubscribe();
     }
@@ -570,6 +770,14 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     }
     if (this.deleteSbc) {
       this.deleteSbc.unsubscribe();
+    }
+
+    if (this.pushDistance) {
+      this.pushDistance.unsubscribe();
+    }
+
+    if( this.intervalo ) {
+      this.intervalo.unsubscribe();
     }
   }
 

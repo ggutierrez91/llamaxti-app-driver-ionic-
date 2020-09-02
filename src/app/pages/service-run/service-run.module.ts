@@ -11,10 +11,13 @@ import { ComponentsModule } from '../../components/components.module';
 import { ModalCalificationPageModule } from '../modal-calification/modal-calification.module';
 import { ModalCalificationPage } from '../modal-calification/modal-calification.page';
 import { PipesModule } from '../../pipes/pipes.module';
+import { ModalChatPage } from '../modal-chat/modal-chat.page';
+import { ModalChatPageModule } from '../modal-chat/modal-chat.module';
 
 @NgModule({
   entryComponents:[
-    ModalCalificationPage
+    ModalCalificationPage,
+    ModalChatPage
   ],
   imports: [
     CommonModule,
@@ -23,7 +26,8 @@ import { PipesModule } from '../../pipes/pipes.module';
     PipesModule,
     ComponentsModule,
     ServiceRunPageRoutingModule,
-    ModalCalificationPageModule
+    ModalCalificationPageModule,
+    ModalChatPageModule
   ],
   declarations: [ServiceRunPage]
 })

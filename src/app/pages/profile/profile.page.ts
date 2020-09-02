@@ -106,8 +106,14 @@ export class ProfilePage implements OnInit, OnDestroy {
         this.pathCheck = this.pathDriver + `${ pkDriver }/${ this.dataProfile.imgPhotoCheck }?token=${ this.st.token }`;
         const newDataUser = this.st.dataUser;
         newDataUser.name = this.dataProfile.name;
+        newDataUser.surname = this.dataProfile.surname;
         newDataUser.nameComplete = this.dataProfile.nameComplete;
-        newDataUser.img = this.dataProfile.img;
+
+        if (resModal.data.okUpload) {
+          this.dataProfile.img = resModal.data.newImg;
+          newDataUser.img = this.dataProfile.img;
+        }
+
         this.st.dataUser = newDataUser;
         this.st.onSetItem('dataUser', newDataUser, true);
       }

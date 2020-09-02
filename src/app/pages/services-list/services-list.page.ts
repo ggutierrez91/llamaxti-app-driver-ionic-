@@ -99,8 +99,12 @@ export class ServicesListPage implements OnInit, OnDestroy {
         const offer: IOffer = res.dataOffer;
         await this.ui.onShowLoading('Espere....');
 
-        await this.st.onSetItem('runDestination', false, false);
-        await this.st.onSetItem('finishDestination', false, false);
+        // await this.st.onSetItem('runOrigin', false, false);
+        // await this.st.onSetItem('finishOrigin', false, false);
+
+        // await this.st.onSetItem('runDestination', false, false);
+        // await this.st.onSetItem('finishDestination', false, false);
+
         await this.st.onSetItem('current-service', offer, true);
         await this.st.onSetItem('current-page', '/service-run', false);
         await this.st.onSetItem('occupied-driver', true, false);

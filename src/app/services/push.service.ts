@@ -7,7 +7,7 @@ import { NavController } from '@ionic/angular';
 import { SocketService } from './socket.service';
 import { PushModel } from '../models/push.model';
 import { Router } from '@angular/router';
-
+import { Howl, Howler} from 'howler';
 const URL_API = environment.URL_SERVER;
 
 @Injectable({
@@ -30,8 +30,8 @@ export class PushService {
       const accepted = osNoti.payload.additionalData.accepted || false;
       const declined = osNoti.payload.additionalData.declined || false;
 
-      await this.st.onSetItem('runDestination', false, false);
-      await this.st.onSetItem('finishDestination', false, false);
+      // await this.st.onSetItem('runDestination', false, false);
+      // await this.st.onSetItem('finishDestination', false, false);
 
       await this.st.onLoadToken();
       let occupied = false;
@@ -39,7 +39,7 @@ export class PushService {
         await this.st.onSetItem('current-page', '/home', false);
         await this.st.onSetItem('listenOffer', false, false);
         await this.st.onSetItem('current-service', null, false);
-        this.navCtrl.navigateRoot('/service-run' );
+        this.navCtrl.navigateRoot('/home' );
 
       }
 
@@ -48,10 +48,11 @@ export class PushService {
         await this.st.onSetItem('current-service', osNoti.payload.additionalData.dataOffer, true);
         await this.st.onSetItem('listenOffer', true, false);
         await this.st.onSetItem( 'current-page', '/service-run', false );
-        this.navCtrl.navigateRoot('/home');
+        this.navCtrl.navigateRoot('/service-run');
       }
 
       await this.st.onSetItem('occupied-driver', occupied, false);
+      this.onLoadSound();
 
       this.io.onEmit('occupied-driver', { occupied, pkUser: this.st.pkUser }, (resOccupied) => {
         console.log('Cambiando estado conductor', resOccupied);
@@ -96,6 +97,18 @@ export class PushService {
   onSendPushUser( body: PushModel ) {
 
     return this.http.post( URL_API + '/Push/Send', body, {headers: { Authorization: this.st.token }} );
+  }
+
+  onLoadSound() {
+
+    // Setup the new Howl.
+    const sound = new Howl({
+      src: ['./assets/iphone-noti.mp3']
+    });
+
+    // Play the sound.
+    sound.play();
+
   }
 
 }

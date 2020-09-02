@@ -1,0 +1,66 @@
+<ion-header no-borde>
+    <ion-toolbar color="dark">
+        <ion-title>Chat conductor</ion-title>
+
+        <ion-buttons slot="end">
+            <ion-button (click)="onCloseModal()" color="primary">
+                <ion-icon name="close-outline"></ion-icon>
+                Cerrar
+            </ion-button>
+        </ion-buttons>
+
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+    <ion-list style="padding-top: 2px;">
+        <div class="row" *ngFor="let item of cs.chats" style="padding-right: 3px; padding-left: 3px;">
+
+            <div [ngClass]="{'col-2': item.fkUser === pkUser, 'col-10 text-left ': item.fkUser !== pkUser}">
+
+                <div class="card bubleEmisor" *ngIf="item.fkUser !== pkUser">
+                    <div class="card-body">
+
+                        {{ item.messsage }}
+                    </div>
+                </div>
+
+            </div>
+
+            <div [ngClass]="{'col-10 text-right ': item.fkUser === pkUser, 'col-2': item.fkUser !== pkUser}">
+                <div class="card bubleReceptor" *ngIf="item.fkUser === pkUser" [ngClass]="{'bg-info text-white ': item.fkUser === pkUser}">
+                    <div class="card-body">
+                        {{ item.messsage }}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </ion-list>
+
+</ion-content>
+
+<ion-footer>
+    <ion-toolbar>
+        <ion-grid fixed>
+            <ion-row>
+                <ion-col size="10">
+                    <ion-item>
+                        <ion-textarea name="msgChat" [(ngModel)]="msg">
+
+                        </ion-textarea>
+                    </ion-item>
+                </ion-col>
+                <ion-col size="2">
+                    <ion-button (click)="onSendMessage()" expand="full" fill="outline" shape="round" color="primary">
+                        <ion-icon *ngIf="!loading" slot="start" name="send" color="primary"></ion-icon>
+
+                        <ion-spinner *ngIf="loading" name="bubbles" color="primary"></ion-spinner>
+                        <!-- <ion-icon slot="start" name="add"></ion-icon> -->
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </ion-toolbar>
+</ion-footer>

@@ -20,6 +20,7 @@ import { OfferModel } from '../../models/offer.model';
 import { PushModel } from '../../models/push.model';
 import { NotyModel } from '../../models/notify.model';
 import { PushService } from '../../services/push.service';
+import { Geoposition } from '@ionic-native/geolocation/ngx';
 
 const URI_SERVER = environment.URL_SERVER;
 
@@ -50,7 +51,6 @@ export class HomePage implements OnInit, OnDestroy {
   marker: google.maps.Marker;
 
   codeJournal = 'DIURN';
-
 
   totalServicesZone = 0;
   totalDriverZone = 0;
@@ -83,6 +83,8 @@ export class HomePage implements OnInit, OnDestroy {
   hideSlideCard = false;
   dataMore: IServices;
   originRate = 0;
+  loadingDel = false;
+  pkServiceDel = 0;
 
   // tslint:disable-next-line: max-line-length
   constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService ) { }
@@ -99,13 +101,9 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.onLoadMap();
 
-    setTimeout(() => {
-      this.onEmitGeo();
-    }, 3000);
-
     this.st.onLoadToken().then( () => {
+      this.indexHex = this.st.indexHex;
       this.onLoadMap();
-
       this.onLoadJournal(); // extraemos la jornada del backend
       this.onGetPosition(); // extraemos posición actual y listamos las zonas calientes
 
@@ -147,19 +145,32 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onCloseService( service: IServices ) {
+
+    this.loadingDel = true;
+    this.pkServiceDel = service.pkService;
     const body = {
       pkOffer: service.pkOfferService,
       pkService: service.pkService
     };
 
-    this.dataServices = this.dataServices.filter( item => item.pkService !== service.pkService );
-    if (this.declineSbc) {
-      this.declineSbc.unsubscribe();
-    }
     this.declineSbc = this.taxiSvc.onDeclineOffer( body ).subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
+
+      const dpp = this.arrPolygons.find( pp => pp.indexHex === service.indexHex );
+      if (dpp) {
+        dpp.totalServices -= 1;
+
+        if (dpp.totalServices === 0) {
+          dpp.polygon.setMap(null);
+        }
+
+      }
+
+      this.pkServiceDel = 0;
+      this.loadingDel = false;
+      this.dataServices = this.dataServices.filter( item => item.pkService !== service.pkService );
 
     });
   }
@@ -168,9 +179,9 @@ export class HomePage implements OnInit, OnDestroy {
     this.originRate = service.rateOffer;
     this.dataMore = service;
     this.hideSlideCard = true;
-    setTimeout(() => {
-      this.showMoreCard = true;
-    }, 100);
+    this.showMoreCard = true;
+    // setTimeout(() => {
+    // }, 100);
   }
 
   onHideMoreCard() {
@@ -180,9 +191,9 @@ export class HomePage implements OnInit, OnDestroy {
       this.dataMore.rateOffer = this.originRate;
     }, 500);
 
-    setTimeout(() => {
-      this.showMoreCard = false;
-    }, 2100);
+    this.showMoreCard = false;
+    // setTimeout(() => {
+    // }, 2100);
   }
 
   async onMinusRate(  ) {
@@ -419,9 +430,12 @@ export class HomePage implements OnInit, OnDestroy {
       });
 
       this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
+
+        console.log('Respuesta socket coords', res);
         if (res.ok) {
 
             this.indexHex = res.indexHex;
+            this.st.indexHex = res.indexHex;
             this.st.onSetItem('indexHex', res.indexHex, false);
             this.onGetHotZones();
             this.onGetServices(1);
@@ -432,13 +446,17 @@ export class HomePage implements OnInit, OnDestroy {
 
       });
 
+      setTimeout(() => {
+        this.onEmitGeo();
+      }, 2000);
+
     });
   }
 
   onEmitGeo() {
     console.log('me estoy subscribiendo al geo :D');
     this.geoSbc = this.geo.onListenGeo( ).pipe( retry(3) ).subscribe(
-      (position) => {
+      (position: Geoposition) => {
 
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
@@ -488,8 +506,11 @@ export class HomePage implements OnInit, OnDestroy {
             handler: async () => {
               await this.ui.onShowLoading('Espere....');
 
-              await this.st.onSetItem('runDestination', false, false);
-              await this.st.onSetItem('finishDestination', false, false);
+              // await this.st.onSetItem('runOrigin', false, false);
+              // await this.st.onSetItem('finishOrigin', false, false);
+              // await this.st.onSetItem('runDestination', false, false);
+              // await this.st.onSetItem('finishDestination', false, false);
+
               await this.st.onSetItem('current-service', offer, true);
               await this.st.onSetItem('current-page', '/service-run', false);
               await this.st.onSetItem('occupied-driver', true, false);
@@ -516,17 +537,20 @@ export class HomePage implements OnInit, OnDestroy {
 
   onEmitCurrentPosition( lat: number, lng: number ) {
     this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
+
+      console.log('Respuesta socket coords', res);
       if (res.ok) {
-        
+
         const oldIndexHex = this.indexHex;
-        if ( this.indexHex !== res.indexHex ) {
+        if ( oldIndexHex !== res.indexHex ) {
           this.indexHex = res.indexHex;
+          this.st.indexHex = res.indexHex;
           this.st.onSetItem('indexHex', res.indexHex, false);
           this.onGetServices(1);
-          
+
           const findCurrentPolygon = this.arrPolygons.find( pp => pp.indexHex === res.indexHex );
           if (findCurrentPolygon) {
-            
+
             const oldColor = findCurrentPolygon.color;
 
             findCurrentPolygon.polygon.setOptions({
@@ -545,7 +569,6 @@ export class HomePage implements OnInit, OnDestroy {
 
           }
 
-          // this.onGetHotZones();
         }
 
       } else {
@@ -742,6 +765,10 @@ export class HomePage implements OnInit, OnDestroy {
     }
     if (this.demandSbc) {
       this.demandSbc.unsubscribe();
+    }
+
+    if (this.declineSbc) {
+      this.declineSbc.unsubscribe();
     }
     
     this.soketCancelSbc.unsubscribe();

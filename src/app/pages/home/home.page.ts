@@ -21,6 +21,7 @@ import { PushModel } from '../../models/push.model';
 import { NotyModel } from '../../models/notify.model';
 import { PushService } from '../../services/push.service';
 import { Geoposition } from '@ionic-native/geolocation/ngx';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 const URI_SERVER = environment.URL_SERVER;
 
@@ -42,6 +43,7 @@ export class HomePage implements OnInit, OnDestroy {
   declineSbc: Subscription;
   offerSbc: Subscription;
   osSbc: Subscription;
+  backModeSbc: Subscription;
   socktJournalbc: Subscription;
   socketServicesSbc: Subscription;
   socketOfferSbc: Subscription;
@@ -87,10 +89,11 @@ export class HomePage implements OnInit, OnDestroy {
   pkServiceDel = 0;
 
   // tslint:disable-next-line: max-line-length
-  constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService ) { }
+  constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService, private backgroundMode: BackgroundMode ) { }
 
   ngOnInit() {
-    
+    // Habilite el modo de fondo. Una vez llamada, evita que la aplicación se pause mientras está en segundo plano.
+    this.backgroundMode.enable();
     this.bodyAcceptOffer = new OfferModel();
     this.bodyPush = new PushModel();
     this.bodyNoty = new NotyModel('/notification', this.st.pkUser);
@@ -103,7 +106,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.st.onLoadToken().then( () => {
       this.indexHex = this.st.indexHex;
-      this.onLoadMap();
+      // this.onLoadMap();
       this.onLoadJournal(); // extraemos la jornada del backend
       this.onGetPosition(); // extraemos posición actual y listamos las zonas calientes
 
@@ -119,6 +122,24 @@ export class HomePage implements OnInit, OnDestroy {
     });
 
     this.infoWindowPolygon = new google.maps.InfoWindow();
+    this.onListenBackMode();
+  }
+
+  onListenBackMode() {
+    this.backModeSbc = this.backgroundMode.on('enable').subscribe( (ob: any) => {
+      console.log('entrando en segundo plano', ob);
+      this.onEmitGeo();
+    });
+  }
+
+  onChangePlayGeo() {
+
+    this.st.playGeo = !this.st.playGeo;
+
+    this.io.onEmit('change-play-geo', { value: this.st.playGeo }, async (resIO: any) => {
+      await this.st.onSetItem('playGeo', this.st.playGeo, false);
+      console.log('cambiando playGeo socket', resIO);
+    });
 
   }
 
@@ -195,7 +216,7 @@ export class HomePage implements OnInit, OnDestroy {
     // setTimeout(() => {
     // }, 2100);
   }
-
+  /*CÓDIGO SUBASTA SERVICIO
   async onMinusRate(  ) {
     const percent = this.dataMore.minRatePercent;
     const minrate = (this.dataMore.rateHistory * percent)  / 100;
@@ -216,6 +237,24 @@ export class HomePage implements OnInit, OnDestroy {
     }
 
   }
+
+  async onPlusRate(  ) {
+    const maxrate = this.dataMore.rateHistory + 5;
+
+    if ( (this.dataMore.rateOffer + 0.50) > maxrate ) {
+      return await this.ui.onShowToast(`La tarifa máxima es de ${ formatNumber( maxrate, 'es', '.2-2' ) }`, 4500);
+    }
+
+    this.dataMore.rateOffer += 0.50;
+
+    if (this.dataMore.rateOfferHistory !== this.dataMore.rateOffer) {
+      this.dataMore.changeRate = true;
+    } else {
+      this.dataMore.changeRate = false;
+    }
+
+  }
+  */
 
   async onAcceptOffer(  ) {
 
@@ -381,23 +420,6 @@ export class HomePage implements OnInit, OnDestroy {
 
   }
 
-  async onPlusRate(  ) {
-    const maxrate = this.dataMore.rateHistory + 5;
-
-    if ( (this.dataMore.rateOffer + 0.50) > maxrate ) {
-      return await this.ui.onShowToast(`La tarifa máxima es de ${ formatNumber( maxrate, 'es', '.2-2' ) }`, 4500);
-    }
-
-    this.dataMore.rateOffer += 0.50;
-
-    if (this.dataMore.rateOfferHistory !== this.dataMore.rateOffer) {
-      this.dataMore.changeRate = true;
-    } else {
-      this.dataMore.changeRate = false;
-    }
-
-  }
-
   // funciones para cards services
 
   onLoadMap() {
@@ -431,7 +453,7 @@ export class HomePage implements OnInit, OnDestroy {
 
       this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
 
-        console.log('Respuesta socket coords', res);
+        // console.log('Respuesta socket coords', res);
         if (res.ok) {
 
             this.indexHex = res.indexHex;
@@ -454,7 +476,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onEmitGeo() {
-    console.log('me estoy subscribiendo al geo :D');
+    // console.log('me estoy subscribiendo al geo :D');
     this.geoSbc = this.geo.onListenGeo( ).pipe( retry(3) ).subscribe(
       (position: Geoposition) => {
 
@@ -506,11 +528,6 @@ export class HomePage implements OnInit, OnDestroy {
             handler: async () => {
               await this.ui.onShowLoading('Espere....');
 
-              // await this.st.onSetItem('runOrigin', false, false);
-              // await this.st.onSetItem('finishOrigin', false, false);
-              // await this.st.onSetItem('runDestination', false, false);
-              // await this.st.onSetItem('finishDestination', false, false);
-
               await this.st.onSetItem('current-service', offer, true);
               await this.st.onSetItem('current-page', '/service-run', false);
               await this.st.onSetItem('occupied-driver', true, false);
@@ -534,11 +551,10 @@ export class HomePage implements OnInit, OnDestroy {
     });
   }
 
-
   onEmitCurrentPosition( lat: number, lng: number ) {
     this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
 
-      console.log('Respuesta socket coords', res);
+      // console.log('Respuesta socket coords', res);
       if (res.ok) {
 
         const oldIndexHex = this.indexHex;
@@ -587,7 +603,6 @@ export class HomePage implements OnInit, OnDestroy {
       this.st.onSetItem('codeJournal', res.codeJournal, false);
     });
   }
-
 
   onGetVehicleUsing() {
 
@@ -758,6 +773,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    console.log('Destruyendo home');
     this.geoSbc.unsubscribe();
     this.journalSbc.unsubscribe();
     if (this.serviceSbc) {
@@ -775,6 +791,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.socketOfferSbc.unsubscribe();
     this.socketServicesSbc.unsubscribe();
     this.socktJournalbc.unsubscribe();
+    this.backModeSbc.unsubscribe();
   }
 
 }

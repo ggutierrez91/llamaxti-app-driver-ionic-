@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestoreCollection, AngularFirestore } from '@angular/fire/firestore';
 import { IChat } from '../interfaces/chat.interface';
 import { map } from 'rxjs/operators';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class ChatFireService {
   onLoadChat( fkService: number ) {
     this.chatCollection = this.afs.collection<IChat>('chats' ,
     qfn => qfn.where( 'fkService', '==', fkService )
-              .orderBy( 'created', 'desc' )
+              .orderBy( 'createdFire', 'desc' )
               .limit(15));
     return this.chatCollection.valueChanges()
                               .pipe( map( (chats)  => {
@@ -37,7 +38,8 @@ export class ChatFireService {
       fkUser,
       nameComplete,
       messsage: msg,
-      created: new Date()
+      created: moment().format('LLL'),
+      createdFire: new Date()
     };
 
     return this.chatCollection.add( newChat );

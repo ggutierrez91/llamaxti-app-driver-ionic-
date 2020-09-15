@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { StorageService } from '../../services/storage.service';
-import { NavController } from '@ionic/angular';
+import { NavController, MenuController } from '@ionic/angular';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { SocketService } from '../../services/socket.service';
 @Component({
@@ -10,10 +10,12 @@ import { SocketService } from '../../services/socket.service';
 })
 export class WelcomePage implements OnInit {
 
-  constructor(public st: StorageService, private navCtrl: NavController, private ui: UiUtilitiesService, private io: SocketService) { }
+  // tslint:disable-next-line: max-line-length
+  constructor(public st: StorageService, private navCtrl: NavController, private ui: UiUtilitiesService, private io: SocketService, private menuCtrl: MenuController) { }
 
   ngOnInit() {
     this.st.onLoadToken();
+    this.menuCtrl.swipeGesture(false);
   }
 
   async onFinish() {

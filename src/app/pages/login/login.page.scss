@@ -11,3 +11,15 @@
 #navigation {
     background-color: white;
 }
+
+.form-check .form-check-sign::after {
+    font-family: 'Nucleo Outline';
+    content: "\ea22";
+    top: 0px;
+    text-align: center;
+    font-size: 14px;
+    opacity: 0;
+    color: #FFF !important;
+    border: 0;
+    background-color: inherit;
+}

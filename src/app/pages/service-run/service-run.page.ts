@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
-import { AlertController, NavController, ModalController } from '@ionic/angular';
+import { AlertController, NavController, ModalController, MenuController } from '@ionic/angular';
 import { StorageService } from '../../services/storage.service';
 import { environment } from '../../../environments/environment';
 import { Subscription, Observable, interval } from 'rxjs';
@@ -19,6 +19,8 @@ import { retry, map, take } from 'rxjs/operators';
 import { Geoposition } from '@ionic-native/geolocation/ngx';
 import { formatNumber } from '@angular/common';
 import { ModalChatPage } from '../modal-chat/modal-chat.page';
+import { Howl } from 'howler';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 
 const URI_API = environment.URL_SERVER;
@@ -65,6 +67,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   cancelRunSbc: Subscription;
   pushDistance: Subscription;
   intervalo: Subscription;
+  chatSbc: Subscription;
 
   showAlert = false;
   hideAlert = false;
@@ -91,6 +94,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   loadingConfirm = false;
   loadingConfirmNav = false;
   loading = true;
+  loadModalChat = false;
+  newMessages = 0;
   // tslint:disable-next-line: max-line-length
   constructor(  public st: StorageService,
                 private geo: GeoService,
@@ -103,9 +108,14 @@ export class ServiceRunPage implements OnInit, OnDestroy {
                 private os: PushService,
                 private modalCtrl: ModalController,
                 private zombie: Insomnia,
-                private launchNavigator: LaunchNavigator) { }
+                private launchNavigator: LaunchNavigator,
+                private menuCtrl: MenuController,
+                private backgroundMode: BackgroundMode) { }
 
   ngOnInit() {
+
+    this.menuCtrl.swipeGesture(false);
+    this.backgroundMode.enable();
 
     this.zombie.keepAwake().then(
       (success) => { console.log('Teléfono en estado zombie :D', success); },
@@ -117,6 +127,11 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.onLoadMap();
 
     this.st.onLoadToken().then( async () => {
+
+      this.io.onEmit('change-play-geo', { value: true }, async (resIO: any) => {
+        console.log('cambiando playGeo socket', resIO);
+      });
+
       this.onLoadMap();
       this.onLoadGeo();
       this.onLoadService();
@@ -125,6 +140,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.map.setOptions({
         styles: styleMap
       });
+      this.onListenChat();
     } ).catch(e => console.error('error al cargar token storage', e) );
 
     this.onListenCancelRun();
@@ -742,16 +758,43 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       componentProps: {
         pkService: this.dataServiceInfo.pkService,
         nameComplete: this.dataServiceInfo.nameDriver,
-        pkUser: this.st.pkUser
+        pkUser: this.st.pkUser,
+        fkUserReceptor: this.dataServiceInfo.fkClient
       }
     });
 
-    await modalChat.present();
+    modalChat.present().then( () => {
+      this.loadModalChat = true;
+      this.newMessages = 0;
+      if (this.chatSbc) {
+        this.chatSbc.unsubscribe();
+      }
+    }).catch( e => console.error('Error al abrir chat modal', e)  );
 
-    modalChat.onWillDismiss().then( (res) => {
-        console.log('Cerrando chat' ,res.data);
+    modalChat.onDidDismiss().then( (res) => {
+      this.loadModalChat = false;
+      console.log('Cerrando chat' , res.data);
+      this.onListenChat();
     });
+    
+  }
+  onListenChat() {
 
+    console.log('Escuchando nuevos mensajes de chat=================')
+    this.chatSbc = this.io.onListen('new-chat-message').pipe( retry(3) ).subscribe( (res) => {
+
+      console.log('socket recibido chat', res);
+      this.newMessages += 1;
+
+      // Setup the new Howl.
+      const sound = new Howl({
+        src: ['./assets/iphone-noti.mp3']
+      });
+  
+      // Play the sound.
+      sound.play();
+
+    });
   }
 
   ngOnDestroy() {
@@ -776,8 +819,12 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.pushDistance.unsubscribe();
     }
 
-    if( this.intervalo ) {
+    if ( this.intervalo ) {
       this.intervalo.unsubscribe();
+    }
+
+    if (this.chatSbc) {
+      this.chatSbc.unsubscribe();
     }
   }
 

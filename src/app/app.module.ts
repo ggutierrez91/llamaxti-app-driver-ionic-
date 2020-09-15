@@ -26,10 +26,11 @@ import { PipesModule } from './pipes/pipes.module';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
-import { Globalization } from '@ionic-native/globalization/ngx';
 
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
+// import { BackgroundGeolocation } from '@ionic-native/background-geolocation/ngx';
 
 // the second parameter 'fr-FR' is optional
 registerLocaleData(localeEs, 'es');
@@ -41,14 +42,14 @@ const configIO: SocketIoConfig = { url: environment.URL_SERVER, options: {} };
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
-    ComponentsModule,
-    PipesModule,
+    AppRoutingModule,
     HttpClientModule,
+    PipesModule,
     SocketIoModule.forRoot(configIO),
     IonicStorageModule.forRoot(),
-    AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule
+    AngularFirestoreModule,
+    ComponentsModule,
   ],
   providers: [
     StatusBar,
@@ -62,9 +63,9 @@ const configIO: SocketIoConfig = { url: environment.URL_SERVER, options: {} };
     OneSignal,
     Insomnia,
     SocialSharing,
-    // tslint:disable-next-line: deprecation
-    Globalization,
     LaunchNavigator,
+    BackgroundMode,
+    // BackgroundGeolocation,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

@@ -37,6 +37,7 @@ export class StorageService {
   public osID = '';
   public indexHex = '';
   public occupied = false;
+  public playGeo = false;
 
   constructor( private storage: Storage, private authSvc: AuthService ) { }
 
@@ -74,6 +75,7 @@ export class StorageService {
     this.osID = await this.storage.get('osID') || '';
     this.indexHex = await this.storage.get('indexHex') || '';
     this.occupied = await this.storage.get('occupied-driver') || false;
+    this.playGeo =  Boolean( await this.storage.get('playGeo') ) || false;
     const value = await this.storage.get( 'dataUser' );
     if (value) {
       this.dataUser =  JSON.parse( value );

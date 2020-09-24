@@ -39,7 +39,7 @@ export class FormDriverComponent implements OnInit {
   fileValid = ['pdf'];
   pickerOptLicense: any;
   minYear = moment().year();
-  maxValue = moment(`${moment().year() + 7}-12-31`).format('YYYY-MM-DD');
+  maxValue = moment(`${moment().year() + 10}-12-31`).format('YYYY-MM-DD');
   typeFile = ETypeFile;
 
   validFiles = false;

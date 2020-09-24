@@ -3,62 +3,86 @@ import { Injectable } from '@angular/core';
 //   BackgroundGeolocationConfig,
 //   BackgroundGeolocationEvents,
 //   BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
+import { HTTP } from '@ionic-native/http/ngx';
+// import { Platform } from '@ionic/angular';
+import { environment } from '../../environments/environment.prod';
+import { HttpClient } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import ITracker from '../interfaces/tracker.interface';
+import { IResApi } from '../interfaces/response-api.interface';
 
+const URI_SERVER = environment.URL_SERVER;
 
 @Injectable({
   providedIn: 'root'
 })
 export class GeoBackService {
-  // private backgroundGeolocation: BackgroundGeolocation
-  constructor(  ) { }
-  /*
-  onInitBackgGeo() {
+  runService = false;
+  sbcTrack: Subscription;
 
-    const config: BackgroundGeolocationConfig = {
-      desiredAccuracy: 10,
-      stationaryRadius: 50,
-      distanceFilter: 30,
-      debug: true, //  emita sonidos cuando lanza un evento de localización
-      stopOnTerminate: false, // habilite esto para borrar la configuración de ubicación de fondo cuando la aplicación finalice
+  constructor(
+    // private backgroundGeolocation: BackgroundGeolocation,
+    private http: HttpClient
+    // private platform: Platform
+    ) { }
 
-    };
+  // onInitBackgGeo( token = '', run = false ) {
+  //   this.runService = run;
+  //   const configTracker: BackgroundGeolocationConfig = {
 
-    this.backgroundGeolocation.configure(config)
-    .then(() => {
+  //     desiredAccuracy: 10, // Precisión deseada en metros.
 
-      console.log('Background geo configurado con éxito');
+  //     // tslint:disable-next-line: max-line-length
+  //     stationaryRadius: 10, // Cuando se detiene, la distancia mínima que el dispositivo debe moverse más allá de la ubicación estacionaria para que se active.
+  //     debug: true, //  emita sonidos cuando lanza un evento de localización
 
-    }).catch( e => console.error( 'Error al configurar background geo' ) );
+  //     stopOnTerminate: false
+
+  //   };
+
+  //   this.backgroundGeolocation.configure(configTracker).then(() => {
+
+  //     this.backgroundGeolocation
+  //       .on(BackgroundGeolocationEvents.location)
+  //       .subscribe((location: BackgroundGeolocationResponse) => {
+  //         console.log( 'nuevo track geo', location);
+
+
+  //       });
+
+  //   }).catch( e => console.error( 'Error al configurar background geo' ) );
+
+  //   // Encienda el sistema de geolocalización en segundo plano. El usuario será rastreado cada vez que suspenda la aplicación.
+  //   // this.backgroundGeolocation.start();
+
+  // }
+
+  sendGPS( body: ITracker, token = '' ) {
+
+
+    const newLocal = `/Tracker/Geo`;
+    return this.http
+    .post<IResApi>( URI_SERVER + newLocal, body, {headers: { Authorization: token }} );
+    // .subscribe( (res) => {
+
+    //   console.log('response track post', res);
+    //   if (this.platform.is('ios')) {
+    //     this.backgroundGeolocation.finish();
+    //   }
+
+    // });
 
   }
 
-  onListenGeo() {
 
-    return this.backgroundGeolocation.on(BackgroundGeolocationEvents.location);
-      // .subscribe((location: BackgroundGeolocationResponse) => {
+  // onGeoStart() {
+  //   this.backgroundGeolocation.start();
 
-        // console.log(location);
+  // }
 
-        // IMPORTANTE: debe ejecutar el método de finalización aquí para informar al complemento nativo que ha terminado,
-         // y se puede completar la tarea en segundo plano. Debe hacer esto independientemente de si sus operaciones tienen éxito o no.
-         // SI NO LO HACE, ios CRASH SU APLICACIÓN por pasar demasiado tiempo en segundo plano.
-        // this.backgroundGeolocation.finish(); // FOR IOS ONLY
+  // onGeoStop() {
+  //   this.backgroundGeolocation.stop();
+  // }
 
-      // });
-  }
-
-  onGeoStart() {
-
-    // start recording location
-    this.backgroundGeolocation.start();
-
-  }
-
-  onGeoStop() {
-
-    // If you wish to turn OFF background-tracking, call the #stop method.
-    this.backgroundGeolocation.stop();
-
-  } */
 
 }

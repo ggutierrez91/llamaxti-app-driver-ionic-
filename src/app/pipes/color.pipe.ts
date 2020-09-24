@@ -33,6 +33,10 @@ export class ColorPipe implements PipeTransform {
         case 'GREEN':
         nameColor = 'VERDE';
         break;
+        case 'BEIGE':
+        nameColor = 'BEIGE';
+        break;
+
 
       default:
         break;

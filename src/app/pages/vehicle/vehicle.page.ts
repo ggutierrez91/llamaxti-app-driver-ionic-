@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { SocketService } from '../../services/socket.service';
 import { IResSocket } from '../../interfaces/response-socket.interface';
+import { retry } from 'rxjs/operators';
 
 const URI_SERVER = environment.URL_SERVER;
 @Component({
@@ -134,7 +135,9 @@ export class VehiclePage implements OnInit, OnDestroy {
 
   onGetVehicles() {
     this.loading = true;
-    this.vhSbc = this.vehicleSvc.onGetVehicle( this.st.pkDriver ).subscribe( (res) => {
+    this.vhSbc = this.vehicleSvc.onGetVehicle( this.st.pkDriver )
+    .pipe( retry() )
+    .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
@@ -178,7 +181,9 @@ export class VehiclePage implements OnInit, OnDestroy {
 
     this.ui.onShowLoading('Espere...').then( () => {
 
-      this.usingSbc = this.vehicleSvc.onUsingVehicle( pkVehicle ).subscribe( async (res) => {
+      this.usingSbc = this.vehicleSvc.onUsingVehicle( pkVehicle )
+      .pipe( retry() )
+      .subscribe( async (res) => {
 
         if (!res.ok) {
           throw new Error( res.error );
@@ -205,11 +210,12 @@ export class VehiclePage implements OnInit, OnDestroy {
           await this.st.onSetItem('codeCategory', res.data.codeCategory, false);
 
           this.dataVehicle.forEach( vh => {
-            vh.driverUsing = 0;
+            vh.driverUsing = false;
           });
 
           const indexVehicle = this.dataVehicle.findIndex( vh => vh.pkVehicle === pkVehicle );
-          this.dataVehicle[indexVehicle].driverUsing = 1;
+          this.dataVehicle[indexVehicle].driverUsing = true;
+
 
           this.io.onEmit('change-category',
                       { pkCategory: res.data.pkCategory, codeCategory: res.data.codeCategory },

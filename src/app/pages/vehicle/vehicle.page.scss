@@ -14,3 +14,56 @@ ion-icon {
     right: 50px;
     font-size: 10px;
 }
+
+.bagdeColor {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    border-radius: 50px;
+    border: 0.5px solid rgba($color: #4e4e4e, $alpha: 0.5)
+}
+
+// BLUE
+// RED
+// BLACK
+// WHITE
+// GRAY
+// YELLOW
+// BROWN
+// GREEN
+// BEIGE
+.bg-blue {
+    background-color: rgb(22, 18, 245);
+}
+
+.bg-red {
+    background-color: rgb(247, 45, 45);
+}
+
+.bg-black {
+    background-color: rgb(14, 14, 14);
+}
+
+.bg-white {
+    background-color: rgb(211, 210, 223);
+}
+
+.bg-yellow {
+    background-color: rgb(250, 219, 41);
+}
+
+.bg-brown {
+    background-color: rgb(85, 71, 45);
+}
+
+.bg-green {
+    background-color: rgb(4, 124, 40);
+}
+
+.bg-beige {
+    background-color: rgb(223, 198, 130);
+}
+
+.bg-gray {
+    background-color: rgb(163, 163, 163);
+}

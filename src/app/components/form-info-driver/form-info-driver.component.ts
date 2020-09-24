@@ -62,7 +62,7 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
     correctOrientation: true
   };
 
-  minYear = moment().year() - 65;
+  minYear = moment().year() - 70;
   maxValue = moment( `${ moment().year() - 21 }-12-31` ).format('YYYY-MM-DD');
   monthNames = [
     'Enero',

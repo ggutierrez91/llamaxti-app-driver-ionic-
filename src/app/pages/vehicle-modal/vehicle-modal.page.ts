@@ -145,6 +145,9 @@ export class VehicleModalPage implements OnInit, OnDestroy {
             case 'GREEN':
             nameColor = 'VERDE';
             break;
+            case 'BEIGE':
+            nameColor = 'BEIGE';
+            break;
     
           default:
             break;
@@ -224,6 +227,7 @@ export class VehicleModalPage implements OnInit, OnDestroy {
     this.colorValues.push( { text: 'AMARILLO', value: 'YELLOW' }  );
     this.colorValues.push( { text: 'MARRÓN', value: 'BROWN' }  );
     this.colorValues.push( { text: 'VERDE', value: 'GREEN' }  );
+    this.colorValues.push( { text: 'BEIGE', value: 'BEIGE' }  );
   }
 
   async onShowPickerYear() {

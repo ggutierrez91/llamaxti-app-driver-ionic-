@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
-import { AlertController, NavController, ModalController } from '@ionic/angular';
+import { AlertController, NavController, ModalController, MenuController } from '@ionic/angular';
 import { StorageService } from '../../services/storage.service';
 import { environment } from '../../../environments/environment';
 import { Subscription, Observable, interval } from 'rxjs';
@@ -19,6 +19,10 @@ import { retry, map, take } from 'rxjs/operators';
 import { Geoposition } from '@ionic-native/geolocation/ngx';
 import { formatNumber } from '@angular/common';
 import { ModalChatPage } from '../modal-chat/modal-chat.page';
+import { Howl } from 'howler';
+// tslint:disable-next-line: max-line-length
+import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
+import { HTTP } from '@ionic-native/http/ngx';
 
 
 const URI_API = environment.URL_SERVER;
@@ -65,6 +69,9 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   cancelRunSbc: Subscription;
   pushDistance: Subscription;
   intervalo: Subscription;
+  chatSbc: Subscription;
+  trackGeoSbc: Subscription;
+  trackSbc: Subscription;
 
   showAlert = false;
   hideAlert = false;
@@ -91,6 +98,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   loadingConfirm = false;
   loadingConfirmNav = false;
   loading = true;
+  loadModalChat = false;
+  newMessages = 0;
   // tslint:disable-next-line: max-line-length
   constructor(  public st: StorageService,
                 private geo: GeoService,
@@ -103,9 +112,15 @@ export class ServiceRunPage implements OnInit, OnDestroy {
                 private os: PushService,
                 private modalCtrl: ModalController,
                 private zombie: Insomnia,
-                private launchNavigator: LaunchNavigator) { }
+                private launchNavigator: LaunchNavigator,
+                private menuCtrl: MenuController,
+                private backgroundGeolocation: BackgroundGeolocation,
+                private http: HTTP ) { }
 
   ngOnInit() {
+
+    this.menuCtrl.swipeGesture(false);
+    // this.backgroundMode.enable();
 
     this.zombie.keepAwake().then(
       (success) => { console.log('Teléfono en estado zombie :D', success); },
@@ -117,6 +132,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.onLoadMap();
 
     this.st.onLoadToken().then( async () => {
+
       this.onLoadMap();
       this.onLoadGeo();
       this.onLoadService();
@@ -125,6 +141,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.map.setOptions({
         styles: styleMap
       });
+      this.onListenChat();
     } ).catch(e => console.error('error al cargar token storage', e) );
 
     this.onListenCancelRun();
@@ -179,8 +196,70 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.cancelRunSbc = this.io.onListen('cancel-service-run-receptor').subscribe( async (res) => {
       await this.onResetStorage();
       this.navCtrl.navigateRoot('/home');
+      this.backgroundGeolocation.stop();
     });
-    
+
+  }
+
+  startBackgroundGeolocation() {
+    const config: BackgroundGeolocationConfig = {
+      desiredAccuracy: 10,
+      stationaryRadius: 1,
+      distanceFilter: 1,
+      debug: false, //  enable this hear sounds for background-geolocation life-cycle.
+      stopOnTerminate: false // enable this to clear background location settings when the app terminates
+    };
+
+    this.backgroundGeolocation.configure(config).then(() => {
+      this.trackGeoSbc = this.backgroundGeolocation
+        .on(BackgroundGeolocationEvents.location)
+        .subscribe((location: BackgroundGeolocationResponse) => {
+          console.log('nuevo track geo', location);
+          this.sendGPS(location);
+
+          // IMPORTANT:  You must execute the finish method here to inform the native plugin that you're finished,
+          // and the background-task may be completed.  You must do this regardless if your operations are successful or not.
+          // IF YOU DON'T, ios will CRASH YOUR APP for spending too much time in the background.
+        });
+    });
+
+    // start recording location
+    this.backgroundGeolocation.start();
+
+    // If you wish to turn OFF background-tracking, call the #stop method.
+    // this.backgroundGeolocation.stop();
+  }
+
+  sendGPS( location: BackgroundGeolocationResponse ) {
+
+    const lat = location.latitude;
+    const lng = location.longitude;
+
+    const latlng = new google.maps.LatLng( lat, lng );
+    this.markerDriver.setPosition( latlng );
+    this.map.setCenter( latlng );
+
+    const body = {
+      lat,
+      lng,
+      run: false
+    };
+    // this.http.setDataSerializer('json');
+    this.http.setHeader('*', String( 'Authorization' ), String( this.st.token ));
+    this.http
+      .post(
+        URI_API + `/Tracker/Geo`, // backend api to post
+        body,
+        null
+      )
+      .then(data => {
+        console.log(data);
+        this.backgroundGeolocation.finish(); // FOR IOS ONLY
+      })
+      .catch(error => {
+        console.log(error);
+        this.backgroundGeolocation.finish(); // FOR IOS ONLY
+      });
   }
 
   async onLoadService() {
@@ -225,8 +304,14 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       await this.ui.onHideLoading();
       this.onStreet();
       this.onLoadRoute(); // mostarndo ruta
-      this.onListenGeo();
+
       this.loading = false;
+
+      this.io.onEmit('change-play-geo', { value: true }, async (resIO: any) => {
+        console.log('cambiando playGeo socket', resIO);
+        this.startBackgroundGeolocation();
+        this.onListenGeo();
+      });
 
     });
 
@@ -369,6 +454,12 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
 
+      const latlng = new google.maps.LatLng( lat, lng );
+
+      this.markerDriver.setOptions( {position: latlng, icon: '/assets/geo-driver.png' } );
+      this.map.setCenter( latlng );
+
+
       this.lat = lat;
       this.lng = lng;
 
@@ -387,10 +478,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       });
 
       this.onLoadDistance();
-      const latlng = new google.maps.LatLng( lat, lng );
-
-      this.markerDriver.setOptions( {position: latlng, icon: '/assets/geo-driver.png' } );
-      this.map.setCenter( latlng );
 
     });
   }
@@ -416,7 +503,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     });
   }
 
-  onLoadDistance() {
+  onLoadDistance( tracker = false ) {
     const pointA = new google.maps.LatLng( this.lat, this.lng );
     let pointB = new google.maps.LatLng( this.dataService.latOrigin, this.dataService.lngOrigin );
     if (this.runDestination) {
@@ -448,6 +535,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
           if (this.pushDistance) {
             this.pushDistance.unsubscribe();
+            this.pushDistance = null;
           }
 
           this.pushDistance = this.os.onSendPushUser( this.bodyPush ).subscribe( async (resOs) => {
@@ -457,8 +545,10 @@ export class ServiceRunPage implements OnInit, OnDestroy {
           });
         }
       }
-
-      this.onEmitGeoDriverToClient();
+      
+      if (tracker) {
+        this.onEmitGeoDriverToClient();
+      }
 
     });
   }
@@ -504,6 +594,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       await this.ui.onShowLoading('Espere...');
       await this.onResetStorage();
 
+      this.backgroundGeolocation.stop();
+
       this.io. onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
         console.log('Cambiando estado conductor', resOccupied);
       });
@@ -511,7 +603,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
         await this.ui.onHideLoading();
       }
       this.navCtrl.navigateRoot('/home').then( async () => {
-        
+
         await this.ui.onHideLoading();
 
       });
@@ -531,7 +623,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       minutes: this.minutes,
     };
 
-    this.io.onEmit('current-position-driver-service', payload, (resSocket) => {
+    this.io.onEmit('current-position-driver-service', payload, (resSocket: any) => {
       console.log('Emitiendo ubicación del conductor al cliente =====', resSocket);
     });
 
@@ -641,6 +733,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       console.log('push enviada', resOs);
       await this.ui.onHideLoading();
       this.navCtrl.navigateRoot('/home');
+      this.backgroundGeolocation.stop();
     });
   }
 
@@ -742,16 +835,43 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       componentProps: {
         pkService: this.dataServiceInfo.pkService,
         nameComplete: this.dataServiceInfo.nameDriver,
-        pkUser: this.st.pkUser
+        pkUser: this.st.pkUser,
+        fkUserReceptor: this.dataServiceInfo.fkClient
       }
     });
 
-    await modalChat.present();
+    modalChat.present().then( () => {
+      this.loadModalChat = true;
+      this.newMessages = 0;
+      if (this.chatSbc) {
+        this.chatSbc.unsubscribe();
+      }
+    }).catch( e => console.error('Error al abrir chat modal', e)  );
 
-    modalChat.onWillDismiss().then( (res) => {
-        console.log('Cerrando chat' ,res.data);
+    modalChat.onDidDismiss().then( (res) => {
+      this.loadModalChat = false;
+      console.log('Cerrando chat' , res.data);
+      this.onListenChat();
     });
+    
+  }
+  onListenChat() {
 
+    console.log('Escuchando nuevos mensajes de chat=================')
+    this.chatSbc = this.io.onListen('new-chat-message').pipe( retry(3) ).subscribe( (res) => {
+
+      console.log('socket recibido chat', res);
+      this.newMessages += 1;
+
+      // Setup the new Howl.
+      const sound = new Howl({
+        src: ['./assets/iphone-noti.mp3']
+      });
+  
+      // Play the sound.
+      sound.play();
+
+    });
   }
 
   ngOnDestroy() {
@@ -776,9 +896,22 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.pushDistance.unsubscribe();
     }
 
-    if( this.intervalo ) {
+    if ( this.intervalo ) {
       this.intervalo.unsubscribe();
     }
+
+    if (this.chatSbc) {
+      this.chatSbc.unsubscribe();
+    }
+
+    if (this.trackGeoSbc) {
+      this.trackGeoSbc.unsubscribe();
+    }
+
+    if (this.trackSbc) {
+      this.trackSbc.unsubscribe();
+    }
+
   }
 
 }

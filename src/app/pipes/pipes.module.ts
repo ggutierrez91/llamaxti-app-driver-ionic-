@@ -6,6 +6,7 @@ import { ColorPipe } from './color.pipe';
 import { YesnoPipe } from './yesno.pipe';
 import { PaymentPipe } from './payment.pipe';
 import { NetworkPipe } from './network.pipe';
+import { MomentPipe } from './moment.pipe';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { NetworkPipe } from './network.pipe';
     ColorPipe,
     YesnoPipe,
     PaymentPipe,
-    NetworkPipe
+    NetworkPipe,
+    MomentPipe
   ],
   imports: [
     CommonModule
@@ -25,7 +27,8 @@ import { NetworkPipe } from './network.pipe';
     ColorPipe,
     YesnoPipe,
     PaymentPipe,
-    NetworkPipe
+    NetworkPipe,
+    MomentPipe
   ]
 })
 export class PipesModule { }

@@ -1,79 +1,108 @@
-<ion-header>
+<!-- <ion-header>
     <ion-toolbar>
         <ion-title>Bienvenido</ion-title>
     </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
 <ion-content>
     <ion-slides mode="ios" pager="ios" scrollbar="ios" style="width: 100%; height: 100%;">
 
         <ion-slide>
 
-            <ion-grid fixed>
-                <ion-row>
-                    <ion-col size="12">
-                        <h1>Bienvenido, {{ st.nameComplete }}</h1>
-                    </ion-col>
-                </ion-row>
+            <div class="circle one animatedLong fadeInLeft"></div>
+            <div class="circle two animatedLong fadeInUp"></div>
+            <div class="circle trhee animatedLong fadeIn"></div>
 
-                <ion-row>
-                    <ion-col size="12">
-                        <p>
+            <img src="./assets/img/welcome_1.png" alt="" class="welcome-img">
+
+            <div class="table">
+                <div class="row">
+                    <div class="col-12">
+                        <div style="height: 200px;"></div>
+                    </div>
+                    <div class="col-12">
+                        <h3>
+                            <span class="text-info">Bienvenido</span>, <b>{{ st.nameComplete }}</b>
+                        </h3>
+                    </div>
+
+                    <div class="col-12">
+                        <p class="fontPatrick">
                             En estos momentos se encuentra en un proceso de verificaci&oacute;n, en el transcurso de las proximas 24 horas nos pondremos en contacto con usted.
                         </p>
-                    </ion-col>
-                </ion-row>
-            </ion-grid>
+                    </div>
+                </div>
+            </div>
 
         </ion-slide>
 
         <ion-slide>
-            <ion-grid fixed>
-                <ion-row>
-                    <ion-col size="12">
-                        <h1>Acerca de llama taxi App</h1>
-                    </ion-col>
-                </ion-row>
+            <div class="cube-one"></div>
+            <div class="prisma-one"></div>
 
-                <ion-row>
-                    <ion-col size="12">
-                        <p>
+            <img src="./assets/img/welcome_2.png" alt="" class="welcome-img">
+
+            <div class="table">
+                <div class="row">
+                    <div class="col-12">
+                        <div style="height: 150px;"></div>
+                    </div>
+                    <div class="col-12">
+                        <h1>
+                            Acerca de
+                            <span class="text-primary">
+                                llama taxi App
+                            </span>
+                        </h1>
+                    </div>
+                    <div class="col-12">
+                        <p class="fontPatrick">
                             Somos <b>GRUPO 8 INTERNACIONAL</b>, ponemos a tu alcance una app inteligente e intuitiva con las mejores tarifas en el sector transporte.
                         </p>
-                    </ion-col>
-                </ion-row>
-            </ion-grid>
+                    </div>
+                </div>
+            </div>
+
         </ion-slide>
 
         <ion-slide>
-            <ion-grid fixed>
 
-                <ion-row>
-                    <ion-col size="12">
-                        <h1>Solo un &uacute;ltimo paso</h1>
-                    </ion-col>
-                </ion-row>
+            <i class="fas fa-map-marked-alt iconWelcome map"></i>
+            <i class="fas fa-map-marker-alt iconWelcome marker"></i>
+            <i class="fas fa-map-signs iconWelcome sings"></i>
+            <i class="fas fa-comments iconWelcome chat"></i>
+            <i class="fas fa-taxi iconWelcome taxi"></i>
+            <i class="fas fa-taxi iconWelcome taxi-two"></i>
+            <i class="fas fa-car iconWelcome car"></i>
+            <!-- <i class="fas fa-id-card iconWelcome"></i> -->
+            <i class="fas fa-hand-holding-usd iconWelcome money"></i>
 
-                <ion-row>
-                    <ion-col size="12">
-                        <p>
+            <img src="./assets/img/welcome_3.png" alt="" class="welcome-img">
+
+            <div class="table">
+                <div class="row">
+                    <div class="col-12">
+                        <div style="height: 250px;"></div>
+                    </div>
+                    <div class="col-12">
+                        <h3>Solo un &uacute;ltimo paso</h3>
+                    </div>
+                    <div class="col-12">
+                        <p class="fontPatrick">
                             No olvides seguirnos en todas nuestras redes sociales para enterarte acerca de eventos, promociones y demás.
                         </p>
+                    </div>
 
-                    </ion-col>
-                </ion-row>
-                <ion-row>
-
-                    <ion-col size="12">
-
+                    <div class="col-12">
                         <ion-button (click)="onFinish()" expand="block" fill="clear" shape="round">
-                            FINALIZAR
+                            <b>
+                                FINALIZAR
+                            </b>
                         </ion-button>
+                    </div>
+                </div>
+            </div>
 
-                    </ion-col>
-                </ion-row>
-
-            </ion-grid>
         </ion-slide>
 
     </ion-slides>

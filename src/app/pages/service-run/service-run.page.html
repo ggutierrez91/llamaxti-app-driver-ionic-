@@ -161,7 +161,11 @@
                 <div class="col-4">
                     <ion-button *ngIf="!runDestination" expand="block" fill="outline" shape="round" color="medium" (click)="onShowChat()">
                         <ion-icon slot="icon-only" name="chatbubbles-outline"></ion-icon>
+                        <ion-badge class="badgeNewMsg" color="danger" *ngIf="!runDestination && newMessages > 0">
+                            {{ newMessages }}
+                        </ion-badge>
                     </ion-button>
+
 
                     <ion-button *ngIf="runDestination" expand="block" fill="outline" shape="round" color="medium" (click)="onShowAlert()">
                         <ion-icon slot="icon-only" name="alert-circle-outline"></ion-icon>

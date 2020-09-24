@@ -6,8 +6,8 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { SocketService } from './services/socket.service';
 import { PushService } from './services/push.service';
 import { AppUtilitiesService } from './services/app-utilities.service';
-import { Globalization } from '@ionic-native/globalization/ngx';
 import { Howler} from 'howler';
+// import { GeoBackService } from './services/geo-back.service';
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -21,25 +21,22 @@ export class AppComponent {
     private io: SocketService,
     private os: PushService,
     private apps: AppUtilitiesService,
-    // tslint:disable-next-line: deprecation
-    private global: Globalization
+    // private geoback: GeoBackService
   ) {
-    this.initializeApp();
     this.io.onListenStatus();
+    this.initializeApp();
   }
 
   initializeApp() {
-    Howler.volume(1.0);
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+      Howler.volume(1.0);
+
       this.apps.onLoadCurrentPage();
-      // this.apps.onLoadCurrentPage();
       this.os.onLoadConfig();
-      this.global.getLocaleName().then(
-        (setting) => { console.log('Idioma del dispositivo', setting.value); },
-        (e) => { console.error('Error al detectar idioma'); }
-       );
+      // this.geoback.onInitBackgGeo();
+
     });
   }
 }

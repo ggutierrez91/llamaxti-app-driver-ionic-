@@ -8,7 +8,7 @@ export class ImgSanitizerPipe implements PipeTransform {
 
   constructor(private sanitizer: DomSanitizer ) {}
 
-  transform(srcImg: any): any {
+  transform(srcImg: string): any {
 
     if (srcImg === '') {
       srcImg = './assets/img/profile.png';

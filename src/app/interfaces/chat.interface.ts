@@ -4,5 +4,6 @@ export interface IChat {
     fkUser: number;
     nameComplete: string;
     messsage: string;
-    created: Date;
+    created: string;
+    createdFire: Date;
 }

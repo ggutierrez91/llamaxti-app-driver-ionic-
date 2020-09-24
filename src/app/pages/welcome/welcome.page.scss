@@ -1,0 +1,131 @@
+.circle {
+    background-color: rgba($color: #1871d8, $alpha: 0.3);
+    border-radius: 50%;
+}
+
+.one {
+    position: absolute;
+    left: -20px;
+    top: -32px;
+    width: 150px;
+    height: 150px;
+}
+
+.two {
+    position: absolute;
+    right: 45px;
+    top: 185px;
+    width: 90px;
+    height: 90px;
+}
+
+.trhee {
+    position: absolute;
+    bottom: -4px;
+    right: 5px;
+    width: 50px;
+    height: 50px;
+}
+
+.cube-one {
+    background-color: rgba($color: #ff0037, $alpha: 0.3);
+    border-radius: 30px;
+    border: 2px solid rgba($color: #f80036, $alpha: 0.7);
+    position: absolute;
+    top: -20px;
+    right: -25px;
+    width: 165px;
+    height: 175px;
+    transform: rotate(60deg);
+}
+
+.prisma-one {
+    background-color: rgba($color: #eccf27, $alpha: 0.3);
+    // border: 2px solid rgba($color: #f80036, $alpha: 0.7);
+    position: absolute;
+    bottom: 50px;
+    left: 55px;
+    width: 60px;
+    height: 60px;
+    transform: rotate(45deg);
+}
+
+.welcome-img {
+    position: absolute;
+    top: 0px;
+    width: 600px;
+    height: 600px;
+}
+
+.fontPatrick {
+    font-family: 'Patrick Hand';
+    font-weight: normal;
+    font-size: 20px;
+}
+
+.iconWelcome {
+    font-size: 65px;
+    position: absolute;
+}
+
+.map {
+    color: rgba($color: #ccc9c9, $alpha: 0.5);
+    top: 210px;
+    left: 15px;
+    transform: rotate(-25deg);
+    font-size: 85px;
+}
+
+.marker {
+    color: rgba($color: #ccc9c9, $alpha: 0.5);
+    bottom: 105px;
+    right: -2px;
+    transform: rotate(15deg);
+}
+
+.sings {
+    color: rgba($color: #ccc9c9, $alpha: 0.5);
+    top: 160px;
+    right: -9px;
+    transform: rotate(-20deg);
+    font-size: 95px !important;
+}
+
+.chat {
+    color: rgba($color: #ccc9c9, $alpha: 0.5);
+    top: -2px;
+    right: 50px;
+    transform: rotate(15deg);
+}
+
+.car {
+    color: rgba($color: #ccc9c9, $alpha: 0.5);
+    bottom: -30px;
+    left: -1px;
+    transform: rotate(2deg);
+    font-size: 150px !important;
+}
+
+.taxi {
+    color: rgba($color: #ccc9c9, $alpha: 0.5);
+    bottom: 50px;
+    left: 155px;
+    transform: rotate(2deg);
+    font-size: 40px !important;
+}
+
+.taxi-two {
+    color: rgba($color: #ccc9c9, $alpha: 0.5);
+    bottom: 100px;
+    right: 125px;
+    transform: rotate(2deg);
+    font-size: 25px !important;
+}
+
+.money {
+    color: rgba($color: #82f882, $alpha: 0.5);
+    bottom: 210px;
+    right: 130px;
+    transform: rotate(2deg);
+    font-size: 95px !important;
+}

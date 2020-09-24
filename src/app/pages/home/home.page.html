@@ -45,8 +45,7 @@
                 <p class="card-text">
                     <b class="text-primary"> {{ totalServicesZone }} </b> servicios pendientes y <b class="text-secondary"> {{ totalDriverZone }} </b> conductores cercanos.
                 </p>
-                <!-- <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a> -->
+
             </div>
         </div>
     </div>
@@ -141,15 +140,15 @@
                     <div class="row">
 
                         <div class="col-12">
-                            <button class="btn btn-sm btn-outline-danger btn-round" (click)="onMinusRate()" *ngIf="!dataMore.isMinRate">
+                            <!-- <button class="btn btn-sm btn-outline-danger btn-round" (click)="onMinusRate()" *ngIf="!dataMore.isMinRate">
                                 <i class="fa fa-minus" aria-hidden="true"></i>
-                            </button> &nbsp;
+                            </button> &nbsp; -->
                             <span class=" text-rate">
                                 {{ dataMore.rateOffer | number:'.2-2' }}
                             </span> &nbsp;
-                            <button class="btn btn-sm btn-outline-success btn-round" (click)="onPlusRate()" *ngIf="!dataMore.isMinRate">
+                            <!-- <button class="btn btn-sm btn-outline-success btn-round" (click)="onPlusRate()" *ngIf="!dataMore.isMinRate">
                                 <i class="fa fa-plus" aria-hidden="true"></i>
-                            </button>
+                            </button> -->
                         </div>
 
                         <div class="col-12">
@@ -201,6 +200,13 @@
         </div>
 
     </div>
+
+    <!-- fab placed to the top end -->
+    <ion-fab vertical="top" horizontal="end" slot="fixed">
+        <ion-fab-button [color]=" st.playGeo ? 'danger' : 'success' " (click)=" onChangePlayGeo() ">
+            <ion-icon [name]=" st.playGeo ? 'stop' : 'play' "></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
 
 
 </ion-content>

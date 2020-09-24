@@ -29,6 +29,14 @@ export class LoginPage implements OnInit, OnDestroy {
   ngOnInit() {
     this.bodyLogin = new LoginModel();
     this.menuCtrl.swipeGesture(false);
+    
+    this.st.onGetItem('rememberMe').then( async (val) => {
+      if (val) {
+        this.bodyLogin.userName = await this.st.onGetItem('user') || '';
+        this.bodyLogin.userPassword = await this.st.onGetItem('pass') || '';
+      }
+    }).catch( e => console.error('Error al extraer storage remember') );
+
   }
 
   onLogin(frm: NgForm) {
@@ -45,6 +53,13 @@ export class LoginPage implements OnInit, OnDestroy {
           this.uiSvc.onShowToast( this.onGetError( res.showError ), 2200 );
           await this.st.onClearStorage();
         } else {
+
+          if (this.bodyLogin.remenberMe) {
+            await this.st.onSetItem('rememberMe', true, false);
+            await this.st.onSetItem('pass', this.bodyLogin.userPassword, false);
+            await this.st.onSetItem('user', this.bodyLogin.userName, false);
+          }
+
           await this.st.onSaveCredentials( res.token, res.data );
 
           this.io.onSingUser().then( async (resSocket) => {
@@ -72,11 +87,11 @@ export class LoginPage implements OnInit, OnDestroy {
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {
-      arrErrors = ['Error', '(Usuario) o contraseña incorrectos'];
+      arrErrors = ['Error', 'Usuario o contraseña incorrectos'];
     }
     // tslint:disable-next-line: no-bitwise
     if (showError & 2) {
-      arrErrors = ['Error', 'Usuario o (contraseña) incorrectos'];
+      arrErrors = ['Error', 'Usuario o contraseña incorrectos'];
     }
 
     // tslint:disable-next-line: no-bitwise

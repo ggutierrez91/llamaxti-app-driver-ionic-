@@ -1,0 +1,91 @@
+<ion-header no-border>
+    <ion-toolbar color="dark">
+        <ion-buttons slot="start">
+            <ion-back-button color="light">
+            </ion-back-button>
+        </ion-buttons>
+
+        <ion-title>Mensajer&iacute;a</ion-title>
+
+        <ion-buttons slot="end">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons>
+
+    </ion-toolbar>
+</ion-header>
+
+<ion-content #contentMsg>
+
+    <ion-list *ngIf="!loading">
+        <ion-card *ngFor="let msg of dataMsg">
+
+            <ion-item class="ion-activated" detail lines="none" (click)="onShowDetail( msg )">
+                <ion-avatar>
+                    <img [src]=" pathImg + msg.imgEmisor + '?token=' + st.token " />
+                </ion-avatar>
+
+                <ion-label>
+
+                    <h2> {{ msg.subject }} </h2>
+
+                    <p style="font-size: 9.5px; font-weight: bold;">
+                        {{ msg.nameEmisor.toUpperCase() }}
+                        <span class="text-success" *ngIf="msg.totalResponseNoReaded > 0">
+                            &nbsp;&nbsp;+ {{ msg.totalResponseNoReaded }} respuestas
+                        </span>
+                    </p>
+
+                </ion-label>
+            </ion-item>
+
+            <ion-card-content>
+                <span *ngIf="msg.message.length < 30">
+                    {{ msg.message }}
+                </span>
+                <span *ngIf="msg.message.length > 30">
+                    {{ msg.message | slice: 0: msg.sliceLength }} <span *ngIf="!msg.showMore">...</span>
+                </span>
+                &nbsp;&nbsp;
+                <span class="text-info" *ngIf="msg.message.length > 30 && !msg.showMore" (click)="msg.showMore = !msg.showMore; msg.sliceLength = 300; ">
+                   + ver mas
+                </span>
+                <span class="text-warning" *ngIf="msg.showMore" (click)="msg.showMore = !msg.showMore; msg.sliceLength = 30;">
+                   - ver menos
+                </span>
+            </ion-card-content>
+
+        </ion-card>
+
+        <ion-item *ngIf="dataMsg.length === 0">
+            <ion-label>Bandeja vacía</ion-label>
+        </ion-item>
+    </ion-list>
+
+    <ion-list *ngIf="loading">
+
+        <ion-card *ngFor="let item of [1,1,1,1,1,1]">
+            <ion-item class="ion-activated" detail lines="none">
+                <ion-avatar>
+                    <ion-skeleton-text animated></ion-skeleton-text>
+                </ion-avatar>
+
+                <ion-label>
+
+                    <h2>
+                        <ion-skeleton-text animated style="width:180px;"></ion-skeleton-text>
+                    </h2>
+
+                    <p style="font-size: 9.5px; font-weight: bold;">
+                        <ion-skeleton-text animated style="width:180px;"></ion-skeleton-text>
+                    </p>
+
+                </ion-label>
+            </ion-item>
+            <ion-card-content>
+                <ion-skeleton-text animated style="width:250px;"></ion-skeleton-text>
+            </ion-card-content>
+        </ion-card>
+
+    </ion-list>
+
+</ion-content>

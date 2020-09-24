@@ -59,6 +59,15 @@
                 Contactos de emergencia
             </ion-item>
 
+            <ion-item (click)="onRedirect('/message')" detail>
+                <ion-icon slot="start" name="mail-unread-outline" color="primary"></ion-icon>
+                <ion-badge slot="start" class="badgeMsg" color="danger" mode="ios" *ngIf="this.total > 0">
+                    {{ this.total }}
+                </ion-badge>
+                Mensajería
+            </ion-item>
+
+
 
             <!-- <ion-item (click)="onRedirect('card')" detail>
                 <ion-icon slot="start" name="card-outline" color="primary"></ion-icon>

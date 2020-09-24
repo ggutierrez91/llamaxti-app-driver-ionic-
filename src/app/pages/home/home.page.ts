@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, OnChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { SocketService } from '../../services/socket.service';
 import { Subscription } from 'rxjs';
 import { IResSocket, IResSocketCoors } from '../../interfaces/response-socket.interface';
@@ -8,7 +8,7 @@ import { StorageService } from '../../services/storage.service';
 import { IPolygons, IServiceSocket, IServices } from '../../interfaces/services.interface';
 import { Router } from '@angular/router';
 import { VehicleService } from '../../services/vehicle.service';
-import { AlertController, NavController } from '@ionic/angular';
+import { AlertController, NavController, Platform } from '@ionic/angular';
 import { IOffer } from '../../interfaces/offer.interface';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { retry } from 'rxjs/operators';
@@ -21,6 +21,11 @@ import { PushModel } from '../../models/push.model';
 import { NotyModel } from '../../models/notify.model';
 import { PushService } from '../../services/push.service';
 import { Geoposition } from '@ionic-native/geolocation/ngx';
+import { BackgroundGeolocation,
+  BackgroundGeolocationConfig,
+  BackgroundGeolocationEvents,
+  BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
+import { HTTP } from '@ionic-native/http/ngx';
 
 const URI_SERVER = environment.URL_SERVER;
 
@@ -42,10 +47,13 @@ export class HomePage implements OnInit, OnDestroy {
   declineSbc: Subscription;
   offerSbc: Subscription;
   osSbc: Subscription;
+  backModeSbc: Subscription;
+  backModeDisSbc: Subscription;
   socktJournalbc: Subscription;
   socketServicesSbc: Subscription;
   socketOfferSbc: Subscription;
   soketCancelSbc: Subscription;
+  trackGeoSbc: Subscription;
 
   map: google.maps.Map;
   marker: google.maps.Marker;
@@ -87,10 +95,10 @@ export class HomePage implements OnInit, OnDestroy {
   pkServiceDel = 0;
 
   // tslint:disable-next-line: max-line-length
-  constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService ) { }
+  constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService, private backgroundGeolocation: BackgroundGeolocation, private http: HTTP ) { }
 
   ngOnInit() {
-    
+
     this.bodyAcceptOffer = new OfferModel();
     this.bodyPush = new PushModel();
     this.bodyNoty = new NotyModel('/notification', this.st.pkUser);
@@ -103,7 +111,8 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.st.onLoadToken().then( () => {
       this.indexHex = this.st.indexHex;
-      this.onLoadMap();
+
+      // this.onLoadMap();
       this.onLoadJournal(); // extraemos la jornada del backend
       this.onGetPosition(); // extraemos posición actual y listamos las zonas calientes
 
@@ -122,6 +131,177 @@ export class HomePage implements OnInit, OnDestroy {
 
   }
 
+  onLoadMap() {
+    const styleMap: any = this.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
+    const optMap: google.maps.MapOptions = {
+      center: new google.maps.LatLng( -12.054825, -77.040627 ),
+      zoom: 4.5,
+      streetViewControl: false,
+      disableDefaultUI: true,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      styles: styleMap
+    };
+
+    this.map = new google.maps.Map( this.mapDriver.nativeElement, optMap );
+  }
+
+  onGetPosition() {
+    this.geo.onGetGeo().then( (geo) => {
+
+      const lat = geo.coords.latitude;
+      const lng = geo.coords.longitude;
+
+      this.map.setCenter( new google.maps.LatLng( lat, lng ) );
+      this.map.setZoom(13.4);
+
+      this.marker = new google.maps.Marker({
+        position: new google.maps.LatLng( lat, lng ),
+        animation: google.maps.Animation.DROP,
+        map: this.map
+      });
+
+      this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
+
+        // console.log('Respuesta socket coords', res);
+        if (res.ok) {
+
+            this.indexHex = res.indexHex;
+            this.st.indexHex = res.indexHex;
+            this.st.onSetItem('indexHex', res.indexHex, false);
+            this.onGetHotZones();
+            this.onGetServices(1);
+
+        } else {
+          console.error('Error al actualizar coordenadas socket');
+        }
+
+      });
+
+      if (this.st.playGeo) {
+
+        this.io.onEmit('change-play-geo', { value: this.st.playGeo }, (resIO: any) => {
+
+          this.onEmitGeo();
+
+
+          this.startBackgroundGeolocation();
+
+        });
+      }
+
+    });
+  }
+
+  startBackgroundGeolocation() {
+    const config: BackgroundGeolocationConfig = {
+      desiredAccuracy: 10,
+      stationaryRadius: 1,
+      distanceFilter: 1,
+      debug: false, //  enable this hear sounds for background-geolocation life-cycle.
+      stopOnTerminate: false // enable this to clear background location settings when the app terminates
+    };
+
+    this.backgroundGeolocation.configure(config).then(() => {
+      this.trackGeoSbc = this.backgroundGeolocation
+        .on(BackgroundGeolocationEvents.location)
+        .subscribe((location: BackgroundGeolocationResponse) => {
+          console.log('nuevo track geo', location);
+          this.sendGPS(location);
+
+          // IMPORTANT:  You must execute the finish method here to inform the native plugin that you're finished,
+          // and the background-task may be completed.  You must do this regardless if your operations are successful or not.
+          // IF YOU DON'T, ios will CRASH YOUR APP for spending too much time in the background.
+        });
+    });
+
+    // start recording location
+    this.backgroundGeolocation.start();
+
+    // If you wish to turn OFF background-tracking, call the #stop method.
+    // this.backgroundGeolocation.stop();
+  }
+
+  sendGPS( location: BackgroundGeolocationResponse ) {
+
+    const lat = location.latitude;
+    const lng = location.longitude;
+
+    const latlng = new google.maps.LatLng( lat, lng );
+    this.marker.setPosition( latlng );
+    this.map.setCenter( latlng );
+
+    const body = {
+      lat,
+      lng,
+      run: false
+    };
+    // this.http.setDataSerializer('json');
+    this.http.setHeader('*', String( 'Authorization' ), String( this.st.token ));
+    this.http
+      .post(
+        URI_SERVER + `/Tracker/Geo`, // backend api to post
+        body,
+        null
+      )
+      .then(data => {
+        console.log(data);
+        this.backgroundGeolocation.finish(); // FOR IOS ONLY
+      })
+      .catch(error => {
+        console.log(error);
+        this.backgroundGeolocation.finish(); // FOR IOS ONLY
+      });
+  }
+
+  onEmitGeo() {
+    // console.log('me estoy subscribiendo al geo :D');
+    this.geoSbc = this.geo.onListenGeo( ).pipe( retry(3) ).subscribe(
+      (position: Geoposition) => {
+
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        const latlng = new google.maps.LatLng( lat, lng );
+        this.marker.setPosition( latlng );
+        this.map.setCenter( latlng );
+
+        this.onEmitCurrentPosition(lat, lng);
+
+      },
+      (e) => console.error('Surgio un errora l observar geo', e));
+
+  }
+
+  onChangePlayGeo() {
+
+    this.st.playGeo = !this.st.playGeo;
+
+    this.io.onEmit('change-play-geo', { value: this.st.playGeo }, async (resIO: any) => {
+          await this.st.onSetItem('playGeo', this.st.playGeo, false);
+          console.log('cambiando playGeo socket', resIO);
+
+          if (this.st.playGeo) {
+            this.onEmitGeo();
+            // this.onTrackGeo();
+            this.startBackgroundGeolocation();
+          } else {
+
+            this.backgroundGeolocation.stop();
+
+            if (this.trackGeoSbc) {
+              this.trackGeoSbc.unsubscribe();
+            }
+
+            if (this.geoSbc) {
+              this.geoSbc.unsubscribe();
+            }
+          }
+
+    });
+
+
+  }
+
   // funciones para cards services
 
   onGetServices( page: number ) {
@@ -134,7 +314,7 @@ export class HomePage implements OnInit, OnDestroy {
 
       if (this.hideSlideCard) {
         this.hideSlideCard = false;
-    
+
         setTimeout(() => {
           this.showMoreCard = false;
         }, 2100);
@@ -186,7 +366,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   onHideMoreCard() {
     this.hideSlideCard = false;
-    
+
     setTimeout(() => {
       this.dataMore.rateOffer = this.originRate;
     }, 500);
@@ -195,7 +375,7 @@ export class HomePage implements OnInit, OnDestroy {
     // setTimeout(() => {
     // }, 2100);
   }
-
+  /*CÓDIGO SUBASTA SERVICIO
   async onMinusRate(  ) {
     const percent = this.dataMore.minRatePercent;
     const minrate = (this.dataMore.rateHistory * percent)  / 100;
@@ -216,6 +396,24 @@ export class HomePage implements OnInit, OnDestroy {
     }
 
   }
+
+  async onPlusRate(  ) {
+    const maxrate = this.dataMore.rateHistory + 5;
+
+    if ( (this.dataMore.rateOffer + 0.50) > maxrate ) {
+      return await this.ui.onShowToast(`La tarifa máxima es de ${ formatNumber( maxrate, 'es', '.2-2' ) }`, 4500);
+    }
+
+    this.dataMore.rateOffer += 0.50;
+
+    if (this.dataMore.rateOfferHistory !== this.dataMore.rateOffer) {
+      this.dataMore.changeRate = true;
+    } else {
+      this.dataMore.changeRate = false;
+    }
+
+  }
+  */
 
   async onAcceptOffer(  ) {
 
@@ -381,96 +579,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   }
 
-  async onPlusRate(  ) {
-    const maxrate = this.dataMore.rateHistory + 5;
-
-    if ( (this.dataMore.rateOffer + 0.50) > maxrate ) {
-      return await this.ui.onShowToast(`La tarifa máxima es de ${ formatNumber( maxrate, 'es', '.2-2' ) }`, 4500);
-    }
-
-    this.dataMore.rateOffer += 0.50;
-
-    if (this.dataMore.rateOfferHistory !== this.dataMore.rateOffer) {
-      this.dataMore.changeRate = true;
-    } else {
-      this.dataMore.changeRate = false;
-    }
-
-  }
-
   // funciones para cards services
-
-  onLoadMap() {
-    const styleMap: any = this.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
-    const optMap: google.maps.MapOptions = {
-      center: new google.maps.LatLng( -12.054825, -77.040627 ),
-      zoom: 4.5,
-      streetViewControl: false,
-      disableDefaultUI: true,
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-      styles: styleMap
-    };
-
-    this.map = new google.maps.Map( this.mapDriver.nativeElement, optMap );
-  }
-
-  onGetPosition() {
-    this.geo.onGetGeo().then( (geo) => {
-
-      const lat = geo.coords.latitude;
-      const lng = geo.coords.longitude;
-
-      this.map.setCenter( new google.maps.LatLng( lat, lng ) );
-      this.map.setZoom(13.4);
-
-      this.marker = new google.maps.Marker({
-        position: new google.maps.LatLng( lat, lng ),
-        animation: google.maps.Animation.DROP,
-        map: this.map
-      });
-
-      this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
-
-        console.log('Respuesta socket coords', res);
-        if (res.ok) {
-
-            this.indexHex = res.indexHex;
-            this.st.indexHex = res.indexHex;
-            this.st.onSetItem('indexHex', res.indexHex, false);
-            this.onGetHotZones();
-            this.onGetServices(1);
-
-        } else {
-          console.error('Error al actualizar coordenadas socket');
-        }
-
-      });
-
-      setTimeout(() => {
-        this.onEmitGeo();
-      }, 2000);
-
-    });
-  }
-
-  onEmitGeo() {
-    console.log('me estoy subscribiendo al geo :D');
-    this.geoSbc = this.geo.onListenGeo( ).pipe( retry(3) ).subscribe(
-      (position: Geoposition) => {
-
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        const latlng = new google.maps.LatLng( lat, lng );
-        this.marker.setPosition( latlng );
-        this.map.setCenter( latlng );
-
-        this.onEmitCurrentPosition(lat, lng);
-
-      },
-      (e) => console.error('Surgio un errora l observar geo', e));
-
-  }
 
   onLoadJournal() {
 
@@ -506,11 +615,6 @@ export class HomePage implements OnInit, OnDestroy {
             handler: async () => {
               await this.ui.onShowLoading('Espere....');
 
-              // await this.st.onSetItem('runOrigin', false, false);
-              // await this.st.onSetItem('finishOrigin', false, false);
-              // await this.st.onSetItem('runDestination', false, false);
-              // await this.st.onSetItem('finishDestination', false, false);
-
               await this.st.onSetItem('current-service', offer, true);
               await this.st.onSetItem('current-page', '/service-run', false);
               await this.st.onSetItem('occupied-driver', true, false);
@@ -533,7 +637,6 @@ export class HomePage implements OnInit, OnDestroy {
        }
     });
   }
-
 
   onEmitCurrentPosition( lat: number, lng: number ) {
     this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
@@ -572,7 +675,7 @@ export class HomePage implements OnInit, OnDestroy {
         }
 
       } else {
-        console.error('Error al actualizar coordenadas socket');
+        console.error('Error al actualizar coordenadas socket', res);
       }
 
     });
@@ -587,7 +690,6 @@ export class HomePage implements OnInit, OnDestroy {
       this.st.onSetItem('codeJournal', res.codeJournal, false);
     });
   }
-
 
   onGetVehicleUsing() {
 
@@ -758,7 +860,10 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.geoSbc.unsubscribe();
+    console.log('Destruyendo home');
+    if (this.geoSbc) {
+      this.geoSbc.unsubscribe();
+    }
     this.journalSbc.unsubscribe();
     if (this.serviceSbc) {
       this.serviceSbc.unsubscribe();
@@ -770,11 +875,18 @@ export class HomePage implements OnInit, OnDestroy {
     if (this.declineSbc) {
       this.declineSbc.unsubscribe();
     }
-    
+
     this.soketCancelSbc.unsubscribe();
     this.socketOfferSbc.unsubscribe();
     this.socketServicesSbc.unsubscribe();
     this.socktJournalbc.unsubscribe();
+    if (this.trackGeoSbc) {
+      this.trackGeoSbc.unsubscribe();
+    }
+
+    if (this.backModeSbc) {
+      this.backModeSbc.unsubscribe();
+    }
   }
 
 }

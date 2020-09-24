@@ -56,6 +56,11 @@ const routes: Routes = [
     path: 'contacts',
     canLoad: [TokenGuard, AuthGuard],
     loadChildren: () => import('./pages/contacts/contacts.module').then( m => m.ContactsPageModule)
+  },
+  {
+    path: 'message',
+    canLoad: [TokenGuard, AuthGuard],
+    loadChildren: () => import('./pages/message/message.module').then( m => m.MessagePageModule)
   }
 ];
 

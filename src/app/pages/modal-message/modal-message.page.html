@@ -1,0 +1,108 @@
+<ion-header no-borde>
+    <ion-toolbar>
+        <ion-title>Mensaje</ion-title>
+
+        <ion-buttons slot="end">
+            <ion-button (click)="onCloseModal()" color="primary">
+                <ion-icon name="close-outline"></ion-icon>
+                Cerrar
+            </ion-button>
+        </ion-buttons>
+
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+    <ion-grid fixed>
+        <ion-row>
+            <ion-col size="4">
+                <ion-card class="posterInfo">
+                    <img [src]=" pathImg + data.imgEmisor + tokenPath | imgSanitizer " class="imgPoster">
+                </ion-card>
+            </ion-col>
+            <ion-col size="8">
+
+                <ion-item lines="none">
+                    <h3> {{ data.subject }} </h3>
+
+                </ion-item>
+
+                <ion-item lines="none">
+                    <p style="font-size: 11px; ">
+                        {{ data.nameEmisor.toUpperCase() }}
+                    </p>
+                </ion-item>
+
+                <ion-item class="border_item" lines="none">
+                    <ion-icon slot="start" color="primary" name="calendar-outline"></ion-icon>
+                    <!-- <ion-label>Votos</ion-label> -->
+                    <ion-note slot="end" color="primary"> {{ data.dateRegister | moment }} </ion-note>
+                </ion-item>
+
+                <ion-item lines="none">
+                    <!-- (click)="onClick()" -->
+                    <ion-button expand="block" fill="clear" shape="round" (click)="showResponse = !showResponse;">
+                        <ion-icon slot="start" name="arrow-redo-outline"></ion-icon>
+                        Responder
+                    </ion-button>
+                </ion-item>
+
+            </ion-col>
+        </ion-row>
+
+        <ion-row>
+            <ion-col size="12">
+                <p>
+                    {{ data.message }}
+                </p>
+            </ion-col>
+        </ion-row>
+
+        <ion-list>
+            <ion-row *ngFor="let resp of responses">
+                <ion-col size="2">
+                    <ion-avatar>
+                        <img [src]="pathImg + resp.imgEmisor + tokenPath " />
+                    </ion-avatar>
+
+                </ion-col>
+                <ion-col size="10">
+                    <p>
+                        {{ resp.message }}
+                    </p>
+                    <small>
+                        {{ resp.dateRegister | moment }}
+                    </small>
+                </ion-col>
+            </ion-row>
+        </ion-list>
+
+    </ion-grid>
+
+</ion-content>
+
+<ion-footer *ngIf="showResponse">
+    <ion-toolbar>
+
+        <ion-grid fixed>
+            <ion-row>
+                <ion-col size="10">
+                    <ion-item>
+                        <ion-textarea name="msgRes" #msgRes="ngModel" [(ngModel)]="bodyResponse.message" placeholder="Escriba aquí su respuesta" required minlength="5">
+
+                        </ion-textarea>
+                    </ion-item>
+                </ion-col>
+                <ion-col size="2">
+                    <!-- (click)="onClick()" -->
+                    <ion-button fill="clear" (click)="onSendResponse()" shape="round" [disabled]="loading || msgRes.errors?.required || msgRes.errors?.minlength ">
+                        <ion-icon *ngIf="!loading" slot="icon-only" name="send"></ion-icon>
+                        <ion-spinner *ngIf="loading" name="bubbles" color="primary"></ion-spinner>
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+
+    </ion-toolbar>
+</ion-footer>

@@ -96,3 +96,10 @@
     border-radius: 20px 20px 20px 20px;
     color: rgba($color: #3d3d3dd8, $alpha: 1.0)
 }
+
+.badgeNewMsg {
+    position: relative;
+    bottom: 5px;
+    font-size: 10px;
+    left: -1px;
+}

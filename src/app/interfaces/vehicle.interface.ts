@@ -21,6 +21,6 @@ export default interface IVehicle {
     statusRegister: number;
     nameCategory: string;
     nameBrand: string;
-    driverUsing: number;
+    driverUsing: boolean;
 }
 

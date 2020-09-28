@@ -21,6 +21,7 @@ import { PushModel } from '../../models/push.model';
 import { NotyModel } from '../../models/notify.model';
 import { PushService } from '../../services/push.service';
 import { Geoposition } from '@ionic-native/geolocation/ngx';
+import { AppUtilitiesService } from '../../services/app-utilities.service';
 
 const URI_SERVER = environment.URL_SERVER;
 
@@ -91,7 +92,7 @@ export class HomePage implements OnInit, OnDestroy {
   showBtnPlay = false;
 
   // tslint:disable-next-line: max-line-length
-  constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService ) { }
+  constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService, private apps: AppUtilitiesService ) { }
 
   ngOnInit() {
 
@@ -104,7 +105,7 @@ export class HomePage implements OnInit, OnDestroy {
     );
 
     this.onLoadMap();
-
+    this.apps.onLoadTokenTacker();
     this.st.onLoadToken().then( () => {
       this.indexHex = this.st.indexHex;
 
@@ -216,6 +217,7 @@ export class HomePage implements OnInit, OnDestroy {
   onChangePlayGeo() {
 
     this.st.playGeo = !this.st.playGeo;
+    console.log('Play geo', this.st.playGeo);
 
     this.io.onEmit('change-play-geo', { value: this.st.playGeo }, async (resIO: any) => {
           await this.st.onSetItem('playGeo', this.st.playGeo, false);
@@ -235,7 +237,6 @@ export class HomePage implements OnInit, OnDestroy {
           }
 
     });
-
 
   }
 

@@ -20,6 +20,7 @@ import { Geoposition } from '@ionic-native/geolocation/ngx';
 import { formatNumber } from '@angular/common';
 import { ModalChatPage } from '../modal-chat/modal-chat.page';
 import { Howl } from 'howler';
+import { AppUtilitiesService } from 'src/app/services/app-utilities.service';
 
 const URI_API = environment.URL_SERVER;
 declare var window;
@@ -108,7 +109,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
                 private modalCtrl: ModalController,
                 private zombie: Insomnia,
                 private launchNavigator: LaunchNavigator,
-                private menuCtrl: MenuController ) { }
+                private menuCtrl: MenuController,
+                private apps: AppUtilitiesService ) { }
 
   ngOnInit() {
 
@@ -123,7 +125,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.bodyPush = new PushModel();
 
     this.onLoadMap();
-
+    this.apps.onLoadTokenTacker();
     this.st.onLoadToken().then( async () => {
 
       await this.st.onSetItem('run', true);

@@ -115,7 +115,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   ngOnInit() {
 
     this.menuCtrl.swipeGesture(false);
-    // this.backgroundMode.enable();
 
     this.zombie.keepAwake().then(
       (success) => { console.log('Teléfono en estado zombie :D', success); },
@@ -127,9 +126,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.onLoadMap();
     this.apps.onLoadTokenTacker();
     this.st.onLoadToken().then( async () => {
-
       await this.st.onSetItem('run', true);
-
+      this.apps.run = true;
       this.onLoadMap();
       this.onLoadGeo();
       this.onLoadService();
@@ -182,7 +180,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       setTimeout(() => {
         this.map.setCenter(latlng);
         this.map.setZoom(14.6);
-        window.tracker.backgroundGeolocation.start();
       }, 2500);
 
     });
@@ -229,12 +226,15 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       if (!res.ok) {
         throw new Error( res.error );
       }
+
       this.dataServiceInfo = res.data;
       this.runOrigin = this.dataServiceInfo.runOrigin;
       this.finishOrigin = this.dataServiceInfo.finishOrigin;
       this.runDestination = this.dataServiceInfo.runDestination;
       this.finishDestination = this.dataServiceInfo.finishDestination;
 
+      await this.st.onSetItem('pkClient', this.dataServiceInfo.fkClient);
+      this.apps.pkClient = this.dataServiceInfo.fkClient;
       this.lat = this.dataServiceInfo.latDriver;
       this.lng = this.dataServiceInfo.lngDriver;
 
@@ -246,8 +246,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
       this.io.onEmit('change-play-geo', { value: true }, async (resIO: any) => {
         console.log('cambiando playGeo socket', resIO);
-        // this.startBackgroundGeolocation();
         this.onListenGeo();
+        window.tracker.backgroundGeolocation.start();
       });
 
     });
@@ -386,7 +386,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   }
 
   onListenGeo() {
-    this.geoSbc = this.geo.onListenGeo().pipe( retry(3) ).subscribe( (position: Geoposition) => {
+    this.geoSbc = this.geo.onListenGeo().pipe( retry() ).subscribe( (position: Geoposition) => {
 
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
@@ -395,7 +395,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
       this.markerDriver.setOptions( {position: latlng, icon: '/assets/geo-driver.png' } );
       this.map.setCenter( latlng );
-
 
       this.lat = lat;
       this.lng = lng;
@@ -463,6 +462,11 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.st.onSetItem( 'distance', this.distance );
       this.st.onSetItem( 'minutes', this.minutes );
 
+      this.apps.distanceText = this.distanceText;
+      this.apps.minutesText = this.minutesText;
+      this.apps.minutes = this.minutes;
+      this.apps.distance = this.distance;
+
       if (!this.runDestination) {
         if ((this.distance <= 300 && this.distance >= 200) || (this.distance <= 150 && this.distance >= 10 ) ) {
 
@@ -487,7 +491,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
           });
         }
       }
-      
+
       if (tracker) {
         this.onEmitGeoDriverToClient();
       }
@@ -656,6 +660,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     await this.st.onSetItem('current-service', null, false);
     await this.st.onSetItem('occupied-driver', false, false);
     await this.st.onSetItem('run', false);
+    this.apps.run = false;
+    this.apps.pkClient = 0;
   }
 
   onEmitCancel() {

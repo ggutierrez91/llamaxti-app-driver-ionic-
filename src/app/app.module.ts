@@ -30,7 +30,6 @@ import { LaunchNavigator } from '@ionic-native/launch-navigator/ngx';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { BackgroundGeolocation } from '@ionic-native/background-geolocation/ngx';
-import { HTTP } from '@ionic-native/http/ngx';
 
 // the second parameter 'fr-FR' is optional
 registerLocaleData(localeEs, 'es');
@@ -65,7 +64,6 @@ const configIO: SocketIoConfig = { url: environment.URL_SERVER, options: {} };
     SocialSharing,
     LaunchNavigator,
     BackgroundGeolocation,
-    HTTP,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

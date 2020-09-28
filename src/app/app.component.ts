@@ -10,7 +10,6 @@ import { Howler} from 'howler';
 // tslint:disable-next-line: max-line-length
 import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
 import { environment } from 'src/environments/environment';
-import { HTTP } from '@ionic-native/http/ngx';
 
 const URI_API = environment.URL_SERVER;
 
@@ -28,8 +27,7 @@ export class AppComponent {
     private io: SocketService,
     private os: PushService,
     private apps: AppUtilitiesService,
-    private backgroundGeolocation: BackgroundGeolocation,
-    private http: HTTP
+    private backgroundGeolocation: BackgroundGeolocation
   ) {
     this.io.onListenStatus();
     this.initializeApp();

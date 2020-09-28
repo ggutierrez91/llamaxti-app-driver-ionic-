@@ -20,12 +20,9 @@ import { Geoposition } from '@ionic-native/geolocation/ngx';
 import { formatNumber } from '@angular/common';
 import { ModalChatPage } from '../modal-chat/modal-chat.page';
 import { Howl } from 'howler';
-// tslint:disable-next-line: max-line-length
-import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
-import { HTTP } from '@ionic-native/http/ngx';
-
 
 const URI_API = environment.URL_SERVER;
+declare var window;
 
 @Component({
   selector: 'app-service-run',
@@ -70,8 +67,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   pushDistance: Subscription;
   intervalo: Subscription;
   chatSbc: Subscription;
-  trackGeoSbc: Subscription;
-  trackSbc: Subscription;
 
   showAlert = false;
   hideAlert = false;
@@ -113,9 +108,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
                 private modalCtrl: ModalController,
                 private zombie: Insomnia,
                 private launchNavigator: LaunchNavigator,
-                private menuCtrl: MenuController,
-                private backgroundGeolocation: BackgroundGeolocation,
-                private http: HTTP ) { }
+                private menuCtrl: MenuController ) { }
 
   ngOnInit() {
 
@@ -132,6 +125,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.onLoadMap();
 
     this.st.onLoadToken().then( async () => {
+
+      await this.st.onSetItem('run', true);
 
       this.onLoadMap();
       this.onLoadGeo();
@@ -185,6 +180,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       setTimeout(() => {
         this.map.setCenter(latlng);
         this.map.setZoom(14.6);
+        window.tracker.backgroundGeolocation.start();
       }, 2500);
 
     });
@@ -195,71 +191,10 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     this.cancelRunSbc = this.io.onListen('cancel-service-run-receptor').subscribe( async (res) => {
       await this.onResetStorage();
+      window.tracker.backgroundGeolocation.stop();
       this.navCtrl.navigateRoot('/home');
-      this.backgroundGeolocation.stop();
     });
 
-  }
-
-  startBackgroundGeolocation() {
-    const config: BackgroundGeolocationConfig = {
-      desiredAccuracy: 10,
-      stationaryRadius: 1,
-      distanceFilter: 1,
-      debug: false, //  enable this hear sounds for background-geolocation life-cycle.
-      stopOnTerminate: false // enable this to clear background location settings when the app terminates
-    };
-
-    this.backgroundGeolocation.configure(config).then(() => {
-      this.trackGeoSbc = this.backgroundGeolocation
-        .on(BackgroundGeolocationEvents.location)
-        .subscribe((location: BackgroundGeolocationResponse) => {
-          console.log('nuevo track geo', location);
-          this.sendGPS(location);
-
-          // IMPORTANT:  You must execute the finish method here to inform the native plugin that you're finished,
-          // and the background-task may be completed.  You must do this regardless if your operations are successful or not.
-          // IF YOU DON'T, ios will CRASH YOUR APP for spending too much time in the background.
-        });
-    });
-
-    // start recording location
-    this.backgroundGeolocation.start();
-
-    // If you wish to turn OFF background-tracking, call the #stop method.
-    // this.backgroundGeolocation.stop();
-  }
-
-  sendGPS( location: BackgroundGeolocationResponse ) {
-
-    const lat = location.latitude;
-    const lng = location.longitude;
-
-    const latlng = new google.maps.LatLng( lat, lng );
-    this.markerDriver.setPosition( latlng );
-    this.map.setCenter( latlng );
-
-    const body = {
-      lat,
-      lng,
-      run: false
-    };
-    // this.http.setDataSerializer('json');
-    this.http.setHeader('*', String( 'Authorization' ), String( this.st.token ));
-    this.http
-      .post(
-        URI_API + `/Tracker/Geo`, // backend api to post
-        body,
-        null
-      )
-      .then(data => {
-        console.log(data);
-        this.backgroundGeolocation.finish(); // FOR IOS ONLY
-      })
-      .catch(error => {
-        console.log(error);
-        this.backgroundGeolocation.finish(); // FOR IOS ONLY
-      });
   }
 
   async onLoadService() {
@@ -309,7 +244,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
       this.io.onEmit('change-play-geo', { value: true }, async (resIO: any) => {
         console.log('cambiando playGeo socket', resIO);
-        this.startBackgroundGeolocation();
+        // this.startBackgroundGeolocation();
         this.onListenGeo();
       });
 
@@ -521,6 +456,11 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.distance = distance.rows[0].elements[0].distance.value || 0;
       this.minutes = distance.rows[0].elements[0].duration.value || 0;
 
+      this.st.onSetItem( 'distanceText', this.distanceText );
+      this.st.onSetItem( 'minutesText', this.minutesText );
+      this.st.onSetItem( 'distance', this.distance );
+      this.st.onSetItem( 'minutes', this.minutes );
+
       if (!this.runDestination) {
         if ((this.distance <= 300 && this.distance >= 200) || (this.distance <= 150 && this.distance >= 10 ) ) {
 
@@ -594,14 +534,16 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       await this.ui.onShowLoading('Espere...');
       await this.onResetStorage();
 
-      this.backgroundGeolocation.stop();
 
       this.io. onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
         console.log('Cambiando estado conductor', resOccupied);
       });
+
       if (res.data.ok) {
         await this.ui.onHideLoading();
       }
+
+      window.tracker.backgroundGeolocation.stop();
       this.navCtrl.navigateRoot('/home').then( async () => {
 
         await this.ui.onHideLoading();
@@ -711,12 +653,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     await this.st.onSetItem('current-page', '/home', false);
     await this.st.onSetItem('current-service', null, false);
     await this.st.onSetItem('occupied-driver', false, false);
-
-    // await this.st.onSetItem('runOrigin', false, false);
-    // await this.st.onSetItem('finishOrigin', false, false);
-    // await this.st.onSetItem('runDestination', false, false);
-    // await this.st.onSetItem('finishDestination', false, false);
-    // this.navCtrl.navigateRoot('/home');
+    await this.st.onSetItem('run', false);
   }
 
   onEmitCancel() {
@@ -733,7 +670,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       console.log('push enviada', resOs);
       await this.ui.onHideLoading();
       this.navCtrl.navigateRoot('/home');
-      this.backgroundGeolocation.stop();
+      // this.backgroundGeolocation.stop();
     });
   }
 
@@ -821,7 +758,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       map( () => this.seconds -= 1 ),
       take(3)
     );
-  
+
     // obsAlert.subscribe();
   }
 
@@ -855,6 +792,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     });
     
   }
+
   onListenChat() {
 
     console.log('Escuchando nuevos mensajes de chat=================')
@@ -904,13 +842,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.chatSbc.unsubscribe();
     }
 
-    if (this.trackGeoSbc) {
-      this.trackGeoSbc.unsubscribe();
-    }
-
-    if (this.trackSbc) {
-      this.trackSbc.unsubscribe();
-    }
 
   }
 

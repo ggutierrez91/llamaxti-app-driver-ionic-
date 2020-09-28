@@ -21,13 +21,10 @@ import { PushModel } from '../../models/push.model';
 import { NotyModel } from '../../models/notify.model';
 import { PushService } from '../../services/push.service';
 import { Geoposition } from '@ionic-native/geolocation/ngx';
-import { BackgroundGeolocation,
-  BackgroundGeolocationConfig,
-  BackgroundGeolocationEvents,
-  BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
-import { HTTP } from '@ionic-native/http/ngx';
 
 const URI_SERVER = environment.URL_SERVER;
+
+declare var window;
 
 @Component({
   selector: 'app-home',
@@ -47,13 +44,10 @@ export class HomePage implements OnInit, OnDestroy {
   declineSbc: Subscription;
   offerSbc: Subscription;
   osSbc: Subscription;
-  backModeSbc: Subscription;
-  backModeDisSbc: Subscription;
   socktJournalbc: Subscription;
   socketServicesSbc: Subscription;
   socketOfferSbc: Subscription;
   soketCancelSbc: Subscription;
-  trackGeoSbc: Subscription;
 
   map: google.maps.Map;
   marker: google.maps.Marker;
@@ -94,8 +88,10 @@ export class HomePage implements OnInit, OnDestroy {
   loadingDel = false;
   pkServiceDel = 0;
 
+  showBtnPlay = false;
+
   // tslint:disable-next-line: max-line-length
-  constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService, private backgroundGeolocation: BackgroundGeolocation, private http: HTTP ) { }
+  constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService ) { }
 
   ngOnInit() {
 
@@ -112,7 +108,11 @@ export class HomePage implements OnInit, OnDestroy {
     this.st.onLoadToken().then( () => {
       this.indexHex = this.st.indexHex;
 
-      // this.onLoadMap();
+      setTimeout(() => {
+        this.showBtnPlay = true;
+      }, 3000);
+
+      this.onLoadMap();
       this.onLoadJournal(); // extraemos la jornada del backend
       this.onGetPosition(); // extraemos posición actual y listamos las zonas calientes
 
@@ -183,8 +183,9 @@ export class HomePage implements OnInit, OnDestroy {
 
           this.onEmitGeo();
 
-
-          this.startBackgroundGeolocation();
+          setTimeout(() => {
+            window.tracker.backgroundGeolocation.start();
+          }, 3000);
 
         });
       }
@@ -192,66 +193,6 @@ export class HomePage implements OnInit, OnDestroy {
     });
   }
 
-  startBackgroundGeolocation() {
-    const config: BackgroundGeolocationConfig = {
-      desiredAccuracy: 10,
-      stationaryRadius: 1,
-      distanceFilter: 1,
-      debug: false, //  enable this hear sounds for background-geolocation life-cycle.
-      stopOnTerminate: false // enable this to clear background location settings when the app terminates
-    };
-
-    this.backgroundGeolocation.configure(config).then(() => {
-      this.trackGeoSbc = this.backgroundGeolocation
-        .on(BackgroundGeolocationEvents.location)
-        .subscribe((location: BackgroundGeolocationResponse) => {
-          console.log('nuevo track geo', location);
-          this.sendGPS(location);
-
-          // IMPORTANT:  You must execute the finish method here to inform the native plugin that you're finished,
-          // and the background-task may be completed.  You must do this regardless if your operations are successful or not.
-          // IF YOU DON'T, ios will CRASH YOUR APP for spending too much time in the background.
-        });
-    });
-
-    // start recording location
-    this.backgroundGeolocation.start();
-
-    // If you wish to turn OFF background-tracking, call the #stop method.
-    // this.backgroundGeolocation.stop();
-  }
-
-  sendGPS( location: BackgroundGeolocationResponse ) {
-
-    const lat = location.latitude;
-    const lng = location.longitude;
-
-    const latlng = new google.maps.LatLng( lat, lng );
-    this.marker.setPosition( latlng );
-    this.map.setCenter( latlng );
-
-    const body = {
-      lat,
-      lng,
-      run: false
-    };
-    // this.http.setDataSerializer('json');
-    this.http.setHeader('*', String( 'Authorization' ), String( this.st.token ));
-    this.http
-      .post(
-        URI_SERVER + `/Tracker/Geo`, // backend api to post
-        body,
-        null
-      )
-      .then(data => {
-        console.log(data);
-        this.backgroundGeolocation.finish(); // FOR IOS ONLY
-      })
-      .catch(error => {
-        console.log(error);
-        this.backgroundGeolocation.finish(); // FOR IOS ONLY
-      });
-  }
 
   onEmitGeo() {
     // console.log('me estoy subscribiendo al geo :D');
@@ -282,16 +223,12 @@ export class HomePage implements OnInit, OnDestroy {
 
           if (this.st.playGeo) {
             this.onEmitGeo();
-            // this.onTrackGeo();
-            this.startBackgroundGeolocation();
+
+            window.tracker.backgroundGeolocation.start();
+
           } else {
 
-            this.backgroundGeolocation.stop();
-
-            if (this.trackGeoSbc) {
-              this.trackGeoSbc.unsubscribe();
-            }
-
+            window.tracker.backgroundGeolocation.stop();
             if (this.geoSbc) {
               this.geoSbc.unsubscribe();
             }
@@ -880,13 +817,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.socketOfferSbc.unsubscribe();
     this.socketServicesSbc.unsubscribe();
     this.socktJournalbc.unsubscribe();
-    if (this.trackGeoSbc) {
-      this.trackGeoSbc.unsubscribe();
-    }
 
-    if (this.backModeSbc) {
-      this.backModeSbc.unsubscribe();
-    }
   }
 
 }

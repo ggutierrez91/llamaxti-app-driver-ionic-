@@ -7,7 +7,14 @@ import { SocketService } from './services/socket.service';
 import { PushService } from './services/push.service';
 import { AppUtilitiesService } from './services/app-utilities.service';
 import { Howler} from 'howler';
-// import { GeoBackService } from './services/geo-back.service';
+// tslint:disable-next-line: max-line-length
+import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
+import { HTTP } from '@ionic-native/http/ngx';
+import { environment } from 'src/environments/environment';
+
+const URI_API = environment.URL_SERVER;
+
+declare var window;
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -21,7 +28,8 @@ export class AppComponent {
     private io: SocketService,
     private os: PushService,
     private apps: AppUtilitiesService,
-    // private geoback: GeoBackService
+    private backgroundGeolocation: BackgroundGeolocation,
+    private http: HTTP
   ) {
     this.io.onListenStatus();
     this.initializeApp();
@@ -35,8 +43,77 @@ export class AppComponent {
 
       this.apps.onLoadCurrentPage();
       this.os.onLoadConfig();
-      // this.geoback.onInitBackgGeo();
+
+      this.apps.onLoadTokenTacker().then( (ok) => {
+
+        const config: BackgroundGeolocationConfig = {
+          desiredAccuracy: 0,
+          stationaryRadius: 5,
+          distanceFilter: 5,
+          interval: 10000,
+          activitiesInterval: 10000,
+          activityType: 'OtherNavigation',
+          startOnBoot: true,
+
+          url: URI_API + `/Tracker/Geo`,
+          httpHeaders: { Authorization: this.apps.token },
+          debug: false, //  enable this hear sounds for background-geolocation life-cycle.
+          stopOnTerminate: true // enable this to clear background location settings when the app terminates
+        };
+
+        this.backgroundGeolocation.configure(config).then(() => {
+
+          this.backgroundGeolocation
+            .on(BackgroundGeolocationEvents.location)
+            .subscribe((location: BackgroundGeolocationResponse) => {
+              console.log('nuevo track geo', location);
+              this.sendGPS(location);
+
+            });
+        });
+
+        window.tracker = this;
+
+      });
 
     });
   }
+
+  sendGPS( location: BackgroundGeolocationResponse ) {
+
+    const lat = location.latitude;
+    const lng = location.longitude;
+
+    const body = {
+      lat,
+      lng,
+      run: this.apps.run,
+      pkClient: this.apps.pkClient,
+      distanceText: this.apps.distanceText,
+      minutesText: this.apps.minutesText,
+      distance: this.apps.distance,
+      minutes: this.apps.minutes,
+    };
+    // this.http.setDataSerializer('json');
+    this.http.setHeader('*', String( 'Authorization' ), String( this.apps.token ));
+    this.http
+      .post(
+        URI_API + `/Tracker/Geo`, // backend api to post
+        body,
+        null
+      )
+      .then(data => {
+        console.log(data);
+        if (this.platform.is('ios')) {
+          this.backgroundGeolocation.finish();
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        if (this.platform.is('ios')) {
+          this.backgroundGeolocation.finish();
+        }
+      });
+  }
+
 }

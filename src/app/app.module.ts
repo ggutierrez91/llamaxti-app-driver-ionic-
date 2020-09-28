@@ -64,7 +64,6 @@ const configIO: SocketIoConfig = { url: environment.URL_SERVER, options: {} };
     Insomnia,
     SocialSharing,
     LaunchNavigator,
-    // BackgroundMode,
     BackgroundGeolocation,
     HTTP,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }

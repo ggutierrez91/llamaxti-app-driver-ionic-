@@ -60,7 +60,7 @@ export class ModalMessagePage implements OnInit, OnDestroy {
 
   onGetResponses() {
     this.responseSbc = this.msgSvc.onGetResponseMsg( this.data.pkMessage, this.token )
-    .pipe( retry(3) )
+    .pipe( retry() )
     .subscribe( (res) => {
 
       if (!res.ok) {

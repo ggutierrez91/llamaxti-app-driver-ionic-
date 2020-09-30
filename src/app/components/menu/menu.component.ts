@@ -79,7 +79,9 @@ export class MenuComponent implements OnInit, OnDestroy {
       this.singSbc.unsubscribe();
     }
 
-    this.totalSbc = this.msgSvc.onGetTotalMsg().subscribe( (res) => {
+    this.totalSbc = this.msgSvc.onGetTotalMsg()
+    .pipe( retry(3) )
+    .subscribe( (res) => {
 
       if (!res.ok) {
         throw new Error( res.error );

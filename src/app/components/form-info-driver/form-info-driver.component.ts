@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import * as moment from 'moment';
 import { DriverFilesModel } from '../../models/user-driver-files.model';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
+import { retry } from 'rxjs/operators';
 
 declare var window: any;
 
@@ -107,7 +108,9 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
   }
 
   onLoadNationality() {
-    this.sbcNationality = this.authSvc.onGetNationality( '' ).subscribe( (res) => {
+    this.sbcNationality = this.authSvc.onGetNationality( '' )
+    .pipe( retry() )
+    .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
@@ -117,7 +120,9 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
   }
 
   onLoadTypeDoc() {
-    this.sbcTypeDocument = this.authSvc.onGetTypeDocument( ).subscribe( (res) => {
+    this.sbcTypeDocument = this.authSvc.onGetTypeDocument( )
+    .pipe( retry() )
+    .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
@@ -164,7 +169,9 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
       return ;
     }
     this.loadingReniec = true;
-    this.sbcClient = this.authSvc.onReniecDni( this.bodyDriver.document ).subscribe( (res: any) => {
+    this.sbcClient = this.authSvc.onReniecDni( this.bodyDriver.document )
+    .pipe( retry() )
+    .subscribe( (res: any) => {
       this.loadingReniec = false;
 
       if (!res.ok || !res.data.dni || res.data.dni === '') {

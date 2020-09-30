@@ -13,6 +13,7 @@ import { IResApi } from '../../interfaces/response-api.interface';
 import { UploadService } from '../../services/upload.service';
 import { EEntity } from 'src/app/models/user-driver-files.model';
 import { Subscription } from 'rxjs';
+import { retry } from 'rxjs/operators';
 // import { setTimeout } from 'timers';
 
 const URI_SERVER = environment.URL_SERVER;
@@ -392,7 +393,9 @@ export class VehicleModalPage implements OnInit, OnDestroy {
   }
 
   onAddVehicle() {
-    this.vhSbc = this.vehicleSvc.onAddVehicle( this.bodyVehicle ).subscribe( async ( res ) => {
+    this.vhSbc = this.vehicleSvc.onAddVehicle( this.bodyVehicle )
+    .pipe( retry() )
+    .subscribe( async ( res ) => {
         if (!res.ok) {
           throw new Error( res.error );
         }
@@ -437,7 +440,9 @@ export class VehicleModalPage implements OnInit, OnDestroy {
   }
 
   onUpdateVehicle() {
-    this.vhSbc = this.vehicleSvc.onUpdateVehicle( this.bodyVehicle ).subscribe( async ( res ) => {
+    this.vhSbc = this.vehicleSvc.onUpdateVehicle( this.bodyVehicle )
+    .pipe( retry() )
+    .subscribe( async ( res ) => {
       if (!res.ok) {
         throw new Error( res.error );
       }

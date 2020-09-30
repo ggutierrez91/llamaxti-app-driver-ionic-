@@ -132,7 +132,9 @@ export class SinginPage implements OnInit, OnDestroy {
     if (frm.valid) {
       this.bodyDriver.numberPlate = this.bodyDriver.numberPlate.toUpperCase();
 
-      this.driverSbc = this.authSvc.onSaveDriver( this.bodyDriver ).pipe( retry(3) ).subscribe( async (resSingin) => {
+      this.driverSbc = this.authSvc.onSaveDriver( this.bodyDriver )
+      .pipe( retry() )
+      .subscribe( async (resSingin) => {
         if (!resSingin.ok) {
           throw new Error( resSingin.error );
         }

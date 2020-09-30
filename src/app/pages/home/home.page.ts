@@ -178,22 +178,20 @@ export class HomePage implements OnInit, OnDestroy {
 
       });
 
-      if (this.st.playGeo) {
+      this.io.onEmit('change-play-geo', { value: this.st.playGeo }, (resIO: any) => {
 
-        this.io.onEmit('change-play-geo', { value: this.st.playGeo }, (resIO: any) => {
-
+        if (this.st.playGeo) {
           this.onEmitGeo();
 
           setTimeout(() => {
             window.tracker.backgroundGeolocation.start();
           }, 3000);
+        }
 
-        });
-      }
+      });
 
     });
   }
-
 
   onEmitGeo() {
     // console.log('me estoy subscribiendo al geo :D');
@@ -521,7 +519,9 @@ export class HomePage implements OnInit, OnDestroy {
 
   onLoadJournal() {
 
-    this.journalSbc = this.taxiSvc.onGetJournal().subscribe( (res) => {
+    this.journalSbc = this.taxiSvc.onGetJournal()
+    .pipe( retry() )
+    .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
@@ -538,7 +538,9 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onListenOfferClient() {
-    this.socketOfferSbc = this.io.onListen( 'newOffer-service-client' ).subscribe( async (res: any) => {
+    this.socketOfferSbc = this.io.onListen( 'newOffer-service-client' )
+    .pipe( retry() )
+    .subscribe( async (res: any) => {
 
       if (res.accepted) {
         const offer: IOffer = res.res.dataOffer;
@@ -620,7 +622,9 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onListenJournal() {
-    this.socktJournalbc = this.io.onListen('change-journal').subscribe( (res: any) => {
+    this.socktJournalbc = this.io.onListen('change-journal')
+    .pipe( retry() )
+    .subscribe( (res: any) => {
       const styleMap: any = res.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
       this.map.setOptions({
         styles: styleMap
@@ -631,7 +635,9 @@ export class HomePage implements OnInit, OnDestroy {
 
   onGetVehicleUsing() {
 
-    this.usingSbc = this.vehicleSvc.onGetUsing( this.st.pkDriver ).pipe( retry(2) ).subscribe( async ( res ) => {
+    this.usingSbc = this.vehicleSvc.onGetUsing( this.st.pkDriver )
+    .pipe( retry() )
+    .subscribe( async ( res ) => {
 
       if (!res.ok) {
         throw new Error( res.error );
@@ -747,7 +753,9 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onListenNewService() {
-    this.socketServicesSbc = this.io.onListen('new-service').subscribe( (resSocket: IServiceSocket) => {
+    this.socketServicesSbc = this.io.onListen('new-service')
+    .pipe( retry() )
+    .subscribe( (resSocket: IServiceSocket) => {
       // recibimos la data del nuevo servicio
       const indexHex = resSocket.indexHex;
 
@@ -776,7 +784,9 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onListenCancelService() {
-    this.soketCancelSbc = this.io.onListen('disposal-service').subscribe( (res: any) => {
+    this.soketCancelSbc = this.io.onListen('disposal-service')
+    .pipe( retry() )
+    .subscribe( (res: any) => {
 
       if (res.indexHex === this.st.indexHex) {
         this.dataServices = this.dataServices.filter( ss => ss.pkService !== Number( res.pkService ) );

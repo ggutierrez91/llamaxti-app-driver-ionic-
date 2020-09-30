@@ -136,7 +136,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.map.setOptions({
         styles: styleMap
       });
-      this.onListenChat();
+      this.onListenNewMsgChat();
     } ).catch(e => console.error('error al cargar token storage', e) );
 
     this.onListenCancelRun();
@@ -188,7 +188,9 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
   onListenCancelRun() {
 
-    this.cancelRunSbc = this.io.onListen('cancel-service-run-receptor').subscribe( async (res) => {
+    this.cancelRunSbc = this.io.onListen('cancel-service-run-receptor')
+    .pipe( retry() )
+    .subscribe( async (res) => {
       await this.onResetStorage();
       window.tracker.backgroundGeolocation.stop();
       this.navCtrl.navigateRoot('/home');
@@ -221,7 +223,9 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       return;
     }
 
-    this.infoServiceSbc = this.serviceSvc.onServiceInfo( this.dataService.pkService ).subscribe( async (res) => {
+    this.infoServiceSbc = this.serviceSvc.onServiceInfo( this.dataService.pkService )
+    .pipe( retry() )
+    .subscribe( async (res) => {
 
       if (!res.ok) {
         throw new Error( res.error );
@@ -244,10 +248,13 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
       this.loading = false;
 
-      this.io.onEmit('change-play-geo', { value: true }, async (resIO: any) => {
-        console.log('cambiando playGeo socket', resIO);
-        this.onListenGeo();
-        window.tracker.backgroundGeolocation.start();
+      this.io.onEmit('change-play-geo', { value: true }, async (resIO: IResSocket) => {
+
+        if (resIO.ok) {
+          this.onListenGeo();
+          window.tracker.backgroundGeolocation.start();
+        }
+
       });
 
     });
@@ -393,7 +400,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
       const latlng = new google.maps.LatLng( lat, lng );
 
-      this.markerDriver.setOptions( {position: latlng, icon: '/assets/geo-driver.png' } );
+      // this.markerDriver.setOptions( {position: latlng, icon: '/assets/geo-driver.png' } );
+      this.markerDriver.setPosition( latlng );
       this.map.setCenter( latlng );
 
       this.lat = lat;
@@ -401,17 +409,17 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
       this.onStreet();
 
-      this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
-        if (res.ok) {
+      // this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
+      //   if (res.ok) {
 
-          if ( this.st.indexHex !== res.indexHex ) {
-            this.st.indexHex = res.indexHex;
-            this.st.onSetItem('indexHex', res.indexHex, false);
-          }
+      //     if ( this.st.indexHex !== res.indexHex ) {
+      //       this.st.indexHex = res.indexHex;
+      //       this.st.onSetItem('indexHex', res.indexHex, false);
+      //     }
 
-        }
+      //   }
 
-      });
+      // });
 
       this.onLoadDistance();
 
@@ -439,7 +447,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     });
   }
 
-  onLoadDistance( tracker = false ) {
+  onLoadDistance( ) {
     const pointA = new google.maps.LatLng( this.lat, this.lng );
     let pointB = new google.maps.LatLng( this.dataService.latOrigin, this.dataService.lngOrigin );
     if (this.runDestination) {
@@ -457,18 +465,13 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.distance = distance.rows[0].elements[0].distance.value || 0;
       this.minutes = distance.rows[0].elements[0].duration.value || 0;
 
-      this.st.onSetItem( 'distanceText', this.distanceText );
-      this.st.onSetItem( 'minutesText', this.minutesText );
-      this.st.onSetItem( 'distance', this.distance );
-      this.st.onSetItem( 'minutes', this.minutes );
-
       this.apps.distanceText = this.distanceText;
       this.apps.minutesText = this.minutesText;
       this.apps.minutes = this.minutes;
       this.apps.distance = this.distance;
 
       if (!this.runDestination) {
-        if ((this.distance <= 300 && this.distance >= 200) || (this.distance <= 150 && this.distance >= 10 ) ) {
+        if ((this.distance <= 200 && this.distance >= 150) || (this.distance <= 70 && this.distance >= 10 ) ) {
 
           this.bodyPush.message = `Conductor en ${ this.currentStreet }, a ${ formatNumber( this.distance, 'en', '.1-1' ) } metros - ${ this.minutesText } de tu ubicación`;
 
@@ -481,20 +484,20 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
           if (this.pushDistance) {
             this.pushDistance.unsubscribe();
-            this.pushDistance = null;
+            // this.pushDistance = null;
           }
 
-          this.pushDistance = this.os.onSendPushUser( this.bodyPush ).subscribe( async (resOs) => {
+          this.pushDistance = this.os.onSendPushUser( this.bodyPush )
+          .pipe( retry() )
+          .subscribe( async (resOs) => {
             console.log('push enviada', resOs);
-            await this.ui.onHideLoading();
-            this.navCtrl.navigateRoot('/home');
+            // await this.ui.onHideLoading();
+            // this.navCtrl.navigateRoot('/home');
           });
         }
       }
 
-      if (tracker) {
-        this.onEmitGeoDriverToClient();
-      }
+      this.onEmitGeoDriverToClient();
 
     });
   }
@@ -541,7 +544,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       await this.onResetStorage();
 
 
-      this.io. onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
+      this.io.onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
         console.log('Cambiando estado conductor', resOccupied);
       });
 
@@ -571,8 +574,17 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       minutes: this.minutes,
     };
 
-    this.io.onEmit('current-position-driver-service', payload, (resSocket: any) => {
-      console.log('Emitiendo ubicación del conductor al cliente =====', resSocket);
+    this.io.onEmit('current-position-driver-service', payload, (resIO: IResSocketCoors) => {
+
+      if (resIO.ok) {
+
+        if ( this.st.indexHex !== resIO.indexHex ) {
+          this.st.indexHex = resIO.indexHex;
+          this.st.onSetItem('indexHex', resIO.indexHex, false);
+        }
+
+      }
+      console.log('Emitiendo ubicación del conductor al cliente =====', resIO);
     });
 
   }
@@ -626,7 +638,9 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
   onDeleteRun() {
 
-    this.deleteSbc = this.serviceSvc.onDeleteRun( this.dataServiceInfo.pkService, false ).subscribe( async (res) => {
+    this.deleteSbc = this.serviceSvc.onDeleteRun( this.dataServiceInfo.pkService, false )
+    .pipe( retry() )
+    .subscribe( async (res) => {
 
       if (!res.ok) {
         throw new Error( res.error );
@@ -674,7 +688,9 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       console.log('emitiendo cancelación de servicio');
     });
 
-    this.osSbc = this.os.onSendPushUser( this.bodyPush ).subscribe( async (resOs) => {
+    this.osSbc = this.os.onSendPushUser( this.bodyPush )
+    .pipe( retry() )
+    .subscribe( async (resOs) => {
       console.log('push enviada', resOs);
       await this.ui.onHideLoading();
       this.navCtrl.navigateRoot('/home');
@@ -795,16 +811,16 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     modalChat.onDidDismiss().then( (res) => {
       this.loadModalChat = false;
-      console.log('Cerrando chat' , res.data);
-      this.onListenChat();
+      // console.log('Cerrando chat' , res.data);
+      this.onListenNewMsgChat();
     });
-    
+
   }
 
-  onListenChat() {
+  onListenNewMsgChat() {
 
-    console.log('Escuchando nuevos mensajes de chat=================')
-    this.chatSbc = this.io.onListen('new-chat-message').pipe( retry(3) ).subscribe( (res) => {
+    // console.log('Escuchando nuevos mensajes de chat=================')
+    this.chatSbc = this.io.onListen('new-chat-message').pipe( retry() ).subscribe( (res) => {
 
       console.log('socket recibido chat', res);
       this.newMessages += 1;

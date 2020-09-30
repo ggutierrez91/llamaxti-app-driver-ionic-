@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 import { IContact } from 'src/app/interfaces/contact.interface';
 import { ContactsService } from '../../services/contacts.service';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
+import { retry } from 'rxjs/operators';
 
 @Component({
   selector: 'app-contacts',
@@ -48,7 +49,9 @@ export class ContactsPage implements OnInit, OnDestroy {
 
   onGetContacts() {
     this.loading = true;
-    this.sbcNationality = this.contacsSvc.onGetContact().subscribe( (res) => {
+    this.sbcNationality = this.contacsSvc.onGetContact()
+    .pipe( retry() )
+    .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
@@ -95,7 +98,9 @@ export class ContactsPage implements OnInit, OnDestroy {
   }
 
   onDeleteContact( pk: number, status = false ) {
-    this.sbcDel = this.contacsSvc.onDelContact( pk, status ).subscribe( async (res) => {
+    this.sbcDel = this.contacsSvc.onDelContact( pk, status )
+    .pipe( retry() )
+    .subscribe( async (res) => {
 
       if (!res.ok) {
         throw new Error( res.error );
@@ -185,7 +190,9 @@ export class ContactsPage implements OnInit, OnDestroy {
   }
 
   onLoadNationality() {
-    this.sbcNationality = this.authSvc.onGetNationality( '' ).subscribe( (res) => {
+    this.sbcNationality = this.authSvc.onGetNationality( '' )
+    .pipe( retry() )
+    .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }

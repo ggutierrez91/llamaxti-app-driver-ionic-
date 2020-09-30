@@ -43,7 +43,9 @@ export class LoginPage implements OnInit, OnDestroy {
 
     if (frm.valid) {
       this.loading = true;
-      this.sbcLogin = this.authScv.onLogin( this.bodyLogin ).pipe( retry() ).subscribe( async (res) => {
+      this.sbcLogin = this.authScv.onLogin( this.bodyLogin )
+      .pipe( retry() )
+      .subscribe( async (res) => {
         if (!res.ok) {
           throw new Error( res.error );
         }

@@ -116,7 +116,9 @@ export class VehiclePage implements OnInit, OnDestroy {
 
   async onSubmitDel( pkVehicle: number ) {
     await this.ui.onShowLoading('Eliminando...');
-    this.delSbc = this.vehicleSvc.onDeleteVehicle( pkVehicle ).subscribe( async (res) => {
+    this.delSbc = this.vehicleSvc.onDeleteVehicle( pkVehicle )
+    .pipe( retry() )
+    .subscribe( async (res) => {
 
       if (!res.ok) {
         throw new Error( res.error );

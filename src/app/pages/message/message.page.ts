@@ -47,7 +47,9 @@ export class MessagePage implements OnInit, OnDestroy {
   }
 
   onListenMsg() {
-    this.msgIOSbc = this.io.onListen('new-msg').pipe( retry(3) ).subscribe( (res: any) => {
+    this.msgIOSbc = this.io.onListen('new-msg')
+    .pipe( retry() )
+    .subscribe( (res: any) => {
       console.log('new msg socket', res);
       this.dataMsg.push( res.data );
       this.content.scrollToBottom(50);
@@ -118,7 +120,9 @@ export class MessagePage implements OnInit, OnDestroy {
   }
 
   onListenNewResponse() {
-    this.responseIOSbc = this.io.onListen('new-response-msg').subscribe( (res: any) => {
+    this.responseIOSbc = this.io.onListen('new-response-msg')
+    .pipe( retry() )
+    .subscribe( (res: any) => {
       const finded = this.dataMsg.find( msg => msg.pkMessage === Number( res.pkMessage ) );
       if (finded) {
         finded.totalResponseNoReaded += 1;

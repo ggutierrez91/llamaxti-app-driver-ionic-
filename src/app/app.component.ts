@@ -9,9 +9,7 @@ import { AppUtilitiesService } from './services/app-utilities.service';
 import { Howler} from 'howler';
 // tslint:disable-next-line: max-line-length
 import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
-import { environment } from 'src/environments/environment';
-
-const URI_API = environment.URL_SERVER;
+import { retry } from 'rxjs/operators';
 
 declare var window;
 @Component({
@@ -50,22 +48,17 @@ export class AppComponent {
           distanceFilter: 5,
           interval: 10000,
           activitiesInterval: 10000,
-          // activityType: 'OtherNavigation',
-          // startOnBoot: false,
-
-          // url: URI_API + `/Tracker/Geo`,
-          // httpHeaders: { Authorization: this.apps.token },
-          debug: false, //  enable this hear sounds for background-geolocation life-cycle.
-          stopOnTerminate: false // enable this to clear background location settings when the app terminates
+          debug: false,
+          stopOnTerminate: false
         };
 
         this.backgroundGeolocation.configure(config).then(() => {
 
           this.backgroundGeolocation
             .on(BackgroundGeolocationEvents.location)
+            .pipe( retry() )
             .subscribe((location: BackgroundGeolocationResponse) => {
               console.log('nuevo track geo', location);
-              // this.sendGPS(location);
 
               const body = {
                 lat: location.latitude,
@@ -84,7 +77,6 @@ export class AppComponent {
 
               });
 
-
             });
         });
 
@@ -94,43 +86,5 @@ export class AppComponent {
 
     });
   }
-
-  // sendGPS( location: BackgroundGeolocationResponse ) {
-
-  //   const lat = location.latitude;
-  //   const lng = location.longitude;
-
-  //   const body = {
-  //     lat,
-  //     lng,
-  //     run: this.apps.run,
-  //     pkClient: this.apps.pkClient,
-  //     distanceText: this.apps.distanceText,
-  //     minutesText: this.apps.minutesText,
-  //     distance: this.apps.distance,
-  //     minutes: this.apps.minutes,
-  //   };
-  //   // this.http.setDataSerializer('json');
-  //   this.http.setHeader('*', String( 'Authorization' ), String( this.apps.token ));
-  //   this.http.setDataSerializer('json');
-  //   this.http
-  //     .post(
-  //       URI_API + `/Tracker/Geo`, // backend api to post
-  //       body,
-  //       null
-  //     )
-  //     .then(data => {
-  //       console.log(data);
-  //       if (this.platform.is('ios')) {
-  //         this.backgroundGeolocation.finish();
-  //       }
-  //     })
-  //     .catch(error => {
-  //       console.error('Error al enviar post racker', error);
-  //       if (this.platform.is('ios')) {
-  //         this.backgroundGeolocation.finish();
-  //       }
-  //     });
-  // }
 
 }

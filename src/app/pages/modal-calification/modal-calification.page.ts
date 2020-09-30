@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { TaxiService } from '../../services/taxi.service';
 import { Subscription } from 'rxjs';
+import { retry } from 'rxjs/operators';
 
 const URI_SERVER = environment.URL_SERVER;
 
@@ -30,7 +31,9 @@ export class ModalCalificationPage implements OnInit, OnDestroy {
 
   async onCalification() {
     await this.ui.onShowLoading('Guardando...');
-    this.califSbc = this.taxiSvc.onCalification( this.dataService.pkService, this.bodyCalif, this.token ).subscribe( async(res) => {
+    this.califSbc = this.taxiSvc.onCalification( this.dataService.pkService, this.bodyCalif, this.token )
+    .pipe( retry() )
+    .subscribe( async(res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }

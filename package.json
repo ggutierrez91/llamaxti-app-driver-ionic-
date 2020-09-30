@@ -77,7 +77,6 @@
         "@types/jasminewd2": "~2.0.3",
         "@types/node": "^12.11.1",
         "codelyzer": "^5.1.2",
-        "cordova-plugin-advanced-http": "^2.0.9",
         "cordova-plugin-device": "^2.0.2",
         "cordova-plugin-ionic-keyboard": "^2.2.0",
         "cordova-plugin-ionic-webview": "^4.2.0",
@@ -142,8 +141,7 @@
                 "ACCOUNT_LABEL": "@string/app_name",
                 "ACCOUNT_TYPE": "$PACKAGE_NAME.account",
                 "CONTENT_AUTHORITY": "$PACKAGE_NAME"
-            },
-            "cordova-plugin-advanced-http": {}
+            }
         },
         "platforms": [
             "android"

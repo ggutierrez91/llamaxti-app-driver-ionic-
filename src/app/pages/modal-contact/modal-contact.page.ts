@@ -6,6 +6,7 @@ import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ContactsService } from '../../services/contacts.service';
 import { IContact } from '../../interfaces/contact.interface';
+import { retry } from 'rxjs/operators';
 
 @Component({
   selector: 'app-modal-contact',
@@ -59,7 +60,9 @@ export class ModalContactPage implements OnInit, OnDestroy {
       this.ui.onShowLoading('Guardando...');
       if (!this.loadData) {
 
-        this.addSbc = this.contacSvc.onAddContact( this.bodyContact, this.token ).subscribe( async (res) => {
+        this.addSbc = this.contacSvc.onAddContact( this.bodyContact, this.token )
+        .pipe( retry() )
+        .subscribe( async (res) => {
           if (!res.ok) {
             throw new Error( res.error );
           }
@@ -84,7 +87,9 @@ export class ModalContactPage implements OnInit, OnDestroy {
 
       } else {
 
-        this.updateSbc = this.contacSvc.onUpdateContact( this.bodyContact, this.token ).subscribe( async (res) => {
+        this.updateSbc = this.contacSvc.onUpdateContact( this.bodyContact, this.token )
+        .pipe( retry() )
+        .subscribe( async (res) => {
           if (!res.ok) {
             throw new Error( res.error );
           }
@@ -139,7 +144,9 @@ export class ModalContactPage implements OnInit, OnDestroy {
   }
 
   onSubmitDel( pkContact: number, status: boolean ) {
-    this.delSbc = this.contacSvc.onDelContact( pkContact, status, this.token ).subscribe( async (res) => {
+    this.delSbc = this.contacSvc.onDelContact( pkContact, status, this.token )
+    .pipe( retry() )
+    .subscribe( async (res) => {
 
       if (!res.ok) {
         throw new Error( res.error );

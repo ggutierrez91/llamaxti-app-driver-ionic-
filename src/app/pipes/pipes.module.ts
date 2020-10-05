@@ -7,6 +7,8 @@ import { YesnoPipe } from './yesno.pipe';
 import { PaymentPipe } from './payment.pipe';
 import { NetworkPipe } from './network.pipe';
 import { MomentPipe } from './moment.pipe';
+import { StatusServicePipe } from './status-service.pipe';
+import { TimeMomentPipe } from './time-moment.pipe';
 
 @NgModule({
   declarations: [
@@ -16,7 +18,9 @@ import { MomentPipe } from './moment.pipe';
     YesnoPipe,
     PaymentPipe,
     NetworkPipe,
-    MomentPipe
+    MomentPipe,
+    StatusServicePipe,
+    TimeMomentPipe
   ],
   imports: [
     CommonModule
@@ -28,7 +32,9 @@ import { MomentPipe } from './moment.pipe';
     YesnoPipe,
     PaymentPipe,
     NetworkPipe,
-    MomentPipe
+    MomentPipe,
+    StatusServicePipe,
+    TimeMomentPipe
   ]
 })
 export class PipesModule { }

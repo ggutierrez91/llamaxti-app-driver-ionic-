@@ -1,16 +1,17 @@
 <ion-header no-borde>
     <ion-toolbar color="dark">
-        <ion-title>Calificar</ion-title>
+        <ion-title>Detalle de servicio</ion-title>
 
         <ion-buttons slot="end">
             <ion-button (click)="onCloseModal()" color="primary">
                 <ion-icon name="close-outline"></ion-icon>
-                Mas tarde
+                Cerrar
             </ion-button>
         </ion-buttons>
 
     </ion-toolbar>
 </ion-header>
+
 
 <ion-content>
 
@@ -22,20 +23,26 @@
     <i class="fas fa-street-view iconCalif client"></i>
 
     <ion-grid fixed>
+
         <ion-row>
             <ion-col size="8">
-                <h1>
-                    {{ dataService.aliasCategory }} S/ {{dataService.rateOffer | number: '.2-2' }}
-                </h1>
+                <h3>
+                    {{ dataService.aliasCategory }} S/ {{dataService.rateService | number: '.2-2' }}
+                </h3>
+                <p>
+                    {{ dataService.paymentType | payment }}
+                </p>
             </ion-col>
             <ion-col size="4">
 
                 <img [src]=" pathImg + dataService.imgClient + '?token=' + token " alt="Raised Image" class="rounded-circle img-raised" style="height: 90px; width: 100px">
             </ion-col>
         </ion-row>
+
         <ion-row>
             <ion-col size="12" class="text-center">
-                <h4>{{ dataService.nameClient }}</h4>
+                <h5>{{ dataService.nameClient }}</h5>
+                <br>
                 <p>
                     <i class="fas fa-map-marker-alt text-info"></i>&nbsp; {{ dataService.streetOrigin }} <br>
                     <i class="fas fa-map-marker-alt text-primary"></i>&nbsp; {{ dataService.streetDestination }} <br>
@@ -44,37 +51,27 @@
                             ( {{ dataService.distanceText }}&nbsp;-&nbsp;{{ dataService.minutesText }} )
                         </b>
                     </small>
+                    <small *ngIf="dataService.statusService === 3">
+
+                        <br>
+                        <i class="far fa-clock"></i> {{ dataServiceInfo.dateRunDestination | timeMoment }} - {{ dataServiceInfo.dateFinishDestination | timeMoment }}
+                        <br>
+                        <i class="fas fa-stopwatch"></i> {{ dataServiceInfo.dateRunDestination | timeMoment: dataServiceInfo.dateFinishDestination: true }} minutos
+                    </small>
                 </p>
             </ion-col>
         </ion-row>
 
         <ion-row>
-            <ion-col size="12">
-                <ion-item lines="none">
-                    <ion-range min="1" max="5" step="1" mode="ios" ticks="true" pin="true" snaps="true" name="calification" [(ngModel)]="bodyCalif.calification" color="primary">
-                        <ion-icon size="small" slot="start" name="star-outline" color="primary"></ion-icon>
-                        <ion-icon slot="end" name="star" color="primary"></ion-icon>
-                    </ion-range>
-                </ion-item>
+            <ion-col size="12" class="text-center">
+
+                <div class="mapInfo" #mapInfo>
+
+                </div>
+
             </ion-col>
         </ion-row>
 
-        <ion-row>
-            <ion-col size="12">
-                <textarea name="observation" rows="3" [(ngModel)]="bodyCalif.observation" class="form-control inputCalif">
-
-                </textarea>
-            </ion-col>
-        </ion-row>
-
-        <ion-row>
-            <ion-col size="12">
-                <ion-button (click)="onCalification()" expand="block" fill="clear" shape="round">
-                    Calificar
-                </ion-button>
-            </ion-col>
-        </ion-row>
     </ion-grid>
-
 
 </ion-content>

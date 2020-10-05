@@ -12,6 +12,7 @@ import { FormVehicleComponent } from './form-vehicle/form-vehicle.component';
 import { FormVehicleTwoComponent } from './form-vehicle-two/form-vehicle-two.component';
 import { MenuComponent } from './menu/menu.component';
 import { FormDriverComponent } from './form-driver/FormDriverComponent';
+import { PopoverHistoryComponent } from './popover-history/popover-history.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { FormDriverComponent } from './form-driver/FormDriverComponent';
     FormDriverComponent,
     FormVehicleComponent,
     FormVehicleTwoComponent,
+    PopoverHistoryComponent,
     MenuComponent
   ],
   imports: [
@@ -38,6 +40,7 @@ import { FormDriverComponent } from './form-driver/FormDriverComponent';
     FormDriverComponent,
     FormVehicleComponent,
     FormVehicleTwoComponent,
+    PopoverHistoryComponent,
     MenuComponent
   ]
 })

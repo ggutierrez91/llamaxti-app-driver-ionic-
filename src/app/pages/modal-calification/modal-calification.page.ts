@@ -44,7 +44,7 @@ export class ModalCalificationPage implements OnInit, OnDestroy {
         return;
       }
 
-      await this.modalCtrl.dismiss({ok: true});
+      await this.modalCtrl.dismiss({ok: true, value: this.bodyCalif.calification}, 'calification');
 
     });
   }
@@ -66,7 +66,7 @@ export class ModalCalificationPage implements OnInit, OnDestroy {
   }
 
   onCloseModal() {
-    this.modalCtrl.dismiss({ok: false});
+    this.modalCtrl.dismiss({ok: false}, 'cancel');
   }
 
   ngOnDestroy() {

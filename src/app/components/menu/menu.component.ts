@@ -12,6 +12,7 @@ import { StorageService } from 'src/app/services/storage.service';
 import { MessageService } from 'src/app/services/message.service';
 
 const URI_SERVER = environment.URL_SERVER;
+declare var window;
 
 @Component({
   selector: 'app-menu',
@@ -34,6 +35,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   constructor(private navCtrl: NavController, public st: StorageService, private menuCtrl: MenuController, private router: Router, private ui: UiUtilitiesService, private zombie: Insomnia, private io: SocketService, private msgSvc: MessageService) { }
 
   ngOnInit() {
+    
     this.onListenMsg();
     this.onListenReadedMsg();
     this.onListenSingSocket();
@@ -55,6 +57,11 @@ export class MenuComponent implements OnInit, OnDestroy {
     );
     this.navCtrl.navigateRoot('/login').then( (ok) => {
       this.loading = false;
+      
+      if (this.st.playGeo) {
+        window.tracker.backgroundGeolocation.stop();
+      }
+
       this.io.onEmit('logout-user', {}, (ioRes: any) => {
         console.log('Desconectando usuario', ioRes);
       });

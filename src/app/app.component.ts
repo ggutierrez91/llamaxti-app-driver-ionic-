@@ -10,7 +10,9 @@ import { Howler} from 'howler';
 // tslint:disable-next-line: max-line-length
 import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
 import { retry } from 'rxjs/operators';
-
+// agregar al config.xml
+// <plugin name="cordova-plugin-mauron85-background-geolocation" spec="@mauron85/cordova-plugin-background-geolocation@~3.0.3" /> 
+// @mauron85/cordova-plugin-background-geolocation se desinstalo esta librería
 declare var window;
 @Component({
   selector: 'app-root',

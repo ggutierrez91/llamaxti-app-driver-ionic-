@@ -1,0 +1,9 @@
+<ion-list>
+    <ion-item (click)="onClickPop( 1 )">
+        <ion-label>Ver detalle</ion-label>
+    </ion-item>
+
+    <ion-item (click)="onClickPop( 2 )" *ngIf="service.statusService === 3 && service.calification === 0">
+        <ion-label>Calificar</ion-label>
+    </ion-item>
+</ion-list>

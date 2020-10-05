@@ -1,0 +1,104 @@
+<ion-header no-border>
+    <ion-toolbar color="dark">
+        <ion-buttons slot="start">
+            <ion-back-button color="light">
+            </ion-back-button>
+        </ion-buttons>
+        <ion-title>Historial</ion-title>
+
+        <ion-label slot="end">
+            <!-- <ion-icon *ngIf="io.statusSocket" slot="only-icon" name="radio-button-on-outline" color="success">
+          </ion-icon>
+
+          <ion-icon *ngIf="!io.statusSocket" slot="only-icon" name="radio-button-off-outline" color="danger">
+          </ion-icon> -->
+
+            <ion-badge *ngIf="io.statusSocket" color="success" mode="ios" class="network text-center">
+                {{ io.statusSocket | network }}
+            </ion-badge>
+
+            <ion-badge *ngIf="!io.statusSocket" color="danger" mode="ios" class="network text-center">
+                {{ io.statusSocket | network }}
+            </ion-badge>
+        </ion-label>
+
+        <ion-buttons slot="end">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons>
+
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+    <ion-list *ngIf="!loading">
+        <ion-list-header>
+            <ion-label>Historial de servicios</ion-label>
+            <!-- <ion-button>See All</ion-button> -->
+        </ion-list-header>
+
+        <ion-item *ngFor="let item of dataService" (click)="presentPopover( $event, item )">
+            <ion-avatar slot="start">
+                <img [src]=" pathImg + item.imgClient + '?token=' + st.token " />
+            </ion-avatar>
+            <ion-label>
+                {{ item.nameClient }}
+                <p>
+                    {{ item.distanceText }} - {{ item.minutesText }}
+                    <span *ngIf="item.calification  > 0"> - <i class="fas fa-star"></i> {{ item.calification }} </span>
+                    <br> {{ item.dateRegister | moment }}
+                </p>
+            </ion-label>
+
+            <ion-text>
+                <small class="text-center" [ngClass]="{'text-danger': !item.statusService,
+                                    'text-success': item.statusService }"> 
+                    {{ item.paymentType | payment }}
+                </small>
+                <p class="text-right " [ngClass]="{'text-danger': !item.statusService,
+                'text-success': item.statusService }">
+                    S/ {{ item.rateService | number: '.2-2' }}
+
+                    <br>
+                    <small class="text-center" [ngClass]="{'text-danger': !item.statusService,
+                                    'text-success': item.statusService }"> 
+                        {{ item.statusService | statusService }}
+                    </small>
+                </p>
+            </ion-text>
+        </ion-item>
+
+    </ion-list>
+
+    <ion-list *ngIf="loading">
+
+        <ion-item *ngFor="let item of [1,1,1,1,1,1,1]">
+            <ion-avatar slot="start">
+                <ion-skeleton-text animated></ion-skeleton-text>
+            </ion-avatar>
+            <ion-label>
+                <ion-skeleton-text animated style="width: 70%"></ion-skeleton-text>
+                <p>
+                    <ion-skeleton-text animated style="width: 70%"></ion-skeleton-text>
+                </p>
+            </ion-label>
+
+            <div class="bagdeColor">
+            </div>
+            &nbsp; &nbsp;
+            <ion-text>
+                <h6>
+                    <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+                </h6>
+
+            </ion-text>
+        </ion-item>
+
+    </ion-list>
+
+    <ion-infinite-scroll threshold="120px" position="bottom" (ionInfinite)="loadData()">
+        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Cargando...">
+        </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
+</ion-content>

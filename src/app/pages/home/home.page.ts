@@ -222,6 +222,18 @@ export class HomePage implements OnInit, OnDestroy {
           console.log('cambiando playGeo socket', resIO);
 
           if (this.st.playGeo) {
+
+            const modalTracker = await this.alertCtrl.create({
+              header: 'Mensaje al usuario',
+              subHeader: 'Activando localización en segundo plano',
+              message: 'Con ella podrás seguir activo y pendiente de nuevos servicios aunque la app este minimizada',
+              mode: 'ios',
+              buttons: [{
+                text: 'Ok',
+                handler: () => {  }
+              }]
+            });
+            modalTracker.present();
             this.onEmitGeo();
 
             window.tracker.backgroundGeolocation.start();

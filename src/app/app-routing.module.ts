@@ -23,11 +23,6 @@ const routes: Routes = [
     loadChildren: () => import('./pages/home/home.module').then( m => m.HomePageModule)
   },
   {
-    path: 'services-list',
-    canLoad: [TokenGuard, AuthGuard],
-    loadChildren: () => import('./pages/services-list/services-list.module').then( m => m.ServicesListPageModule)
-  },
-  {
     path: 'vehicle',
     canLoad: [TokenGuard, AuthGuard],
     loadChildren: () => import('./pages/vehicle/vehicle.module').then( m => m.VehiclePageModule)
@@ -61,6 +56,15 @@ const routes: Routes = [
     path: 'message',
     canLoad: [TokenGuard, AuthGuard],
     loadChildren: () => import('./pages/message/message.module').then( m => m.MessagePageModule)
+  },
+  {
+    path: 'history',
+    canLoad: [TokenGuard, AuthGuard],
+    loadChildren: () => import('./pages/history/history.module').then( m => m.HistoryPageModule)
+  },
+  {
+    path: 'statistics',
+    loadChildren: () => import('./pages/statistics/statistics.module').then( m => m.StatisticsPageModule)
   }
 ];
 

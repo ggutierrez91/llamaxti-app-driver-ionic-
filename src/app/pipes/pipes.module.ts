@@ -9,6 +9,7 @@ import { NetworkPipe } from './network.pipe';
 import { MomentPipe } from './moment.pipe';
 import { StatusServicePipe } from './status-service.pipe';
 import { TimeMomentPipe } from './time-moment.pipe';
+import { PlayGeoPipe } from './play-geo.pipe';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { TimeMomentPipe } from './time-moment.pipe';
     NetworkPipe,
     MomentPipe,
     StatusServicePipe,
-    TimeMomentPipe
+    TimeMomentPipe,
+    PlayGeoPipe
   ],
   imports: [
     CommonModule
@@ -34,7 +36,8 @@ import { TimeMomentPipe } from './time-moment.pipe';
     NetworkPipe,
     MomentPipe,
     StatusServicePipe,
-    TimeMomentPipe
+    TimeMomentPipe,
+    PlayGeoPipe
   ]
 })
 export class PipesModule { }

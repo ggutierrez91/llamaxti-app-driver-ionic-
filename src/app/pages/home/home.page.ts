@@ -65,7 +65,7 @@ export class HomePage implements OnInit, OnDestroy {
   lat = -12.054825;
   lng = -77.040627;
   indexColor = 0;
-  indexHex = '';
+  indexHex = 'leonidas';
   demandColors = ['#0091F2', '#209FF4', '#40ADF5', '#60BAF7', '#80C8F8', '#9FD6FA'];
 
   currentIdService = 0;
@@ -107,7 +107,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.onLoadMap();
     this.apps.onLoadTokenTacker();
     this.st.onLoadToken().then( () => {
-      this.indexHex = this.st.indexHex;
+      // this.indexHex = this.st.indexHex;
 
       setTimeout(() => {
         this.showBtnPlay = true;

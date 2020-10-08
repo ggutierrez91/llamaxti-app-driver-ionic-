@@ -57,7 +57,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     );
     this.navCtrl.navigateRoot('/login').then( (ok) => {
       this.loading = false;
-      
+
       if (this.st.playGeo) {
         window.tracker.backgroundGeolocation.stop();
       }

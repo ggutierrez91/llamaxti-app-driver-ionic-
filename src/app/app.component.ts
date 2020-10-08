@@ -11,8 +11,16 @@ import { Howler} from 'howler';
 import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
 import { retry } from 'rxjs/operators';
 // agregar al config.xml
-// <plugin name="cordova-plugin-mauron85-background-geolocation" spec="@mauron85/cordova-plugin-background-geolocation@~3.0.3" /> 
-// @mauron85/cordova-plugin-background-geolocation se desinstalo esta librería
+// <plugin name="cordova-plugin-mauron85-background-geolocation" spec="@mauron85/cordova-plugin-background-geolocation@~3.0.3">
+//         <variable name="GOOGLE_PLAY_SERVICES_VERSION" value="11+" />
+//         <variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="26+" />
+//         <variable name="ICON" value="@mipmap/icon" />
+//         <variable name="SMALL_ICON" value="@mipmap/icon" />
+//         <variable name="ALWAYS_USAGE_DESCRIPTION" value="Permitir gps en segundo plano" />
+//         <variable name="MOTION_USAGE_DESCRIPTION" value="Permitir detectar movimiento" />
+//     </plugin>
+// @mauron85/cordova-plugin-background-geolocation
+
 declare var window;
 @Component({
   selector: 'app-root',
@@ -41,7 +49,6 @@ export class AppComponent {
 
       this.apps.onLoadCurrentPage();
       this.os.onLoadConfig();
-
       this.apps.onLoadTokenTacker().then( (ok) => {
 
         const config: BackgroundGeolocationConfig = {

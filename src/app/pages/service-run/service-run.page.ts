@@ -97,6 +97,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   loadModalChat = false;
   newMessages = 0;
   // tslint:disable-next-line: max-line-length
+  sendPush = 0;
   constructor(  public st: StorageService,
                 private geo: GeoService,
                 public io: SocketService,
@@ -470,7 +471,11 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.apps.minutes = this.minutes;
       this.apps.distance = this.distance;
 
-      if (!this.runDestination) {
+      if (this.distance <= 70 && this.distance >= 10) {
+        this.sendPush = 0;
+      }
+
+      if (!this.runDestination && this.sendPush < 2 ) {
         if ((this.distance <= 200 && this.distance >= 150) || (this.distance <= 70 && this.distance >= 10 ) ) {
 
           this.bodyPush.message = `Conductor en ${ this.currentStreet }, a ${ formatNumber( this.distance, 'en', '.1-1' ) } metros - ${ this.minutesText } de tu ubicación`;
@@ -490,6 +495,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
           this.pushDistance = this.os.onSendPushUser( this.bodyPush )
           .pipe( retry() )
           .subscribe( async (resOs) => {
+            this.sendPush += 1;
             console.log('push enviada', resOs);
             // await this.ui.onHideLoading();
             // this.navCtrl.navigateRoot('/home');

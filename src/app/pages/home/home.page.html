@@ -202,11 +202,22 @@
     </div>
 
     <!-- fab placed to the top end -->
-    <ion-fab vertical="top" horizontal="end" slot="fixed" *ngIf="showBtnPlay">
+    <!-- <ion-fab vertical="top" horizontal="end" slot="fixed" *ngIf="showBtnPlay">
         <ion-fab-button [color]=" st.playGeo ? 'danger' : 'success' " (click)=" onChangePlayGeo() ">
             <ion-icon [name]=" st.playGeo ? 'stop' : 'play' "></ion-icon>
         </ion-fab-button>
-    </ion-fab>
+    </ion-fab> -->
 
 
 </ion-content>
+
+<ion-footer>
+    <ion-toolbar color="dark">
+        <ion-item (click)=" onChangePlayGeo()" *ngIf="showBtnPlay" lines="none" color="dark">
+            <ion-toggle mode="ios" color="success" [(ngModel)]="st.playGeo"></ion-toggle>
+            <ion-label class="text-center fontP" style="font-size: 22px;">
+                {{ st.playGeo | playGeo }}
+            </ion-label>
+        </ion-item>
+    </ion-toolbar>
+</ion-footer>

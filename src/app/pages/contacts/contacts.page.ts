@@ -136,6 +136,7 @@ export class ContactsPage implements OnInit, OnDestroy {
     const contactModal = await this.modalCtrl.create({
       component: ModalContactPage,
       animated: true,
+      mode: 'ios',
       componentProps: {
         loadData,
         title: loadData ? 'Editar contacto' : 'Nuevo contacto',

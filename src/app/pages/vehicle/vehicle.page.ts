@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ModalController, AlertController } from '@ionic/angular';
+import { ModalController, AlertController, PopoverController } from '@ionic/angular';
 import { VehicleModalPage } from '../vehicle-modal/vehicle-modal.page';
 import { VehicleService } from '../../services/vehicle.service';
 import { Subscription } from 'rxjs';
@@ -10,6 +10,7 @@ import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { SocketService } from '../../services/socket.service';
 import { IResSocket } from '../../interfaces/response-socket.interface';
 import { retry } from 'rxjs/operators';
+import { PopoverVehicleComponent } from '../../components/popover-vehicle/popover-vehicle.component';
 
 const URI_SERVER = environment.URL_SERVER;
 @Component({
@@ -29,7 +30,7 @@ export class VehiclePage implements OnInit, OnDestroy {
   tokenPath = '';
 
   // tslint:disable-next-line: max-line-length
-  constructor( private modalCtrl: ModalController, private vehicleSvc: VehicleService, public st: StorageService, private alertCtrl: AlertController, private ui: UiUtilitiesService, public io: SocketService) { }
+  constructor( private modalCtrl: ModalController, private vehicleSvc: VehicleService, public st: StorageService, private alertCtrl: AlertController, private ui: UiUtilitiesService, public io: SocketService, private popoverCtrl: PopoverController) { }
 
   ngOnInit() {
     this.loading = true;
@@ -74,7 +75,7 @@ export class VehiclePage implements OnInit, OnDestroy {
       component: VehicleModalPage,
       // id: 'modalVehicle',
       animated: true,
-      // mode: 'ios',
+      mode: 'ios',
       componentProps: {
         loadData: true,
         token: this.st.token,
@@ -160,7 +161,7 @@ export class VehiclePage implements OnInit, OnDestroy {
 
     const alertUsing = await this.alertCtrl.create({
       header: '¡Confirmación!',
-      message: `¿Está seguro de pasar a usar ${ finded.nameBrand }-${ finded.numberPlate }?`,
+      message: `¿Está seguro de pasar a usar ${ finded.nameBrand } ${ finded.numberPlate }?`,
       mode: 'ios',
       buttons: [{
         text: 'Cerrar',
@@ -177,6 +178,29 @@ export class VehiclePage implements OnInit, OnDestroy {
 
     await alertUsing.present();
 
+  }
+
+  async onShowOptions( ev: any, vehicle: IVehicle ) {
+    const popover = await this.popoverCtrl.create({
+      component: PopoverVehicleComponent,
+      cssClass: 'my-custom-class',
+      event: ev,
+      mode: 'ios',
+      componentProps: {
+        vehicle
+      },
+      translucent: true
+    });
+    await popover.present();
+    const { data } = await popover.onWillDismiss();
+
+    if (data.opt === 1) {
+      await this.onEditVehicle( data.value );
+    } else if (data.opt === 2) {
+      await this.onDeleteVehicle( data.value );
+    } else if (data.opt === 3) {
+      await this.onShowConfirm( data.value.pkVehicle );
+    }
   }
 
   onChangeUsingVehicle( pkVehicle: number ) {

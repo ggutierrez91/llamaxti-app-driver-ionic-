@@ -81,7 +81,7 @@ export class ModalMessagePage implements OnInit, OnDestroy {
     this.loading = true;
 
     this.sendSbc = this.msgSvc.onAddMsgRes( this.bodyResponse, this.token )
-    .pipe( retry() )
+    // .pipe( retry(3) )
     .subscribe( async (res) => {
 
       if (!res.ok) {

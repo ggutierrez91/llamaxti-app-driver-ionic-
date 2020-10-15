@@ -73,7 +73,7 @@ export class StorageService {
   async onLoadToken() {
     this.token = await this.storage.get('token') || '';
     this.osID = await this.storage.get('osID') || '';
-    this.indexHex = await this.storage.get('indexHex') || '';
+    // this.indexHex = await this.storage.get('indexHex') || '';
     this.occupied = await this.storage.get('occupied-driver') || false;
     this.playGeo =  Boolean( await this.storage.get('playGeo') ) || false;
     const value = await this.storage.get( 'dataUser' );

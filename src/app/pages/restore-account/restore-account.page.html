@@ -1,0 +1,70 @@
+<!-- <ion-header>
+  <ion-toolbar>
+    <ion-title>restoreAccount</ion-title>
+  </ion-toolbar>
+</ion-header> -->
+
+<ion-content>
+
+    <ion-slides mode="ios" scrollbar="ios" style="width: 100%; height: 100%; position: relative;">
+        <ion-slide>
+            <form #frmRestore="ngForm">
+                <ion-grid fixed>
+                    <ion-row>
+                        <ion-col size="12">
+
+                            <!-- <h1>Awesome Slide Content</h1> -->
+                            <p>
+                                Por favor ingresa el <b>email</b> que asociaste a tu cuenta, te enviaremos el enlace para <b>reestablecer</b> tu contraseña
+                            </p>
+
+                        </ion-col>
+                    </ion-row>
+
+                    <ion-row>
+                        <ion-col size="12">
+                            <ion-item class="ionitem" [ngClass]="{
+                            'is-invalid': 
+                                (email.errors?.required || email.errors?.pattern) && email.touched,
+                            'is-valid': 
+                                !email.errors?.required && !email.errors?.pattern && email.touched      
+                        }">
+                                <ion-icon slot="start" name="mail-outline"></ion-icon>
+
+                                <span class="msgValidation" *ngIf="email.errors?.required && email.touched">
+                                  <small class="text-danger">*Requerido</small>
+                              </span>
+
+                                <span class="msgValidation" *ngIf="email.errors?.pattern && email.touched">
+                                  <small class="text-danger">*Email inv&aacute;lido</small>
+                              </span>
+
+                                <ion-input mode="ios" type="email" placeholder="example@dominio.com" class="ion-text-right" clearInput="true" inputmode="email" name="email" #email="ngModel" [(ngModel)]="bodyRestore.email" pattern="^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$"
+                                    required="true"></ion-input>
+                            </ion-item>
+                        </ion-col>
+                    </ion-row>
+
+                    <ion-row>
+                        <ion-col size="12">
+                            <ion-button expand="block" fill="clear" shape="round" [disabled]="frmRestore.invalid" (click)="onSendEmail()">
+                                <ion-text color="primary" *ngIf="!loading">
+                                    Enviar
+                                </ion-text>
+                                <ion-spinner *ngIf="loading" name="bubbles"></ion-spinner>
+                            </ion-button>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </form>
+
+        </ion-slide>
+    </ion-slides>
+
+    <i class="fas fa-key key"></i>
+    <i class="fas fa-envelope email"></i>
+    <i class="fas fa-laugh-squint happy"></i>
+    <i class="far fa-laugh-beam happyTwo"></i>
+    <i class="far fa-thumbs-up like"></i>
+
+</ion-content>

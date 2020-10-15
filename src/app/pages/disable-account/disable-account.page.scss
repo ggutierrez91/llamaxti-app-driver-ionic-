@@ -1,0 +1,61 @@
+.frmDisable {
+    position: absolute;
+    width: 100%;
+    height: 370px;
+    background-color: rgba($color: #fff, $alpha: 0.8);
+    border-radius: 25px 25px 25px 25px;
+    border: 6px solid rgba($color: #9e9e9e, $alpha: 0.8);
+    // bottom: -5px;
+}
+
+.gridDisable {
+    background: rgb(140, 95, 255);
+    background: linear-gradient(164deg, rgba(140, 95, 255, 1) 0%, rgba(56, 26, 185, 1) 32%, rgba(8, 8, 119, 1) 57%, rgba(8, 64, 119, 1) 77%);
+    // position: absolute;
+}
+
+.icono {
+    color: rgba($color: #dcc5f6, $alpha: 0.3);
+    font-size: 65px;
+    position: absolute;
+}
+
+.shield {
+    bottom: 55px;
+    right: -2px;
+    transform: rotate(15deg);
+}
+
+.user-shield {
+    font-size: 78px;
+    top: 120px;
+    right: -10px;
+    transform: rotate(10deg);
+}
+
+.dizzy {
+    font-size: 70px;
+    top: 150px;
+    left: -2px;
+    transform: rotate(-15deg);
+}
+
+.sad {
+    font-size: 105px;
+    bottom: 10px;
+    left: 90px;
+    transform: rotate(-12deg);
+}
+
+.iconUser {
+    font-size: 160px;
+    color: rgba($color: rgb(29, 29, 29), $alpha: 0.8);
+    // margin-top: 50px;
+    // margin-bottom: 50px;
+}
+
+.header-disabled {
+    top: 20px;
+    position: absolute;
+    // height: 300px;
+}

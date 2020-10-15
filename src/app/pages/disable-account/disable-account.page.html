@@ -1,0 +1,70 @@
+<!-- <ion-header>
+    <ion-toolbar>
+        <ion-title>Eliminar cuenta</ion-title>
+    </ion-toolbar>
+</ion-header> -->
+
+<ion-content>
+    <ion-slides mode="ios" style="width: 100%; height: 100%;" class="gridDisable">
+        <ion-slide>
+
+            <div class="header-disabled">
+                <i class="fas fa-user-circle iconUser"></i>
+            </div>
+            <ion-grid fixed>
+
+                <ion-row style="padding-top: 20px; padding-bottom: 300px;">
+                    <ion-col size="1"></ion-col>
+                    <ion-col size="10">
+
+                        <div class="frmDisable">
+                            <div class="row">
+                                <div class="col-12">
+                                    <br>
+                                    <p>
+                                        <strong>{{ st.nameComplete }}</strong>, si en el futuro quieres volver a ser parte de llamataxi-peru contacta a soporte t&eacute;cnico para <b>restaurar</b> tu cuenta.
+                                    </p>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-12">
+                                    <ion-button (click)="onShowConfirm()" expand="block" fill="outline" shape="round">
+                                        Eliminar
+                                    </ion-button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </ion-col>
+                    <ion-col size="1"></ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col size="12"></ion-col>
+                </ion-row>
+
+            </ion-grid>
+
+            <i class="fas fa-shield-alt icono shield"></i>
+            <i class="fas fa-user-shield icono user-shield"></i>
+            <i class="far fa-dizzy icono dizzy"></i>
+            <i class="far fa-sad-tear icono sad"></i>
+
+        </ion-slide>
+    </ion-slides>
+
+</ion-content>
+
+<!-- <ion-footer>
+  <ion-toolbar color="dark">
+
+      <ion-buttons slot="start">
+          <ion-back-button color="light">
+          </ion-back-button>
+      </ion-buttons>
+
+      <ion-title>Volver</ion-title>
+
+  </ion-toolbar>
+</ion-footer> -->

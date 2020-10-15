@@ -65,7 +65,15 @@ const routes: Routes = [
   {
     path: 'statistics',
     loadChildren: () => import('./pages/statistics/statistics.module').then( m => m.StatisticsPageModule)
+  },  {
+    path: 'restore-account',
+    loadChildren: () => import('./pages/restore-account/restore-account.module').then( m => m.RestoreAccountPageModule)
+  },
+  {
+    path: 'disable-account',
+    loadChildren: () => import('./pages/disable-account/disable-account.module').then( m => m.DisableAccountPageModule)
   }
+
 ];
 
 @NgModule({

@@ -86,6 +86,11 @@
                 Cerrar sesi&oacute;n
                 <ion-spinner *ngIf="loading" slot="end" name="bubbles" color="primary"></ion-spinner>
             </ion-item>
+
+            <ion-item (click)="onRedirect('/disable-account')" detail>
+                <ion-icon slot="start" name="close-outline" color="primary"></ion-icon>
+                Eliminar cuenta
+            </ion-item>
         </ion-list>
     </ion-content>
 </ion-menu>

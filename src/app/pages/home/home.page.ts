@@ -604,7 +604,7 @@ export class HomePage implements OnInit, OnDestroy {
         if ( oldIndexHex !== res.indexHex ) {
           this.indexHex = res.indexHex;
           this.st.indexHex = res.indexHex;
-          this.st.onSetItem('indexHex', res.indexHex, false);
+          // this.st.onSetItem('indexHex', res.indexHex, false);
           this.onGetServices(1);
 
           const findCurrentPolygon = this.arrPolygons.find( pp => pp.indexHex === res.indexHex );

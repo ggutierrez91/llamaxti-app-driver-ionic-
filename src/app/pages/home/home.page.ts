@@ -108,6 +108,10 @@ export class HomePage implements OnInit, OnDestroy {
     this.apps.onLoadTokenTacker();
     this.st.onLoadToken().then( () => {
       // this.indexHex = this.st.indexHex;
+      this.st.occupied = false;
+      this.io.onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
+        console.log('Cambiando estado conductor', resOccupied);
+      });
 
       setTimeout(() => {
         this.showBtnPlay = true;

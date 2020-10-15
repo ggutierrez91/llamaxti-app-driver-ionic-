@@ -129,6 +129,11 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.st.onLoadToken().then( async () => {
       await this.st.onSetItem('run', true);
       this.apps.run = true;
+
+      this.io.onEmit('occupied-driver', { occupied: true, pkUser: this.st.pkUser }, (resOccupied) => {
+        console.log('Cambiando estado conductor', resOccupied);
+      });
+
       this.onLoadMap();
       this.onLoadGeo();
       this.onLoadService();

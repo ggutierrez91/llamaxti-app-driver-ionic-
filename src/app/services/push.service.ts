@@ -4,11 +4,11 @@ import { StorageService } from './storage.service';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { NavController } from '@ionic/angular';
-import { SocketService } from './socket.service';
 import { PushModel } from '../models/push.model';
-import { Router } from '@angular/router';
 import { Howl, Howler} from 'howler';
 const URL_API = environment.URL_SERVER;
+import { Socket } from 'ngx-socket-io';
+
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,7 @@ const URL_API = environment.URL_SERVER;
 export class PushService {
   public osID = '';
   // tslint:disable-next-line: max-line-length
-  constructor(private oneSignal: OneSignal, private st: StorageService, private http: HttpClient, private navCtrl: NavController , private io: SocketService, private router: Router) { }
+  constructor(private oneSignal: OneSignal, private st: StorageService, private http: HttpClient, private navCtrl: NavController , private socket: Socket) { }
 
   onLoadConfig() {
     // console.log('iniciando one signal');
@@ -50,13 +50,13 @@ export class PushService {
         await this.st.onSetItem( 'current-page', '/service-run', false );
         this.navCtrl.navigateRoot('/service-run');
       }
-
-      await this.st.onSetItem('occupied-driver', occupied, false);
+      this.st.occupied = occupied;
+      // await this.st.onSetItem('occupied-driver', occupied, false);
       this.onLoadSound();
 
-      this.io.onEmit('occupied-driver', { occupied, pkUser: this.st.pkUser }, (resOccupied) => {
-        console.log('Cambiando estado conductor', resOccupied);
-      });
+      // this.io.onEmit('occupied-driver', { occupied, pkUser: this.st.pkUser }, (resOccupied) => {
+      //   console.log('Cambiando estado conductor', resOccupied);
+      // });
     });
 
     this.oneSignal.handleNotificationOpened().subscribe(async (osNoti) => {
@@ -80,6 +80,9 @@ export class PushService {
       console.log('os id', info.userId);
       this.osID = info.userId;
       this.st.osID = info.userId;
+      this.socket.emit( 'config-osID', { osId: info.userId }, (resIO: any) => {
+        console.log('config osid socket');
+      });
       await this.st.onSetItem('osID', info.userId);
     });
 

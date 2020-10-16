@@ -115,7 +115,9 @@ export class StorageService {
 
   async onClearStorage() {
     this.token = '';
+    this.pkVehicle = 0;
     await this.storage.set('token', null);
+    await this.storage.set( 'dataVehicle', null);
     // await this.storage.clear();
   }
 

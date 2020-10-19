@@ -120,4 +120,5 @@ export interface IServiceAccepted {
     dateRunDestination?: string;
     dateFinishDestination?: string;
 
+    monitorToken?: string;
 }

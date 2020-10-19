@@ -65,7 +65,7 @@ export class AppComponent {
 
           this.backgroundGeolocation
             .on(BackgroundGeolocationEvents.location)
-            .pipe( retry() )
+            // .pipe( retry() )
             .subscribe((location: BackgroundGeolocationResponse) => {
               console.log('nuevo track geo', location);
 

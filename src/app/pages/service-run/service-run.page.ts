@@ -601,12 +601,15 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   }
 
   onSharedGeo() {
-    let msg = `Desde ${ this.dataServiceInfo.streetOrigin }, `;
-    msg += `hasta ${ this.dataServiceInfo.streetDestination }.`;
-    msg += `Conductor ${ this.dataServiceInfo.nameDriver }`;
-    const url = `http://www.google.com/maps/place/${ this.lat },${ this.lng }`;
+    // let msg = `Desde ${ this.dataServiceInfo.streetOrigin }, `;
+    // msg += `hasta ${ this.dataServiceInfo.streetDestination }.`;
+    // msg += `Conductor ${ this.dataServiceInfo.nameDriver }`;
+    // const url = `http://www.google.com/maps/place/${ this.lat },${ this.lng }`;
 
-    this.sh.share( 'Llamataxi app', msg, '', url ).then( (resShared) => {
+    const msg = '🚨🚨 Monitorear servicio 🚨🚨';
+    const subject = 'Monitrea en tiempo real la ubicación y la información del viaje y vigila la integridad del conductor y pasajero';
+    const url = URI_API + `/#/segurity/monitor/${ this.dataServiceInfo.monitorToken }`;
+    this.sh.share( subject, msg, '', url ).then( (resShared) => {
       console.log('Se compartió ubicación exitosamente', resShared);
     }).catch( e => console.error( 'Error al compartir ubicación', e ) );
   }
@@ -669,7 +672,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
         this.navCtrl.navigateRoot('/home');
       } else {
         await this.onResetStorage();
-        this.io. onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
+        this.io.onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
           console.log('Cambiando estado conductor', resOccupied);
         });
         // await this.ui.onHideLoading();
@@ -690,10 +693,10 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   }
 
   onEmitCancel() {
-    this.bodyPush.title = 'Llamataxi-app';
-    this.bodyPush.message = `${ this.dataServiceInfo.nameDriver }, ha cancelado el servicio.`;
+    this.bodyPush.title = 'Llamataxi-app 🚨🚨';
+    this.bodyPush.message = `${ this.dataServiceInfo.nameDriver }, ha cancelado el servicio 😌.`;
     this.bodyPush.osId = [ this.dataServiceInfo.osIdClient ];
-    this.bodyPush.data = { declined: true, url: '/home' };
+    this.bodyPush.data = { declined: true, accepted: false, url: '/home' };
     const payloadDel = { msg: this.bodyPush.message, pkUser: this.dataServiceInfo.fkClient };
     this.io.onEmit('cancel-service-run', payloadDel, (res) => {
       console.log('emitiendo cancelación de servicio');

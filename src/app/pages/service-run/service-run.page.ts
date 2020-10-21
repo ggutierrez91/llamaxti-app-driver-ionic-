@@ -238,6 +238,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       }
 
       this.dataServiceInfo = res.data;
+      this.st.pkService = this.dataServiceInfo.pkService;
       this.runOrigin = this.dataServiceInfo.runOrigin;
       this.finishOrigin = this.dataServiceInfo.finishOrigin;
       this.runDestination = this.dataServiceInfo.runDestination;
@@ -352,22 +353,10 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     this.launchNavigator.navigate( [lat, lng] , options)
       .then( (success) => {
-          // if (!end) {
-          //   this.runOrigin = true;
-          // } else {
-          //   // this.runOrigin = true;
-          //   this.finishOrigin = true;
-          //   this.runDestination = true;
-          // }
+
           console.log('Launched navigator', success);
       }).catch((e) => {
-        // if (!end) {
-        //   this.runOrigin = false;
-        // } else {
-        //   // this.runOrigin = true;
-        //   this.finishOrigin = false;
-        //   this.runDestination = false;
-        // }
+
         console.log('Error launching navigator', e); 
       });
   }
@@ -406,7 +395,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
       const latlng = new google.maps.LatLng( lat, lng );
 
-      // this.markerDriver.setOptions( {position: latlng, icon: '/assets/geo-driver.png' } );
       this.markerDriver.setPosition( latlng );
       this.map.setCenter( latlng );
 
@@ -414,19 +402,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.lng = lng;
 
       this.onStreet();
-
-      // this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
-      //   if (res.ok) {
-
-      //     if ( this.st.indexHex !== res.indexHex ) {
-      //       this.st.indexHex = res.indexHex;
-      //       this.st.onSetItem('indexHex', res.indexHex, false);
-      //     }
-
-      //   }
-
-      // });
-
       this.onLoadDistance();
 
     });
@@ -583,6 +558,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       minutesText: this.minutesText,
       distance: this.distance,
       minutes: this.minutes,
+      pkService: this.st.pkService
     };
 
     this.io.onEmit('current-position-driver-service', payload, (resIO: IResSocketCoors) => {
@@ -843,7 +819,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       const sound = new Howl({
         src: ['./assets/iphone-noti.mp3']
       });
-  
+
       // Play the sound.
       sound.play();
 

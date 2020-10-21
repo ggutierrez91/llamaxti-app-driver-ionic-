@@ -10,6 +10,7 @@ import { Howler} from 'howler';
 // tslint:disable-next-line: max-line-length
 import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
 import { retry } from 'rxjs/operators';
+import { StorageService } from './services/storage.service';
 // agregar al config.xml
 // <plugin name="cordova-plugin-mauron85-background-geolocation" spec="@mauron85/cordova-plugin-background-geolocation@~3.0.3">
 //         <variable name="GOOGLE_PLAY_SERVICES_VERSION" value="11+" />
@@ -35,7 +36,8 @@ export class AppComponent {
     private io: SocketService,
     private os: PushService,
     private apps: AppUtilitiesService,
-    private backgroundGeolocation: BackgroundGeolocation
+    private backgroundGeolocation: BackgroundGeolocation,
+    private st: StorageService
   ) {
     this.io.onListenStatus();
     this.initializeApp();
@@ -78,6 +80,7 @@ export class AppComponent {
                 minutesText: this.apps.minutesText,
                 distance: this.apps.distance,
                 minutes: this.apps.minutes,
+                pkService: this.st.pkService
               };
 
               this.apps.onAddTracker( body ).subscribe( (res) => {

@@ -38,6 +38,7 @@ export class StorageService {
   public indexHex = '';
   public occupied = false;
   public playGeo = false;
+  public pkService = 0;
 
   constructor( private storage: Storage, private authSvc: AuthService ) { }
 

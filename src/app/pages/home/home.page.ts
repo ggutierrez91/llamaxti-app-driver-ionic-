@@ -22,6 +22,7 @@ import { NotyModel } from '../../models/notify.model';
 import { PushService } from '../../services/push.service';
 import { Geoposition } from '@ionic-native/geolocation/ngx';
 import { AppUtilitiesService } from '../../services/app-utilities.service';
+import { Howl } from 'howler';
 
 const URI_SERVER = environment.URL_SERVER;
 
@@ -167,12 +168,12 @@ export class HomePage implements OnInit, OnDestroy {
 
       this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
 
-        // console.log('Respuesta socket coords', res);
+        console.log('Respuesta socket coords', res);
+        this.indexHex = res.indexHex;
         if (res.ok) {
 
-            this.indexHex = res.indexHex;
-            this.st.indexHex = res.indexHex;
-            this.st.onSetItem('indexHex', res.indexHex, false);
+            // this.st.indexHex = res.indexHex;
+            // this.st.onSetItem('indexHex', res.indexHex, false);
             this.onGetHotZones();
             this.onGetServices(1);
 
@@ -255,7 +256,6 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   // funciones para cards services
-
   onGetServices( page: number ) {
     this.cardsSbc = this.taxiSvc.onGetServices( page ).pipe( retry() ).subscribe( (res) => {
       if (!res.ok) {
@@ -773,9 +773,10 @@ export class HomePage implements OnInit, OnDestroy {
     .pipe( retry() )
     .subscribe( (resSocket: IServiceSocket) => {
       // recibimos la data del nuevo servicio
+      this.onLoadSound();
       const indexHex = resSocket.indexHex;
 
-      if ( indexHex === this.st.indexHex) {
+      if ( indexHex === this.indexHex) {
         this.dataServices.unshift( resSocket.data );
       }
 
@@ -783,7 +784,7 @@ export class HomePage implements OnInit, OnDestroy {
 
       if (!polygonFinded) {
 
-        this.onBuildPolygon( resSocket.indexHex, resSocket.center, resSocket.polygon, 1, resSocket.totalDrivers );
+        this.onBuildPolygon( indexHex, resSocket.center, resSocket.polygon, 1, resSocket.totalDrivers );
 
       } else {
 
@@ -797,6 +798,18 @@ export class HomePage implements OnInit, OnDestroy {
       }
 
     });
+  }
+
+  onLoadSound() {
+
+    // Setup the new Howl.
+    const sound = new Howl({
+      src: ['./assets/iphone-noti.mp3']
+    });
+
+    // Play the sound.
+    sound.play();
+
   }
 
   onListenCancelService() {

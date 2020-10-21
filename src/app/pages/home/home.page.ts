@@ -166,26 +166,28 @@ export class HomePage implements OnInit, OnDestroy {
         map: this.map
       });
 
-      this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
-
-        console.log('Respuesta socket coords', res);
-        this.indexHex = res.indexHex;
-        if (res.ok) {
-
-            // this.st.indexHex = res.indexHex;
-            // this.st.onSetItem('indexHex', res.indexHex, false);
-            this.onGetHotZones();
-            this.onGetServices(1);
-
-        } else {
-          console.error('Error al actualizar coordenadas socket');
-        }
-
-      });
-
       this.io.onEmit('change-play-geo', { value: this.st.playGeo }, (resIO: any) => {
 
         if (this.st.playGeo) {
+
+          this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
+
+            console.log('Respuesta socket coords', res);
+            this.indexHex = res.indexHex;
+            if (res.ok) {
+    
+                // this.st.indexHex = res.indexHex;
+                // this.st.onSetItem('indexHex', res.indexHex, false);
+                this.onGetHotZones();
+                this.onGetServices(1);
+    
+            } else {
+              console.error('Error al actualizar coordenadas socket');
+            }
+    
+          });
+
+
           this.onEmitGeo();
 
           setTimeout(() => {
@@ -215,6 +217,49 @@ export class HomePage implements OnInit, OnDestroy {
       },
       (e) => console.error('Surgio un errora l observar geo', e));
 
+  }
+
+  onEmitCurrentPosition( lat: number, lng: number ) {
+    this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
+
+      console.log('Respuesta socket coords', res);
+      if (res.ok) {
+
+        const oldIndexHex = this.indexHex;
+        if ( oldIndexHex !== res.indexHex ) {
+          this.indexHex = res.indexHex;
+          this.st.indexHex = res.indexHex;
+          // this.st.onSetItem('indexHex', res.indexHex, false);
+          this.onGetServices(1);
+
+          const findCurrentPolygon = this.arrPolygons.find( pp => pp.indexHex === res.indexHex );
+          if (findCurrentPolygon) {
+
+            const oldColor = findCurrentPolygon.color;
+
+            findCurrentPolygon.polygon.setOptions({
+              strokeColor: '#f7793fd8',
+              fillColor: '#f7793fd8'
+            });
+
+            const oldPolygon = this.arrPolygons.find( pp => pp.indexHex === oldIndexHex );
+
+            if (oldPolygon) {
+              oldPolygon.polygon.setOptions({
+                strokeColor: oldColor,
+                fillColor: oldColor
+              });
+            }
+
+          }
+
+        }
+
+      } else {
+        console.error('Error al actualizar coordenadas socket', res);
+      }
+
+    });
   }
 
   onChangePlayGeo() {
@@ -413,7 +458,7 @@ export class HomePage implements OnInit, OnDestroy {
       if (this.dataMore.changeRate) {
         msg = `${ this.st.nameComplete }, acepta llevarte por S/ ${ formatNumber( this.dataMore.rateOffer, 'en', '.2-2' ) }`;
       }
-      this.bodyNoty.notificationTitle = `Nueva oferta`;
+      this.bodyNoty.notificationTitle = `📢📢Nueva oferta-llamataxiApp`;
       this.bodyNoty.notificationSubTitle = `De ${ this.dataMore.streetOrigin } hasta ${ this.dataMore.streetDestination }`;
       this.bodyNoty.notificationMessage = msg;
 
@@ -449,17 +494,15 @@ export class HomePage implements OnInit, OnDestroy {
         payloadService.dateOfferDriver = res.data.dateOffer;
         payloadService.imgTaxiFrontal = this.st.imgTaxiFrontal || 'xd.png';
 
-        this.st.onLoadVehicle().then( (val) => {
-
-          this.io.onEmit('newOffer-driver', { pkClient: this.dataMore.fkClient,
-                                              dataOffer: payloadService }, (resSocket) => {
-            console.log('Enviando nueva oferta socket', resSocket);
-          });
-
+        this.io.onEmit('newOffer-driver', { pkClient: this.dataMore.fkClient,
+                                            dataOffer: payloadService }, (resSocket) => {
+          console.log('Enviando nueva oferta socket', resSocket);
+          this.dataServices = this.dataServices.filter( ts => ts.pkService !== this.dataMore.pkService );
+          this.onSendPush('📢📢Nueva oferta - llamataxi app', msg, osIdClient);
         });
+        // this.st.onLoadVehicle().then( (val) => {
+        // });
 
-        this.dataServices = this.dataServices.filter( ts => ts.pkService !== this.dataMore.pkService );
-        this.onSendPush('Nueva oferta - llamataxi app', msg, osIdClient);
       }
 
     });
@@ -591,49 +634,6 @@ export class HomePage implements OnInit, OnDestroy {
         // el cliente hizo una contra oferta
          this.dataServices.unshift( res.dataOffer );
        }
-    });
-  }
-
-  onEmitCurrentPosition( lat: number, lng: number ) {
-    this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
-
-      console.log('Respuesta socket coords', res);
-      if (res.ok) {
-
-        const oldIndexHex = this.indexHex;
-        if ( oldIndexHex !== res.indexHex ) {
-          this.indexHex = res.indexHex;
-          this.st.indexHex = res.indexHex;
-          // this.st.onSetItem('indexHex', res.indexHex, false);
-          this.onGetServices(1);
-
-          const findCurrentPolygon = this.arrPolygons.find( pp => pp.indexHex === res.indexHex );
-          if (findCurrentPolygon) {
-
-            const oldColor = findCurrentPolygon.color;
-
-            findCurrentPolygon.polygon.setOptions({
-              strokeColor: '#f7793fd8',
-              fillColor: '#f7793fd8'
-            });
-
-            const oldPolygon = this.arrPolygons.find( pp => pp.indexHex === oldIndexHex );
-
-            if (oldPolygon) {
-              oldPolygon.polygon.setOptions({
-                strokeColor: oldColor,
-                fillColor: oldColor
-              });
-            }
-
-          }
-
-        }
-
-      } else {
-        console.error('Error al actualizar coordenadas socket', res);
-      }
-
     });
   }
 

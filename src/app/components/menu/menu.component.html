@@ -1,13 +1,25 @@
 <ion-menu menuId="main-menu" contentId="main-content" side="end" type="overlay">
-    <ion-header>
-        <ion-toolbar color="dark">
+
+    <ion-content>
+        <ion-list>
+
             <div class="row">
-                <div class="col-12 text-right fontP">
+                <div class="col-12 text-right">
                     <small style="padding-right: 17px;">Llamataxiperu.com</small>
                 </div>
             </div>
+
             <div class="row">
-                <div class="col-12 text-center">
+                <div class="col-6 text-left">
+
+                    <p *ngIf="!loadingData" class="titleMenu">
+                        Hola <br>
+                        <span class="fontMenu">{{ st.name }}</span>
+                    </p>
+                    <i *ngIf="loadingData" class="fa fa-spinner fa-pulse"></i>
+                </div>
+
+                <div class="col-6 text-center">
 
                     <img *ngIf="!loadingData" [src]=" pathImg + st.dataUser.img + '?token=' + st.token " alt="Raised Image" class="rounded-circle img-raised" style="width: 100px; height: 100px;">
 
@@ -17,13 +29,15 @@
             </div>
 
             <div class="row">
-                <div class="col-12 text-center fontP">
-                    <br> {{ currentDate | date }}
+                <div class="col-12 text-center">
+                    <br>
+                    <br>
+                    <!-- {{ currentDate | date }} -->
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-12 text-center fontP">
+            <!-- <div class="row">
+                <div class="col-12 text-center">
                     <h6 *ngIf="!loadingData">
                         <p>
                             {{ st.dataUser.nameComplete }}
@@ -31,23 +45,53 @@
                     </h6>
                     <i *ngIf="loadingData" class="fa fa-spinner fa-pulse"></i>
                 </div>
+            </div> -->
+
+            <div class="row" style="height: 120px;">
+
             </div>
 
-        </ion-toolbar>
-    </ion-header>
-    <ion-content>
-        <ion-list>
-
-            <div class="row">
-                <div class="col-12" style="margin-left: 10px;">
-                    <h3>Mi cuenta</h3>
+            <div class="row banner">
+                <div class="col-2 text-center">
+                    <i class="fas fa-money-bill-alt icon"></i>
+                </div>
+                <div class="col-10">
+                    <p style="padding-top: 5px;">
+                        <b>
+                            Gana llamaCréditos por cada amigo que invites
+                        </b>
+                    </p>
                 </div>
             </div>
+
+            <ion-item lines="none" class="itemGroup fontMenu">
+                Promos y Cr&eacute;ditos
+            </ion-item>
+
+            <ion-item detail>
+                <ion-icon slot="start" name="cash-outline" color="primary"></ion-icon>
+                LlamaCr&eacute;ditos
+            </ion-item>
+
+            <ion-item detail lines="none">
+                <ion-icon slot="start" name="ticket-outline" color="primary"></ion-icon>
+                Cupones
+            </ion-item>
+
+            <ion-item lines="none" class="itemGroup fontMenu">
+                Mi cuenta
+            </ion-item>
 
             <ion-item (click)="onRedirect('/home')" detail>
                 <ion-icon slot="start" name="home-outline" color="primary"></ion-icon>
                 Inicio
             </ion-item>
+
+            <ion-item (click)="onRedirect('/journal')" detail>
+                <ion-icon slot="start" name="hourglass-outline" color="primary"></ion-icon>
+                Jornadas
+            </ion-item>
+
             <ion-item (click)="onRedirect('/profile')" detail>
                 <ion-icon slot="start" name="person-circle-outline" color="primary"></ion-icon>
                 Mi perfil
@@ -63,7 +107,7 @@
 
             <ion-item (click)="onRedirect('/contacts')" detail>
                 <ion-icon slot="start" name="people-outline" color="primary"></ion-icon>
-                Contactos de emergencia
+                Contacto emergencia
             </ion-item>
 
             <ion-item (click)="onRedirect('/message')" detail>
@@ -89,17 +133,12 @@
                 Mis tarjetas
             </ion-item> -->
 
-            <div class="row">
-                <div class="col-12">
-                    <hr>
-                </div>
-            </div>
             <ion-item (click)="onRedirect('/disable-account')" detail>
                 <ion-icon slot="start" name="close-outline" color="primary"></ion-icon>
                 Eliminar cuenta
             </ion-item>
 
-            <ion-item (click)="onLogOut()" detail>
+            <ion-item (click)="onLogOut()" detail lines="none">
                 <ion-icon slot="start" name="power-outline" color="primary"></ion-icon>
                 Cerrar sesi&oacute;n
                 <ion-spinner *ngIf="loading" slot="end" name="bubbles" color="primary"></ion-spinner>

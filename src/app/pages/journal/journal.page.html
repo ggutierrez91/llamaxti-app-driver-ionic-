@@ -1,0 +1,75 @@
+<ion-header no-border>
+    <ion-toolbar no-border>
+        <ion-buttons slot="start">
+            <ion-back-button color="dark">
+            </ion-back-button>
+        </ion-buttons>
+
+
+        <ion-buttons slot="end">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+    <ion-toolbar>
+        <ion-title class="titleJournal">Jornadas</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+    <ion-grid fixed>
+        <ion-row>
+            <ion-col size="12">
+                boton para generar jornada
+            </ion-col>
+        </ion-row>
+
+        <ion-row>
+            <ion-col size="12">
+                <ion-segment value="pizza" (ionChange)="segmentChanged($event)">
+                    <ion-segment-button value="pizza">
+                        <ion-label>
+                            <ion-icon slot="start" name="flash-outline"></ion-icon>
+                            Vigente
+                        </ion-label>
+                    </ion-segment-button>
+                    <ion-segment-button value="pasta">
+                        <ion-label>
+                            <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+                            Cerrados
+                        </ion-label>
+                    </ion-segment-button>
+                </ion-segment>
+            </ion-col>
+        </ion-row>
+
+        <ion-row>
+            <ion-col size="12">
+
+                <ion-slides style="width: 100%; height: 300px;">
+                    <ion-slide>
+                        <h1>Awesome Slide Content</h1>
+                        <ion-list *ngIf="dataJournal.length === 0">
+                            <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
+                            <p style="font-size: 13px;">
+                                No tienes jornadas abiertas en este momento
+                            </p>
+                        </ion-list>
+                    </ion-slide>
+
+                    <ion-slide>
+                        <ion-list *ngIf="dataJournal.length === 0">
+                            <h1>Awesome Slide Content</h1>
+                        </ion-list>
+                    </ion-slide>
+                </ion-slides>
+
+            </ion-col>
+        </ion-row>
+
+    </ion-grid>
+
+
+
+</ion-content>

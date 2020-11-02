@@ -33,6 +33,7 @@ export class StorageService {
   public color = '';
   public imgTaxiFrontal = '';
   public nameComplete = '';
+  public name = '';
   public pkPerson = 0;
   public osID = '';
   public indexHex = '';
@@ -48,6 +49,7 @@ export class StorageService {
       this.pkDriver = data.pkDriver;
       this.role = data.role;
       this.nameComplete = data.nameComplete;
+      this.name = data.name;
       this.pkPerson = data.pkPerson;
       this.pkUser = data.pkUser;
 
@@ -84,6 +86,7 @@ export class StorageService {
       this.pkPerson = this.dataUser.pkPerson;
       this.pkUser = this.dataUser.pkUser;
       this.nameComplete = this.dataUser.nameComplete;
+      this.name = this.dataUser.name;
     }
   }
 

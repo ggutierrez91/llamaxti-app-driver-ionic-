@@ -73,8 +73,9 @@
                 LlamaCr&eacute;ditos
             </ion-item>
 
-            <ion-item detail lines="none">
-                <ion-icon slot="start" name="ticket-outline" color="primary"></ion-icon>
+            <ion-item (click)="onRedirect('/coupon')" detail lines="none">
+                <i slot="start" class="fas fa-ticket-alt" color="primary"></i>
+                <!-- <ion-icon slot="start" name="ticket-outline" color="primary"></ion-icon> -->
                 Cupones
             </ion-item>
 

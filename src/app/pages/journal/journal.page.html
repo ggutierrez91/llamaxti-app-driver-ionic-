@@ -21,20 +21,58 @@
     <ion-grid fixed>
         <ion-row>
             <ion-col size="12">
-                boton para generar jornada
+
+                <ion-card mode="ios">
+                    <ion-card-content>
+                        <form #frmJournal="ngForm">
+
+                            <ion-item lines="none">
+                                <ion-label>
+                                    <ion-icon slot="start" name="options-outline"></ion-icon>
+                                    Tarifa
+                                    <p>
+                                        <span *ngIf="cJournal.errors?.required && cJournal.touched">
+                                            <small class="text-danger">
+                                                *Requerido
+                                            </small>
+                                        </span>
+                                    </p>
+                                </ion-label>
+                                <ion-select name="cJournal" #cJournal="ngModel" [(ngModel)]="fkConfJournal" placeholder="Seleccione" title="Tarifa" [ngClass]="{
+                                    'is-invalid': cJournal.errors?.required && cJournal.touched,
+                                    'is-valid': !cJournal.errors?.required && cJournal.touched
+                                }" required>
+                                    <ion-select-option [value]="item.pkConfigJournal" *ngFor="let item of dataConf">
+                                        {{ item.nameJournal }}
+                                    </ion-select-option>
+                                </ion-select>
+
+
+                            </ion-item>
+                            <ion-item lines="none">
+                                <ion-button expand="block" fill="outline" shape="round" (click)="onOpenJournal()" [disabled]="frmJournal.invalid">
+                                    Abrir jornada
+                                </ion-button>
+
+                                <ion-spinner slot="end" *ngIf="loading" name="bubbles"></ion-spinner>
+                            </ion-item>
+                        </form>
+                    </ion-card-content>
+                </ion-card>
+
             </ion-col>
         </ion-row>
 
         <ion-row>
             <ion-col size="12">
-                <ion-segment value="pizza" (ionChange)="segmentChanged($event)">
-                    <ion-segment-button value="pizza">
+                <ion-segment value="VIGENT" (ionChange)="segmentChanged($event)">
+                    <ion-segment-button value="VIGENT">
                         <ion-label>
                             <ion-icon slot="start" name="flash-outline"></ion-icon>
                             Vigente
                         </ion-label>
                     </ion-segment-button>
-                    <ion-segment-button value="pasta">
+                    <ion-segment-button value="CLOSED">
                         <ion-label>
                             <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
                             Cerrados
@@ -49,7 +87,39 @@
 
                 <ion-slides style="width: 100%; height: 300px;">
                     <ion-slide>
-                        <h1>Awesome Slide Content</h1>
+
+                        <ion-list *ngIf="dataJournal.length > 0">
+
+                            <ion-card class="cardjournal" mode="ios" *ngFor="let journal of dataJournal">
+
+                                <ion-card-content>
+                                    <ion-item lines="none">
+                                        <ion-label>
+                                            <span>
+                                                <i class="fas fa-clipboard-list"></i> &nbsp;
+                                                <!-- <i class="fas fa-id-card-alt"></i> -->
+                                               {{ journal.codeJournal }}
+
+                                               <!-- &nbsp;&nbsp;
+                                                <span class="badge " [ngClass]="{'badge-danger': journal.expired, 'badge-success': !journal.expired}"> {{ journal.expired }} </span> -->
+
+                                            </span> <br>
+                                            <p>
+                                                <small> {{ journal.nameJournal }} S/ {{ journal.rateJournal | number:'.2-2' }} </small>
+                                                <br> - - - - - - - - - - - - - - - - - - - - - - - <br> Expira {{ journal.dateExpired | expired }}
+                                            </p>
+                                        </ion-label>
+                                        <ion-button *ngIf="journal.expired" slot="end" expand="full" color="danger" shape="round" (click)="onCloseJournal( journal.pkJournalDriver )">
+                                            Cerrar
+                                            <ion-spinner *ngIf="loadingClose" name="bubbles"></ion-spinner>
+                                        </ion-button>
+                                    </ion-item>
+                                </ion-card-content>
+
+                            </ion-card>
+
+                        </ion-list>
+
                         <ion-list *ngIf="dataJournal.length === 0">
                             <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
                             <p style="font-size: 13px;">
@@ -59,8 +129,36 @@
                     </ion-slide>
 
                     <ion-slide>
-                        <ion-list *ngIf="dataJournal.length === 0">
-                            <h1>Awesome Slide Content</h1>
+
+                        <ion-list *ngIf="dataJournalClosed.length > 0">
+
+                            <ion-card class="cardjournal" mode="ios" *ngFor="let journal of dataJournalClosed">
+
+                                <ion-card-content>
+                                    <ion-item lines="none">
+                                        <ion-label>
+                                            <span>
+                                                <i class="fas fa-clipboard-list"></i> &nbsp;
+                                               {{ journal.codeJournal }}
+
+                                            </span> <br>
+                                            <p>
+                                                <small> {{ journal.nameJournal }} S/ {{ journal.rateJournal | number:'.2-2' }} </small>
+                                                <br> - - - - - - - - - - - - - - - - - - - - - - - <br> F. cierre {{ journal.dateEnd | expired }}
+                                            </p>
+                                        </ion-label>
+                                    </ion-item>
+                                </ion-card-content>
+
+                            </ion-card>
+
+                        </ion-list>
+
+                        <ion-list *ngIf="dataJournalClosed.length === 0">
+                            <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
+                            <p style="font-size: 13px;">
+                                No tienes jornadas cerradas en este momento
+                            </p>
                         </ion-list>
                     </ion-slide>
                 </ion-slides>

@@ -1,0 +1,213 @@
+<ion-header no-border>
+    <ion-toolbar no-border>
+        <ion-buttons slot="start">
+            <ion-back-button>
+
+            </ion-back-button>
+        </ion-buttons>
+
+        <ion-buttons slot="end">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons>
+
+    </ion-toolbar>
+    <ion-toolbar no-border>
+        <ion-title class="titleCoupon">Mis cupones</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+    <ion-list>
+
+        <ion-grid fixed>
+
+            <!-- <ion-row>
+              <ion-col size="12">
+                  <h1>Mis cupones</h1>
+              </ion-col>
+          </ion-row> -->
+            <ion-row>
+                <ion-col size="12">
+
+                    <ion-card mode="ios">
+                        <ion-card-content>
+                            <ion-item [ngClass]="{
+                              'is-invalid': 
+                              (code.errors?.required || code.errors?.minlength || code.errors?.maxlength || code.errors?.pattern) && code.touched,
+                              'is-valid': 
+                              !code.errors?.required && !code.errors?.minlength && !code.errors?.maxlength && !code.errors?.pattern && code.touched
+                          }">
+                                <!-- <ion-icon slot="start" name="ticket-outline"></ion-icon> -->
+                                <i slot="start" class="fas fa-ticket-alt"></i>
+
+                                <ion-input class="text-uppercase" name="codeCoupon" #code="ngModel" [(ngModel)]="codeCoupon" type="text" placeholder="Ingresa tu cupón" required="true" [minlength]="6" [maxlength]="10" pattern="[a-zA-Z0-9]{0,10}"></ion-input>
+
+                                <ion-button (click)="onValidCoupon()" expand="block" fill="clear" shape="round" slot="end">
+                                    Validar
+                                </ion-button>
+                            </ion-item>
+
+                            <span class="msgValidation" *ngIf="code.errors?.required && code.touched">
+                              <small class="text-danger">*Requerido</small>
+                          </span>
+
+                            <span class="msgValidation" *ngIf="code.errors?.minlength && code.touched">
+                              <small class="text-danger">*Mínimo 6 carcateres</small>
+                          </span>
+
+                            <span class="msgValidation" *ngIf="code.errors?.maxlength && code.touched">
+                              <small class="text-danger">*Máximo 10 caracteres</small>
+                          </span>
+
+                            <span class="msgValidation" *ngIf="code.errors?.pattern && code.touched">
+                              <small class="text-danger">*Solo letras y núneros</small>
+                          </span>
+                        </ion-card-content>
+
+                    </ion-card>
+
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+                <ion-col size="12">
+
+
+                    <ion-segment scrollable value="OK" (ionChange)="segmentChanged($event)">
+                        <ion-segment-button value="OK">
+                            <ion-label>
+                                <ion-icon name="ticket-sharp"></ion-icon>
+                                Vigente
+                            </ion-label>
+                        </ion-segment-button>
+                        <ion-segment-button value="USED">
+                            <ion-label>
+                                <ion-icon name="checkmark-sharp"></ion-icon>
+                                Usado
+                            </ion-label>
+                        </ion-segment-button>
+
+                        <ion-segment-button value="EXPIRED">
+                            <ion-label>
+                                <ion-icon name="calendar-sharp"></ion-icon>
+                                Expirado
+                            </ion-label>
+                        </ion-segment-button>
+                    </ion-segment>
+
+                </ion-col>
+            </ion-row>
+
+        </ion-grid>
+
+        <ion-slides style="width: 100%; height: 410px;">
+            <ion-slide>
+
+                <ion-list *ngIf="dataVigent.length > 0">
+
+                    <ion-card class="cardcoupon" mode="ios" *ngFor="let coupon of dataVigent">
+
+                        <ion-card-content>
+                            <ion-item lines="none">
+                                <ion-label>
+                                    <span>
+                                      {{ coupon.titleCoupon }}&nbsp; 
+                                      <b>{{ coupon.bonus | number: '.2-2' }}</b>
+                                  </span> <br>
+                                    <p>
+                                        <small>{{ coupon.descriptionCoupon }}</small>
+                                        <br> - - - - - - - - - - - - - - - - - <br> {{ coupon.dateExpiration | expired: coupon.dateRegister }}
+                                    </p>
+                                </ion-label>
+                            </ion-item>
+                        </ion-card-content>
+
+                    </ion-card>
+
+                </ion-list>
+
+                <ion-list *ngIf="dataVigent.length === 0">
+                    <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
+                    <p style="font-size: 13px;">
+                        <b>Cero cupones</b> <br> No tienes cupones disponibles en este momento
+                    </p>
+                </ion-list>
+
+            </ion-slide>
+
+            <ion-slide>
+
+                <ion-list *ngIf="dataUsed.length > 0">
+
+                    <ion-card class="cardcoupon" mode="ios" *ngFor="let coupon of dataUsed">
+
+                        <ion-card-content>
+                            <ion-item lines="none">
+                                <ion-label>
+                                    <span>
+                                      {{ coupon.titleCoupon }}&nbsp; 
+                                      <b>{{ coupon.bonus | number: '.2-2' }}</b>
+                                  </span> <br>
+                                    <p>
+                                        <small>{{ coupon.descriptionCoupon }}</small>
+                                        <br> - - - - - - - - - - - - - - - - - <br> Usado hace {{ coupon.dateExpiration | moment }}
+                                    </p>
+                                </ion-label>
+
+                            </ion-item>
+                        </ion-card-content>
+
+                    </ion-card>
+
+                </ion-list>
+
+                <ion-list *ngIf="dataUsed.length === 0">
+                    <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
+                    <p style="font-size: 13px;">
+                        <b>Cero cupones</b> <br> No tienes cupones usados en este momento
+                    </p>
+                </ion-list>
+
+            </ion-slide>
+
+            <ion-slide>
+
+                <ion-list *ngIf="dataExp.length > 0">
+
+                    <ion-card class="cardcoupon" mode="ios" *ngFor="let coupon of dataExp">
+
+                        <ion-card-content>
+                            <ion-item lines="none">
+                                <ion-label>
+                                    <span>
+                                      {{ coupon.titleCoupon }}&nbsp; 
+                                      <b>{{ coupon.bonus | number: '.2-2' }}</b>
+                                  </span> <br>
+                                    <p>
+                                        <small>{{ coupon.descriptionCoupon }}</small>
+                                        <br> - - - - - - - - - - - - - - - - - <br> Expir&oacute; hace {{ coupon.dateExpiration | moment }}
+                                    </p>
+                                </ion-label>
+
+                            </ion-item>
+                        </ion-card-content>
+
+                    </ion-card>
+
+                </ion-list>
+
+                <ion-list *ngIf="dataExp.length === 0">
+                    <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
+                    <p style="font-size: 13px;">
+                        <b>Cero cupones</b> <br> No tienes cupones expirados en este momento
+                    </p>
+                </ion-list>
+
+            </ion-slide>
+
+        </ion-slides>
+    </ion-list>
+
+
+</ion-content>

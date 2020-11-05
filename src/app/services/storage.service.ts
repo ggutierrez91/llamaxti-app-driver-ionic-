@@ -18,6 +18,17 @@ export class StorageService {
     nameComplete: '',
     img: ''
   };
+
+  public dataJournal = {
+    pkJournalDriver: 0,
+    nameJournal: '',
+    modeJournal: '',
+    codeJournal: '',
+    rateJournal: 0,
+    dateStart: '',
+    expired: false
+  };
+
   public dataVehicle: any = null;
   public role = '';
   public pkDriver = 0;
@@ -53,8 +64,17 @@ export class StorageService {
       this.pkPerson = data.pkPerson;
       this.pkUser = data.pkUser;
 
+      this.dataJournal.pkJournalDriver = data.pkJournalDriver;
+      this.dataJournal.codeJournal = data.codeJournal;
+      this.dataJournal.nameJournal = data.nameJournal;
+      this.dataJournal.modeJournal = data.modeJournal;
+      this.dataJournal.rateJournal = data.rateJournal;
+      this.dataJournal.dateStart = data.dateStart;
+      // this.dataJournal.dateStart = data.dateStart;
+
       await this.storage.set('token', token);
       await this.storage.set('dataUser', JSON.stringify( data ));
+      await this.storage.set('dataJournal', JSON.stringify( this.dataJournal ));
       return true;
   }
 
@@ -71,6 +91,22 @@ export class StorageService {
       this.dataUser =  JSON.parse( value );
       this.nameComplete = this.dataUser.nameComplete;
     }
+  }
+
+  async onLoadJournal() {
+
+    const value = await this.storage.get( 'dataJournal' );
+    if (value) {
+      const data =  JSON.parse( value );
+      this.dataJournal.pkJournalDriver = data.pkJournalDriver;
+      this.dataJournal.codeJournal = data.codeJournal;
+      this.dataJournal.nameJournal = data.nameJournal;
+      this.dataJournal.modeJournal = data.modeJournal;
+      this.dataJournal.rateJournal = data.rateJournal;
+      this.dataJournal.dateStart = data.dateStart;
+      this.dataJournal.expired = data.expired || false;
+    }
+
   }
 
   async onLoadToken() {
@@ -120,8 +156,30 @@ export class StorageService {
   async onClearStorage() {
     this.token = '';
     this.pkVehicle = 0;
+    this.dataUser = {
+      pkUser: 0,
+      pkPerson: 0,
+      pkDriver: 0,
+      role: '',
+      userName: '',
+      nameComplete: '',
+      img: ''
+    };
+    this.dataJournal = {
+      pkJournalDriver: 0,
+      nameJournal: '',
+      modeJournal: '',
+      codeJournal: '',
+      rateJournal: 0,
+      dateStart: '',
+      expired: false
+    };
     await this.storage.set('token', null);
     await this.storage.set( 'dataVehicle', null);
+    await this.storage.set( 'dataUser', null);
+    await this.storage.set( 'dataJournal', null);
+    await this.storage.set( 'current-service', null);
+
     // await this.storage.clear();
   }
 

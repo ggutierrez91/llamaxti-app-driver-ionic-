@@ -107,6 +107,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.onLoadMap();
     this.apps.onLoadTokenTacker();
+    this.st.onLoadJournal();
     this.st.onLoadToken().then( () => {
       // this.indexHex = this.st.indexHex;
       this.st.occupied = false;
@@ -302,6 +303,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   // funciones para cards services
   onGetServices( page: number ) {
+
     this.cardsSbc = this.taxiSvc.onGetServices( page ).pipe( retry() ).subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -357,8 +359,6 @@ export class HomePage implements OnInit, OnDestroy {
     this.dataMore = service;
     this.hideSlideCard = true;
     this.showMoreCard = true;
-    // setTimeout(() => {
-    // }, 100);
   }
 
   onHideMoreCard() {
@@ -430,6 +430,23 @@ export class HomePage implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.st.dataJournal.pkJournalDriver === 0 || this.st.dataJournal.expired) {
+      const message = this.st.dataJournal.expired ? 'Tu jornada ha expirado 🕗' : 'No tienes una jornada abierta vigente 🚨';
+      const alertVerify = await this.alertCtrl.create({
+        header: 'Mensaje al usuario',
+        message,
+        mode: 'ios',
+        animated: true,
+        buttons: [{
+          text: 'Ok',
+          handler: () => {}
+        }]
+      });
+
+      await alertVerify.present();
+      return;
+    }
+
     const osIdClient = this.dataMore.osId;
 
     this.bodyAcceptOffer.pkService = this.dataMore.pkService;
@@ -458,7 +475,7 @@ export class HomePage implements OnInit, OnDestroy {
       if (this.dataMore.changeRate) {
         msg = `${ this.st.nameComplete }, acepta llevarte por S/ ${ formatNumber( this.dataMore.rateOffer, 'en', '.2-2' ) }`;
       }
-      this.bodyNoty.notificationTitle = `📢📢Nueva oferta-llamataxiApp`;
+      this.bodyNoty.notificationTitle = `🔔📢Nueva oferta-llamataxiApp`;
       this.bodyNoty.notificationSubTitle = `De ${ this.dataMore.streetOrigin } hasta ${ this.dataMore.streetDestination }`;
       this.bodyNoty.notificationMessage = msg;
 
@@ -500,8 +517,6 @@ export class HomePage implements OnInit, OnDestroy {
           this.dataServices = this.dataServices.filter( ts => ts.pkService !== this.dataMore.pkService );
           this.onSendPush('📢📢Nueva oferta - llamataxi app', msg, osIdClient);
         });
-        // this.st.onLoadVehicle().then( (val) => {
-        // });
 
       }
 
@@ -605,7 +620,7 @@ export class HomePage implements OnInit, OnDestroy {
         const offer: IOffer = res.res.dataOffer;
         const alertService = await this.alertCtrl.create({
           header: 'Mensaje al usuario',
-          subHeader: 'Iniciando servicio de taxi',
+          subHeader: 'Iniciando servicio de taxi ✅',
           message: `${ offer.nameComplete }, ha aceptado tu oferta, por favor sirvace a pasar por su pasajero en: ${ offer.streetOrigin }`,
           mode: 'ios',
           buttons: [{

@@ -79,7 +79,13 @@ const routes: Routes = [
     path: 'journal',
     canLoad: [TokenGuard, AuthGuard],
     loadChildren: () => import('./pages/journal/journal.module').then( m => m.JournalPageModule)
+  },
+  {
+    path: 'coupon',
+    canLoad: [TokenGuard, AuthGuard],
+    loadChildren: () => import('./pages/coupon/coupon.module').then( m => m.CouponPageModule)
   }
+
 
 ];
 

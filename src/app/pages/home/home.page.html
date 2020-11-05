@@ -17,7 +17,7 @@
             </ion-badge>
         </ion-label>
 
-        <ion-title>Inicio</ion-title>
+
 
         <ion-label slot="end">
             <h3 class="fontP">
@@ -33,6 +33,18 @@
         </ion-buttons>
 
     </ion-toolbar>
+
+    <ion-toolbar color="dark">
+        <ion-title class="fontTitle">Inicio</ion-title>
+        <ion-item slot="end" (click)=" onChangePlayGeo()" *ngIf="showBtnPlay" lines="none" color="dark">
+            <ion-toggle mode="ios" color="success" [(ngModel)]="st.playGeo"></ion-toggle>
+            <ion-label class="text-center fontP" style="font-size: 22px;">
+                {{ st.playGeo | playGeo }}
+                <ion-icon slot="end" color="light" name="locate-outline"></ion-icon>
+            </ion-label>
+        </ion-item>
+    </ion-toolbar>
+
 </ion-header>
 
 <ion-content>
@@ -211,14 +223,8 @@
 
 </ion-content>
 
-<ion-footer>
+<!-- <ion-footer>
     <ion-toolbar color="dark">
-        <ion-item (click)=" onChangePlayGeo()" *ngIf="showBtnPlay" lines="none" color="dark">
-            <ion-toggle mode="ios" color="success" [(ngModel)]="st.playGeo"></ion-toggle>
-            <ion-label class="text-center fontP" style="font-size: 22px;">
-                {{ st.playGeo | playGeo }}
-                <ion-icon slot="end" color="light" name="locate-outline"></ion-icon>
-            </ion-label>
-        </ion-item>
+        
     </ion-toolbar>
-</ion-footer>
+</ion-footer> -->

@@ -21,6 +21,7 @@ import { formatNumber } from '@angular/common';
 import { ModalChatPage } from '../modal-chat/modal-chat.page';
 import { Howl } from 'howler';
 import { AppUtilitiesService } from 'src/app/services/app-utilities.service';
+import { promise } from 'protractor';
 
 const URI_API = environment.URL_SERVER;
 declare var window;
@@ -68,6 +69,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   pushDistance: Subscription;
   intervalo: Subscription;
   chatSbc: Subscription;
+  jdSbc: Subscription;
 
   showAlert = false;
   hideAlert = false;
@@ -298,13 +300,14 @@ export class ServiceRunPage implements OnInit, OnDestroy {
           text: 'Iniciar',
           role: 'yes',
           cssClass: 'text-success',
-          handler: () => {
+          handler: async () => {
+            await this.ui.onShowLoading( 'Espere...' );
             this.runOrigin = true;
             this.finishOrigin = true;
             this.runDestination = true;
             this.onLoadRoute();
+            await this.onUpdateTotalJournal();
             this.onLaunchNav( );
-
           }
         }]
       });
@@ -352,12 +355,12 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     };
 
     this.launchNavigator.navigate( [lat, lng] , options)
-      .then( (success) => {
-
+      .then( async (success) => {
+          await this.ui.onHideLoading();
           console.log('Launched navigator', success);
       }).catch((e) => {
 
-        console.log('Error launching navigator', e); 
+        console.log('Error launching navigator', e);
       });
   }
 
@@ -451,9 +454,9 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.apps.minutes = this.minutes;
       this.apps.distance = this.distance;
 
-      if (this.distance <= 70 && this.distance >= 10) {
-        this.sendPush = 0;
-      }
+      // if (this.distance <= 70 && this.distance >= 10) {
+      //   this.sendPush = 0;
+      // }
 
       if (!this.runDestination && this.sendPush < 2 ) {
         if ((this.distance <= 200 && this.distance >= 150) || (this.distance <= 70 && this.distance >= 10 ) ) {
@@ -485,6 +488,19 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
       this.onEmitGeoDriverToClient();
 
+    });
+  }
+
+  onUpdateTotalJournal(): Promise<boolean> {
+    return new Promise( (resolve, reject) => {
+      this.jdSbc = this.serviceSvc.onUpdateJournal( this.dataServiceInfo.pkService, this.dataServiceInfo.fkOffer )
+      .subscribe( async (res) => {
+        if (!res.ok) {
+          reject( false );
+        }
+        await this.ui.onHideLoading();
+        resolve( true );
+      });
     });
   }
 
@@ -856,6 +872,9 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       this.chatSbc.unsubscribe();
     }
 
+    if (this.jdSbc) {
+      this.jdSbc.unsubscribe();
+    }
 
   }
 

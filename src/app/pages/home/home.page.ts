@@ -107,7 +107,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.onLoadMap();
     this.apps.onLoadTokenTacker();
-    this.st.onLoadJournal();
+    this.st.onLoadJournal(); // cargando jornada laboral
     this.st.onLoadToken().then( () => {
       // this.indexHex = this.st.indexHex;
       this.st.occupied = false;
@@ -117,11 +117,11 @@ export class HomePage implements OnInit, OnDestroy {
 
       setTimeout(() => {
         this.showBtnPlay = true;
-      }, 3000);
+      }, 1000);
 
       this.onLoadMap();
-      this.onLoadJournal(); // extraemos la jornada del backend
-      this.onGetPosition(); // extraemos posición actual y listamos las zonas calientes
+      this.onLoadJournal();
+      this.onGetPosition();
 
       this.st.onLoadVehicle().then( () => {
         if (this.st.pkVehicle === 0 ) {
@@ -202,7 +202,6 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onEmitGeo() {
-    // console.log('me estoy subscribiendo al geo :D');
     this.geoSbc = this.geo.onListenGeo( ).pipe( retry(3) ).subscribe(
       (position: Geoposition) => {
 
@@ -454,6 +453,8 @@ export class HomePage implements OnInit, OnDestroy {
     this.bodyAcceptOffer.rateOffer = this.dataMore.rateOffer;
     this.bodyAcceptOffer.fkDriver = this.st.pkUser;
     this.bodyAcceptOffer.fkVehicle = this.st.pkVehicle;
+    this.bodyAcceptOffer.fkJournal = this.st.dataJournal.pkJournalDriver;
+    this.bodyAcceptOffer.codeJournal = this.st.dataJournal.codeJournal;
 
     await this.ui.onShowLoading('Enviando oferta...');
 
@@ -569,7 +570,17 @@ export class HomePage implements OnInit, OnDestroy {
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 256) {
-      arrError.push('no se encontró oferta');
+      arrError.push('no se encontró jornada');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 512) {
+      arrError.push('jornada cerrada');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 1024) {
+      arrError.push('jornada expiró');
     }
 
     return arrError.join(', ');

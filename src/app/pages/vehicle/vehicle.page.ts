@@ -147,8 +147,27 @@ export class VehiclePage implements OnInit, OnDestroy {
 
       this.dataVehicle = res.data;
 
-      this.dataVehicle.forEach( (vh) => {
+      this.dataVehicle.forEach( async (vh) => {
         vh.srcTaxiFrontal = this.pathImg + vh.pkVehicle + `/${ vh.imgTaxiFrontal || 'xd.png' }${ this.tokenPath }`;
+
+        if (vh.driverUsing) {
+
+          this.st.pkVehicle = vh.pkVehicle;
+          this.st.fkCategory = vh.fkCategory;
+          this.st.category = vh.nameCategory;
+          this.st.codeCategory = vh.codeCategory;
+          this.st.brand = vh.nameBrand;
+          this.st.nameModel = vh.nameModel;
+          this.st.numberPlate = vh.numberPlate;
+          this.st.year = vh.year;
+          this.st.color = vh.color;
+          this.st.dataVehicle = vh;
+
+          await this.st.onSetItem('dataVehicle', vh, true);
+          await this.st.onSetItem('codeCategory', vh.codeCategory, false);
+
+        }
+
       });
       this.loading = false;
     });

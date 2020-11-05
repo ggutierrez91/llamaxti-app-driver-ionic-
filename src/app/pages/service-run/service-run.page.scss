@@ -4,13 +4,6 @@
     height: 100%;
 }
 
-.network {
-    position: absolute;
-    top: 14px;
-    left: 20px;
-    font-size: 10px;
-}
-
 .cardService {
     position: absolute;
     top: 10px;
@@ -20,16 +13,36 @@
     border-radius: 15px 15px 15px 15px;
 }
 
+.infoStreetOrig {
+    position: absolute;
+    top: 10px;
+    width: 90%;
+    left: 22px;
+    right: 22px;
+    border-radius: 15px 15px 15px 15px;
+    padding: 10px;
+}
+
+.infoStreetDestina {
+    position: absolute;
+    top: 60px;
+    width: 90%;
+    left: 22px;
+    right: 22px;
+    border-radius: 15px 15px 15px 15px;
+    padding: 10px;
+}
+
 .cardLight {
-    background-color: rgba($color: #f7f2f2d8, $alpha: 0.9);
+    background-color: rgba($color: #f7f2f2d8, $alpha: 0.8);
     // border: 2px solid rgba($color: #3a3a42, $alpha: 1.0);
-    border: 1px solid rgba($color: #89898a, $alpha: 1.0);
+    border: 2px solid rgba($color: #ff4524, $alpha: 1.0);
 }
 
 .cardDark {
-    background-color: rgba($color: #202020d8, $alpha: 0.9);
-    color: #FFF;
-    border: 1px solid rgba($color: #707070, $alpha: 1.0);
+    background-color: rgba($color: #202020d8, $alpha: 0.8);
+    color: rgb(236, 184, 14);
+    border: 2px solid rgba($color: #707070, $alpha: 1.0);
     .text-primary {
         color: rgb(236, 184, 14) !important;
     }

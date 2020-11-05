@@ -20,7 +20,9 @@ export default interface IVehicle {
     dateVerified: string;
     statusRegister: number;
     nameCategory: string;
+    codeCategory: string;
     nameBrand: string;
+    nameModel: string;
     driverUsing: boolean;
 }
 

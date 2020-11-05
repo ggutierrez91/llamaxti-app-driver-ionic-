@@ -17,35 +17,18 @@
     <ion-list style="padding-top: 2px;">
         <div class="row animated fadeIn" *ngFor="let item of cs.chats" style="padding-right: 3px; padding-left: 3px;">
 
-            <div class="col-sm " [ngClass]="{'col-2': item.fkUser === pkUser, 'col-10 text-left ': item.fkUser !== pkUser}">
+            <div class="col-sm" [ngClass]="{ ' text-left ': item.fkUser !== pkUser, ' text-right ': item.fkUser === pkUser}">
 
-                <div class="card bubleEmisor" *ngIf="item.fkUser !== pkUser">
-                    <div class="card-body">
-                        {{ item.messsage }}
-                    </div>
-                    <div class="card-subtitle text-right text-secondary" style="padding-right: 5px !important;">
-                        <small>
-                            {{ item.created | moment }}
-                        </small>
-                    </div>
+                <div class="card " [ngClass]="{ ' bubleEmisor text-secondary ': item.fkUser !== pkUser, ' bg-info bubleReceptor text-white ': item.fkUser === pkUser}">
+                    {{ item.messsage }} <br>
+
+                    <small class="text-right " style="padding-right: 5px !important;">
+                        {{ item.created | moment }}
+                    </small>
                 </div>
 
             </div>
 
-            <div class="col-sm " [ngClass]="{'col-10 text-right ': item.fkUser === pkUser, 'col-2': item.fkUser !== pkUser}">
-                <div class="card bubleReceptor" *ngIf="item.fkUser === pkUser" [ngClass]="{'bg-info text-white ': item.fkUser === pkUser}">
-                    <div class="card-body">
-                        {{ item.messsage }}
-                    </div>
-
-                    <div class="card-subtitle text-left text-secondary" style="padding-left: 5px !important;">
-                        <small class="text-white">
-                            {{ item.created | moment }}
-                        </small>
-                    </div>
-                </div>
-
-            </div>
         </div>
     </ion-list>
 

@@ -1,9 +1,17 @@
 .bubleEmisor {
     // padding-right: 5px;
+    left: 1px;
     border-radius: 20px 20px 20px 0px !important;
+    padding: 10px;
+    margin-right: 20px;
+    width: fit-content;
 }
 
 .bubleReceptor {
     // padding-left: 5px;
+    right: 1px;
     border-radius: 20px 20px 0px 20px !important;
+    padding: 10px;
+    margin-left: 20px;
+    width: fit-content;
 }

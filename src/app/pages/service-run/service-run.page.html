@@ -16,7 +16,7 @@
 
         <ion-buttons slot="end">
 
-            <button *ngIf="!runDestination && !finishDestination" class="btn btn-outline-primary" (click)="onRun()">
+            <button *ngIf="!runDestination && !finishDestination" class="btn btn-outline-primary" (click)="onRun()" [disabled]="loadingConfirmNav">
                 <span *ngIf="!runOrigin && !finishOrigin">
                     Ir por pasajero
                 </span>
@@ -32,6 +32,34 @@
         </ion-buttons>
 
     </ion-toolbar>
+
+    <ion-toolbar color="dark">
+
+        <ion-button slot="start" *ngIf="!this.runDestination" expand="block" fill="clear" shape="round" color="danger" (click)="onConfirmDel()">
+            <ion-icon *ngIf="!loadingConfirm" slot="icon-only" name="close-outline"></ion-icon>
+            Cancelar
+            <i *ngIf="loadingConfirm" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+
+        </ion-button>
+
+        <ion-button slot="end" expand="block" fill="clear" shape="round" color="primary" (click)="onSharedGeo()">
+            <ion-icon slot="icon-only" name="share-social-outline"></ion-icon>
+        </ion-button>
+
+        <ion-button slot="end" *ngIf="!runDestination" expand="block" fill="clear" shape="round" color="primary" (click)="onShowChat()">
+            <ion-icon slot="icon-only" name="chatbubbles-outline"></ion-icon>
+            <ion-badge class="badgeNewMsg" color="danger" *ngIf="!runDestination && newMessages > 0">
+                {{ newMessages }}
+            </ion-badge>
+        </ion-button>
+
+        <ion-button slot="end" *ngIf="runDestination" expand="block" fill="clear" shape="round" color="primary" (click)="onShowAlert()">
+            <ion-icon slot="icon-only" name="alert-circle-outline"></ion-icon>
+        </ion-button>
+
+
+    </ion-toolbar>
+
 </ion-header>
 
 <ion-content>
@@ -54,92 +82,100 @@
 
     </div>
 
-    <div class="card cardService animated fadeIn" [ngClass]="{'cardLight': codeJournal === 'DIURN', 'cardDark': codeJournal !== 'DIURN'}" *ngIf="!loading">
+    <div *ngIf="!loading " class="card infoStreetOrig animated fadeIn" [ngClass]="{ 'cardLight': codeJournal==='DIURN' , 'cardDark': codeJournal !=='DIURN' } ">
+        <i class="fas fa-map-marker-alt text-info"></i> {{ dataServiceInfo.streetOrigin }}
+    </div>
 
-        <div class="card-body">
-            <div class="row">
-                <div class="col-12">
+    <div *ngIf="!loading " class="card infoStreetDestina animated fadeIn" [ngClass]="{ 'cardLight': codeJournal==='DIURN' , 'cardDark': codeJournal !=='DIURN' } ">
+        <i class="fas fa-map-marker-alt text-danger"></i> {{ dataServiceInfo.streetDestination }}
+    </div>
+
+    <!-- <div class=" card cardService animated fadeIn " [ngClass]="{ 'cardLight': codeJournal==='DIURN' , 'cardDark': codeJournal !=='DIURN' } " *ngIf="!loading ">
+
+        <div class="card-body ">
+            <div class="row ">
+                <div class="col-12 ">
                     {{ dataServiceInfo.streetOrigin }}
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12">
+            <div class="row ">
+                <div class="col-12 ">
                     {{ dataServiceInfo.streetDestination }}
                 </div>
             </div>
 
         </div>
 
-    </div>
+    </div> -->
 
-    <!-- width: 20rem; -->
-    <div *ngIf="!showMoreCard" class="cardSmall animated " [ngClass]="{'fadeInUp': !viewMore, 'fadeOutDown': viewMore}">
-        <div class="card-header bg-danger">
+    <!-- *ngIf="!showMoreCard " [ngClass]="{ 'fadeInUp': !viewMore, 'fadeOutDown': viewMore} " -->
+    <div class="cardSmall animated fadeInUp ">
+        <div class="card-header bg-danger ">
 
-            <div class="row">
-                <div class="col-8 text-white">
+            <div class="row ">
+                <div class="col-8 text-white ">
                     {{ dataServiceInfo.aliasCategory }}&nbsp;&nbsp;
-                    <small class="text-white"> 
+                    <small class="text-white "> 
                         <b>
-                            ( {{ dataServiceInfo.distanceText }} - {{ dataServiceInfo.minutesText }} ) 
+                            ( {{ distanceText }} - {{ minutesText }} ) 
                         </b>
                     </small>
                 </div>
-                <div class="col-4 text-right text-white" (click)="onMoreInfo()">
-                    <i class="now-ui-icons fontIcon" [ngClass]="{'arrows-1_minimal-down': viewMore, 'arrows-1_minimal-up': !viewMore}"></i>
+                <!-- <div class="col-4 text-right text-white " (click)="onMoreInfo() ">
+                    <i class="now-ui-icons fontIcon " [ngClass]="{ 'arrows-1_minimal-down': viewMore, 'arrows-1_minimal-up': !viewMore} "></i>
 
-                </div>
+                </div> -->
             </div>
         </div>
-        <div class="card-body">
-            <!-- <div class="card-title">
+        <div class="card-body ">
+            <!-- <div class="card-title ">
             </div> -->
-            <div class="row">
-                <div class="col-4">
-                    <img [src]="pathUser + dataServiceInfo.imgClient + '?token=' + st.token " alt="" style="width: 90px; height: 85px;">
+            <div class="row ">
+                <div class="col-4 ">
+                    <img [src]="pathUser + dataServiceInfo.imgClient + '?token=' + st.token " alt=" " style="width: 90px; height: 85px; ">
                 </div>
-                <div class="col-8">
+                <div class="col-8 ">
 
-                    <p class="card-text text-center">
-                        <strong class="text-primary">{{ dataServiceInfo.nameClient }}</strong><br>
-                        <!-- <span> <i class="fas fa-star"></i> 4.5 </span><br> -->
+                    <p class="card-text text-center ">
+                        <strong class="text-primary ">{{ dataServiceInfo.nameClient }}</strong><br>
+                        <!-- <span> <i class="fas fa-star "></i> 4.5 </span><br> -->
                         <span>
-                            <i style="font-size: 20px;" [ngClass]="{'fa-money-check': dataServiceInfo.paymentType === 'CARD', 'fa-money-bill-alt': dataServiceInfo.paymentType !== 'CARD'}" class="fas"></i>&nbsp;
+                            <i style="font-size: 20px; " [ngClass]="{ 'fa-money-check': dataServiceInfo.paymentType==='CARD' , 'fa-money-bill-alt': dataServiceInfo.paymentType !=='CARD' } " class="fas "></i>&nbsp;
                             <b>
 
                                 {{ dataServiceInfo.paymentType | payment }}
                                 &nbsp;
                                 S/ {{ dataServiceInfo.rateOffer | number: '.2-2' }}
                             </b>
-                        </span>
+                        </span><br>
+                        <span> <i class="fas fa-star "></i> 4.5 </span>
 
                     </p>
                 </div>
             </div>
-            <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+            <!-- <a href="# " class="btn btn-primary ">Go somewhere</a> -->
         </div>
     </div>
 
 
-    <div *ngIf="showMoreCard" class="cardSmall cardBorder animated " [ngClass]="{'fadeInUp': viewMore, 'fadeOutDown': !viewMore}">
-        <!-- right: 20px; -->
-        <div style="position: absolute; bottom: 165px; right: 20px;">
+    <!-- <div *ngIf="showMoreCard " class="cardSmall cardBorder animated " [ngClass]="{ 'fadeInUp': viewMore, 'fadeOutDown': !viewMore} ">
+        <div style="position: absolute; bottom: 165px; right: 20px; ">
 
-            <i class="now-ui-icons fontIcon text-primary" [ngClass]="{'arrows-1_minimal-down': viewMore, 'arrows-1_minimal-up': !viewMore}" (click)="onMoreInfo()"></i>
+            <i class="now-ui-icons fontIcon text-primary " [ngClass]="{ 'arrows-1_minimal-down': viewMore, 'arrows-1_minimal-up': !viewMore} " (click)="onMoreInfo() "></i>
         </div>
 
-        <div class="card-body">
-            <div class="row">
-                <div class="col-4">
-                    <img [src]="pathUser + dataServiceInfo.imgClient + '?token=' + st.token" alt="" style="width: 90px; height: 85px;">
+        <div class="card-body ">
+            <div class="row ">
+                <div class="col-4 ">
+                    <img [src]="pathUser + dataServiceInfo.imgClient + '?token=' + st.token " alt=" " style="width: 90px; height: 85px; ">
                 </div>
-                <div class="col-8">
+                <div class="col-8 ">
 
-                    <p class="card-text text-center">
-                        <strong class="text-primary">{{ dataServiceInfo.nameClient }}</strong><br>
-                        <span> <i class="fas fa-star"></i> 4.5 </span><br>
+                    <p class="card-text text-center ">
+                        <strong class="text-primary ">{{ dataServiceInfo.nameClient }}</strong><br>
+                        <span> <i class="fas fa-star "></i> 4.5 </span><br>
                         <span>
-                            <i style="font-size: 20px;" [ngClass]="{'fa-money-check': dataServiceInfo.paymentType === 'CARD', 'fa-money-bill-alt': dataServiceInfo.paymentType !== 'CARD'}" class="fas"></i>&nbsp;
+                            <i style="font-size: 20px; " [ngClass]="{ 'fa-money-check': dataServiceInfo.paymentType==='CARD' , 'fa-money-bill-alt': dataServiceInfo.paymentType !=='CARD' } " class="fas "></i>&nbsp;
                             <b>
     
                                 {{ dataServiceInfo.paymentType | payment }}
@@ -151,39 +187,37 @@
                 </div>
             </div>
             <hr>
-            <div class="row">
-                <div class="col-4">
-                    <ion-button expand="block" fill="outline" shape="round" color="medium" (click)="onSharedGeo()">
-                        <ion-icon slot="icon-only" name="share-social-outline"></ion-icon>
+            <div class="row ">
+                <div class="col-4 ">
+                    <ion-button expand="block " fill="outline " shape="round " color="medium " (click)="onSharedGeo() ">
+                        <ion-icon slot="icon-only " name="share-social-outline "></ion-icon>
                     </ion-button>
                 </div>
 
-                <div class="col-4">
-                    <ion-button *ngIf="!runDestination" expand="block" fill="outline" shape="round" color="medium" (click)="onShowChat()">
-                        <ion-icon slot="icon-only" name="chatbubbles-outline"></ion-icon>
-                        <ion-badge class="badgeNewMsg" color="danger" *ngIf="!runDestination && newMessages > 0">
-                            {{ newMessages }}
-                        </ion-badge>
-                    </ion-button>
+                <div class="col-4 ">
+                    <ion-button *ngIf="!runDestination " expand="block " fill="outline " shape="round " color="medium " (click)="onShowChat() ">
+                        <ion-icon slot="icon-only " name="chatbubbles-outline "></ion-icon>
+                        <ion-badge class="badgeNewMsg " color="danger " *ngIf="!runDestination && newMessages> 0"> {{ newMessages }}
+        </ion-badge>
+        </ion-button>
 
 
-                    <ion-button *ngIf="runDestination" expand="block" fill="outline" shape="round" color="medium" (click)="onShowAlert()">
-                        <ion-icon slot="icon-only" name="alert-circle-outline"></ion-icon>
-                    </ion-button>
-                </div>
-
-                <div class="col-4">
-                    <!-- (click)="onClick()" -->
-                    <ion-button *ngIf="!this.runDestination" expand="block" fill="outline" shape="round" color="danger" (click)="onConfirmDel()">
-                        <ion-icon *ngIf="!loadingConfirm" slot="icon-only" name="close-outline"></ion-icon>
-
-                        <i *ngIf="loadingConfirm" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
-
-                    </ion-button>
-                </div>
-            </div>
-        </div>
+        <ion-button *ngIf="runDestination" expand="block" fill="outline" shape="round" color="medium" (click)="onShowAlert()">
+            <ion-icon slot="icon-only" name="alert-circle-outline"></ion-icon>
+        </ion-button>
     </div>
+
+    <div class="col-4">
+        <ion-button *ngIf="!this.runDestination" expand="block" fill="outline" shape="round" color="danger" (click)="onConfirmDel()">
+            <ion-icon *ngIf="!loadingConfirm" slot="icon-only" name="close-outline"></ion-icon>
+
+            <i *ngIf="loadingConfirm" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+
+        </ion-button>
+    </div>
+    </div>
+    </div>
+    </div> -->
 
     <div class="alertService animated " *ngIf="showAlert" [ngClass]="{ 'fadeInDown': !hideAlert, 'fadeOutDown': hideAlert }">
         <br>

@@ -5,6 +5,8 @@ export class OfferModel {
     isClient: boolean;
     fkDriver: number;
     fkVehicle: number;
+    fkJournal: number;
+    codeJournal: string;
 
     constructor() {
 
@@ -14,6 +16,8 @@ export class OfferModel {
         this.isClient = false;
         this.fkDriver = 0;
         this.fkVehicle = 0;
+        this.fkJournal = 0;
+        this.codeJournal = '';
 
     }
 }

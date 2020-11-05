@@ -121,4 +121,5 @@ export interface IServiceAccepted {
     dateFinishDestination?: string;
 
     monitorToken?: string;
+    fkOffer?: number;
 }

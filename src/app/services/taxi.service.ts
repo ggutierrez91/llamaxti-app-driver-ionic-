@@ -73,4 +73,9 @@ export class TaxiService {
     return this.http.put<IResApi>( URI_API + `/Service/DeleteRun/${ pkService }/${ isClient }`, {}, { headers: {Authorization: this.st.token} } );
   }
 
+  onUpdateJournal( pkService: number, fkOffer: number ) {
+    // tslint:disable-next-line: max-line-length
+    return this.http.post<IResApi>( URI_API + `/Service/UpdateJournal`, { pkService, fkOffer }, { headers: {Authorization: this.st.token} } );
+  }
+
 }

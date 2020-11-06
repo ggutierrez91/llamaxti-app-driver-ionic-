@@ -50,6 +50,11 @@ export interface IServices {
     imgTaxiFrontal?: string;
     pkDriver?: number;
 
+    // datos del cupon de descuento
+    fkCouponUser?: number;
+    discount?: number;
+    discountType?: string;
+
 }
 
 export interface IServiceSocket {

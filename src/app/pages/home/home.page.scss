@@ -20,6 +20,24 @@
     font-size: 32px;
 }
 
+.coupon {
+    position: absolute;
+    top: 35px;
+    right: 15px;
+    padding: 5px;
+}
+
+.couponMore {
+    position: absolute;
+    top: 2px;
+    right: 8px;
+    padding: 5px;
+}
+
+.iconCoupon {
+    transform: rotate(-15deg);
+}
+
 .hide {
     display: none;
 }

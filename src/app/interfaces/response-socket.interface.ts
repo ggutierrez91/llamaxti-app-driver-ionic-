@@ -13,3 +13,10 @@ export interface IResSocketCoors {
     indexHex?: string;
     error?: any;
 }
+
+
+export interface IResDisposal {
+    pkService: number;
+    msg: string;
+    indexHex: string;
+}

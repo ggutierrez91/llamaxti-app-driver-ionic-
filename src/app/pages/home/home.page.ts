@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { SocketService } from '../../services/socket.service';
 import { Subscription } from 'rxjs';
-import { IResSocket, IResSocketCoors } from '../../interfaces/response-socket.interface';
+import { IResDisposal, IResSocket, IResSocketCoors } from '../../interfaces/response-socket.interface';
 import { TaxiService } from '../../services/taxi.service';
 import { environment } from '../../../environments/environment';
 import { StorageService } from '../../services/storage.service';
@@ -801,9 +801,11 @@ export class HomePage implements OnInit, OnDestroy {
       // recibimos la data del nuevo servicio
       this.onLoadSound();
       const indexHex = resSocket.indexHex;
+      console.log('socket new service', resSocket);
 
       if ( indexHex === this.indexHex) {
         this.dataServices.unshift( resSocket.data );
+        console.log(this.dataServices);
       }
 
       const polygonFinded = this.arrPolygons.find( polygon => polygon.indexHex === indexHex );
@@ -841,11 +843,15 @@ export class HomePage implements OnInit, OnDestroy {
   onListenCancelService() {
     this.soketCancelSbc = this.io.onListen('disposal-service')
     .pipe( retry() )
-    .subscribe( (res: any) => {
+    .subscribe( (res: IResDisposal) => {
 
-      if (res.indexHex === this.st.indexHex) {
-        this.dataServices = this.dataServices.filter( ss => ss.pkService !== Number( res.pkService ) );
-      }
+      console.log('socket cancel service', res);
+
+      this.dataServices = this.dataServices.filter( ss => ss.pkService !== res.pkService );
+      this.ui.onShowToast( res.msg, 4500 );
+      console.log(this.dataServices);
+      // if (res.indexHex === this.st.indexHex) {
+      // }
 
       const polygonFinded = this.arrPolygons.find( polygon => polygon.indexHex === res.indexHex );
 

@@ -1,18 +1,18 @@
 <ion-header no-border>
     <ion-toolbar color="dark">
 
-        <ion-label slot="start">
-            <ion-icon *ngIf="io.statusSocket" slot="only-icon" name="radio-button-on-outline" color="success">
+        <ion-label>
+            <!-- <ion-icon *ngIf="io.statusSocket" slot="only-icon" name="radio-button-on-outline" color="success">
             </ion-icon>
 
             <ion-icon *ngIf="!io.statusSocket" slot="only-icon" name="radio-button-off-outline" color="danger">
-            </ion-icon>
+            </ion-icon> -->
 
-            <ion-badge slot="start" *ngIf="io.statusSocket" color="success" mode="ios" class=" text-center">
+            <ion-badge *ngIf="io.statusSocket" color="success" mode="ios" class=" text-center">
                 {{ io.statusSocket | network }}
             </ion-badge>
 
-            <ion-badge slot="start" *ngIf="!io.statusSocket" color="danger" mode="ios" class=" text-center">
+            <ion-badge *ngIf="!io.statusSocket" color="danger" mode="ios" class=" text-center">
                 {{ io.statusSocket | network }}
             </ion-badge>
         </ion-label>
@@ -67,7 +67,7 @@
             <div class="cardTaxi animated fadeInRight " [ngClass]="{'cardTouch': hideSlideCard, 'cardDark': codeJournal !== 'DIURN', 'cardLight': codeJournal === 'DIURN', 'hide': hideSlideCard, 'show': !hideSlideCard}">
                 <div class="card-header">
                     <div class="row">
-                        <div class="col-10 text-left">
+                        <div class="col-10 text-center">
                             <span style="font-size: 12px;">
 
                                 <span class="text-primary"> {{ ts.aliasCategory }} </span>
@@ -85,13 +85,20 @@
                 </div>
 
                 <div class="card-body" (click)="onShowMoreCard( ts )">
+
+                    <div class="coupon" *ngIf="ts.fkCouponUser !== 0">
+                        <i class="fas fa-ticket-alt text-info iconCoupon"></i>
+                        <!-- <ion-icon name="ticket-outline" color="primary"></ion-icon> -->
+                        <!-- {{ ts.discount }} -->
+                    </div>
+
                     <div class="row">
                         <div class="col-7 text-center">
                             <img [src]=" pathImg + ts.img + '?token=' + st.token " alt="Cliente" class="rounded-circle " style="height: 70px; width: 80px;">
                         </div>
                         <div class="col-5 text-left">
 
-                            <div class="row">
+                            <div class="row text-center">
                                 <div class="col-12">
                                     <span style="font-size: 12.5px;">
                                         <i class="fa fa-star" aria-hidden="true"></i>&nbsp;
@@ -149,6 +156,12 @@
                 </div>
                 <div class="col-8 text-center">
 
+                    <div class="couponMore" *ngIf="dataMore.fkCouponUser !== 0">
+                        <i class="fas fa-ticket-alt text-info iconCoupon"></i>
+                        <!-- <ion-icon name="ticket-outline" color="primary"></ion-icon> -->
+                        {{ dataMore.discount | number: '.2-2' }}
+                    </div>
+
                     <div class="row">
 
                         <div class="col-12">
@@ -168,7 +181,7 @@
                                 {{ dataMore.nameComplete.toUpperCase() }}
                             </span>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12 text-center">
                             <span style="font-size: 13.7px;">
                                 <i class="fa fa-star" aria-hidden="true"></i>&nbsp;
                                 4.5 &nbsp;

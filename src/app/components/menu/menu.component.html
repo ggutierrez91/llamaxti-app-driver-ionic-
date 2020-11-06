@@ -80,6 +80,25 @@
             </ion-item>
 
             <ion-item lines="none" class="itemGroup fontMenu">
+                Jornada laboral
+            </ion-item>
+
+            <ion-item (click)="onRedirect('/journal')" detail>
+                <ion-icon slot="start" name="hourglass-outline" color="primary"></ion-icon>
+                Jornadas
+            </ion-item>
+
+            <ion-item (click)="onRedirect('/history')" detail>
+                <ion-icon slot="start" name="reload-outline" color="primary"></ion-icon>
+                Historial
+            </ion-item>
+
+            <ion-item (click)="onRedirect('/statistics')" detail lines="none">
+                <ion-icon slot="start" name="bar-chart-outline" color="primary"></ion-icon>
+                Mis estadísticas
+            </ion-item>
+
+            <ion-item lines="none" class="itemGroup fontMenu">
                 Mi cuenta
             </ion-item>
 
@@ -88,10 +107,7 @@
                 Inicio
             </ion-item>
 
-            <ion-item (click)="onRedirect('/journal')" detail>
-                <ion-icon slot="start" name="hourglass-outline" color="primary"></ion-icon>
-                Jornadas
-            </ion-item>
+
 
             <ion-item (click)="onRedirect('/profile')" detail>
                 <ion-icon slot="start" name="person-circle-outline" color="primary"></ion-icon>
@@ -119,15 +135,7 @@
                 Mensajería
             </ion-item>
 
-            <!-- <ion-item (click)="onRedirect('/history')" detail>
-                <ion-icon slot="start" name="reload-outline" color="primary"></ion-icon>
-                Historial
-            </ion-item>
 
-            <ion-item (click)="onRedirect('/statistics')" detail>
-                <ion-icon slot="start" name="bar-chart-outline" color="primary"></ion-icon>
-                Mis estadísticas
-            </ion-item> -->
 
             <!-- <ion-item (click)="onRedirect('card')" detail>
                 <ion-icon slot="start" name="card-outline" color="primary"></ion-icon>

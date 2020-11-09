@@ -84,7 +84,19 @@ const routes: Routes = [
     path: 'coupon',
     canLoad: [TokenGuard, AuthGuard],
     loadChildren: () => import('./pages/coupon/coupon.module').then( m => m.CouponPageModule)
+  },
+  {
+    path: 'points',
+    canLoad: [TokenGuard, AuthGuard],
+    loadChildren: () => import('./pages/points/points.module').then( m => m.PointsPageModule)
+  },
+  {
+    path: 'share-code',
+    canLoad: [TokenGuard, AuthGuard],
+    loadChildren: () => import('./pages/share-code/share-code.module').then( m => m.ShareCodePageModule)
   }
+
+
 
 
 ];

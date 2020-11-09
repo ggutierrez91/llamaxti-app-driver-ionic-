@@ -6,6 +6,7 @@ export interface IUserToken {
     name?: string;
     surname?: string;
     nameComplete?: string;
+    codeReferal: string;
     // prefix?: string;
     // nameCountry?: string;
     // document?: string;

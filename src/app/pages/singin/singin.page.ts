@@ -29,7 +29,7 @@ export class SinginPage implements OnInit, OnDestroy {
   driverFiles: DriverFilesModel;
 
   optSlider = {
-    initialSlide: 0,
+    initialSlide: 4,
     direction: 'horizontal',
     speed: 900,
     effect: 'fade',

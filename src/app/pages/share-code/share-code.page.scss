@@ -1,0 +1,21 @@
+.titleCoupon {
+    font-family: 'Overpass', sans-serif;
+    font-size: 35px;
+}
+
+.faIcon {
+    position: relative;
+    font-size: 45px;
+}
+
+.blue {
+    color: rgba($color: #3c8bf1, $alpha: 1.0);
+}
+
+.green {
+    color: var( --ion-color-success);
+}
+
+.orange {
+    color: rgba($color: #ff7301, $alpha: 1.0);
+}

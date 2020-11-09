@@ -34,21 +34,54 @@
 }
 
 .icon {
-    padding-top: 20px;
-    transform: rotate(-15deg);
-    font-size: 28px;
-    color: rgba($color: #4dff4d, $alpha: 0.7);
+    position: absolute;
+    top: 16px;
+    left: 1.5px;
+    width: 50px;
+    height: 40px;
 }
 
 .banner {
     position: absolute;
     left: 20px;
     top: 185px;
-    background-color: rgba($color: #f5f5f5, $alpha: 1.0);
-    background: rgb(72, 210, 150);
-    background: linear-gradient(90deg, rgba(72, 210, 150, 1) 0%, rgba(62, 171, 140, 1) 22%, rgba(50, 145, 159, 1) 39%, rgba(33, 93, 125, 1) 55%, rgba(19, 85, 148, 1) 71%);
+    background: rgb(22, 195, 103);
+    background: linear-gradient(90deg, rgba(22, 195, 103, 1) 7%, rgba(90, 231, 156, 1) 28%, rgba(32, 210, 190, 1) 50%, rgba(40, 131, 255, 1) 77%, rgba(37, 77, 247, 1) 89%, rgba(57, 83, 198, 1) 96%);
     border-radius: 20px 20px 20px 20px;
-    width: 95%;
+    width: 97%;
     color: #FFF;
     font-weight: bold;
+}
+
+.circle {
+    position: absolute;
+    background-color: rgba($color: #5657ad, $alpha: 0.1);
+    border-radius: 50px;
+}
+
+.one {
+    top: 1px;
+    left: -1px;
+    width: 30px;
+    height: 30px;
+}
+
+.two {
+    left: 45px;
+    width: 60px;
+    height: 60px;
+}
+
+.trhee {
+    top: 20px;
+    right: 75px;
+    width: 40px;
+    height: 40px
+}
+
+.four {
+    right: -1px;
+    bottom: -1px;
+    width: 75px;
+    height: 75px
 }

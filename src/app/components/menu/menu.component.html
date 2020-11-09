@@ -51,26 +51,30 @@
 
             </div>
 
-            <div class="row banner">
+            <div class="row banner" (click)="onRedirect('/share-code')">
+                <img src="./assets/img/015-bitcoin.png" class="icon" alt="Not found">
                 <div class="col-2 text-center">
-                    <i class="fas fa-money-bill-alt icon"></i>
+                    .
                 </div>
                 <div class="col-10">
                     <p style="padding-top: 5px;">
-                        <b>
-                            Gana llamaCréditos por cada amigo que invites
-                        </b>
+                        Acumula puntos y canjealos por premios
                     </p>
                 </div>
+
+                <div class="circle one"></div>
+                <div class="circle two"></div>
+                <div class="circle trhee"></div>
+                <div class="circle four"></div>
             </div>
 
             <ion-item lines="none" class="itemGroup fontMenu">
-                Promos y Cr&eacute;ditos
+                Puntos y regalos
             </ion-item>
 
-            <ion-item detail>
-                <ion-icon slot="start" name="cash-outline" color="primary"></ion-icon>
-                LlamaCr&eacute;ditos
+            <ion-item detail (click)="onRedirect('/points')">
+                <ion-icon slot="start" name="calendar-outline" color="primary"></ion-icon>
+                Puntos
             </ion-item>
 
             <ion-item (click)="onRedirect('/coupon')" detail lines="none">

@@ -35,7 +35,6 @@ export class MenuComponent implements OnInit, OnDestroy {
   constructor(private navCtrl: NavController, public st: StorageService, private menuCtrl: MenuController, private router: Router, private ui: UiUtilitiesService, private zombie: Insomnia, private io: SocketService, private msgSvc: MessageService) { }
 
   ngOnInit() {
-    
     this.onListenMsg();
     this.onListenReadedMsg();
     this.onListenSingSocket();

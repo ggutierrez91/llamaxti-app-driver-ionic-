@@ -16,7 +16,8 @@ export class StorageService {
     role: '',
     userName: '',
     nameComplete: '',
-    img: ''
+    img: '',
+    codeReferal: ''
   };
 
   public dataJournal = {
@@ -72,7 +73,7 @@ export class StorageService {
       this.dataJournal.dateStart = data.dateStart;
       // this.dataJournal.dateStart = data.dateStart;
 
-      await this.storage.set('token', token);
+      await this.storage.set('tokenDriver', token);
       await this.storage.set('dataUser', JSON.stringify( data ));
       await this.storage.set('dataJournal', JSON.stringify( this.dataJournal ));
       return true;
@@ -110,7 +111,7 @@ export class StorageService {
   }
 
   async onLoadToken() {
-    this.token = await this.storage.get('token') || '';
+    this.token = await this.storage.get('tokenDriver') || 'xD';
     this.osID = await this.storage.get('osID') || '';
     // this.indexHex = await this.storage.get('indexHex') || '';
     this.occupied = await this.storage.get('occupied-driver') || false;
@@ -155,6 +156,7 @@ export class StorageService {
 
   async onClearStorage() {
     this.token = '';
+    this.playGeo = false;
     this.pkVehicle = 0;
     this.dataUser = {
       pkUser: 0,
@@ -163,7 +165,8 @@ export class StorageService {
       role: '',
       userName: '',
       nameComplete: '',
-      img: ''
+      img: '',
+      codeReferal: ''
     };
     this.dataJournal = {
       pkJournalDriver: 0,
@@ -174,7 +177,8 @@ export class StorageService {
       dateStart: '',
       expired: false
     };
-    await this.storage.set('token', null);
+    await this.storage.set('tokenDriver', null);
+    await this.storage.set('playGeo', false);
     await this.storage.set( 'dataVehicle', null);
     await this.storage.set( 'dataUser', null);
     await this.storage.set( 'dataJournal', null);

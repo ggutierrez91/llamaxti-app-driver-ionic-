@@ -1,0 +1,78 @@
+<ion-header no-border>
+
+    <ion-toolbar no-border>
+
+        <ion-buttons slot="start">
+            <ion-back-button>
+
+            </ion-back-button>
+        </ion-buttons>
+
+        <ion-buttons slot="end">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons>
+
+    </ion-toolbar>
+
+    <ion-toolbar no-border>
+        <ion-title class="titleCoupon">Gana {{ dataConf.amountDriver }} puntos </ion-title>
+    </ion-toolbar>
+
+</ion-header>
+<ion-content>
+
+    <ion-slides style="width: 100%; height: 100%;">
+        <ion-slide>
+
+            <ion-grid fixed>
+                <ion-row>
+                    <ion-col size="12">
+                        <p>
+                            Acumula {{ dataConf.amountDriver }} puntos por cada amigo que instale la app y cree su cuenta asociando tu c&oacute;digo y regálales hasta 10.00 (llamacr&eacute;ditos/puntos)
+                        </p>
+                    </ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col size="12">
+                        <ion-card mode="ios">
+                            <ion-item lines="none">
+                                <ion-label>
+                                    <p style="font-size: 10px; font-weight: bold;">
+                                        TU C&Oacute;DIGO
+                                    </p>
+                                    <h1>
+                                        {{ st.dataUser.codeReferal }}
+                                    </h1>
+                                </ion-label>
+                                <ion-button (click)="onCopy()" expand="block" fill="clear" shape="round" color="success" slot="end">
+                                    copiar
+                                </ion-button>
+                            </ion-item>
+                        </ion-card>
+                    </ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col size="12" class="text-center">
+                        <i class="fab fa-facebook faIcon blue"></i> &nbsp;
+                        <i class="fab fa-whatsapp faIcon green"></i> &nbsp;
+                        <i class="fab fa-instagram faIcon orange"></i> &nbsp;
+                        <i class="fab fa-facebook-messenger faIcon blue"></i>
+                    </ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col size="12">
+                        <ion-button (click)="onShare()" expand="block" fill="clear" shape="round">
+                            <ion-icon name="share-social-outline"></ion-icon>
+                            Compartir
+                        </ion-button>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+
+        </ion-slide>
+    </ion-slides>
+
+</ion-content>

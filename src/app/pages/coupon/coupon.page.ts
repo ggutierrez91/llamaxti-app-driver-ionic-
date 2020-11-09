@@ -38,7 +38,7 @@ export class CouponPage implements OnInit, OnDestroy {
     this.st.onLoadToken().then( () => {
       this.onLoadCoupons();
 
-    }).catch( e => console.error('Error al cargar storage') )
+    }).catch( e => console.error('Error al cargar storage', e) );
 
   }
 

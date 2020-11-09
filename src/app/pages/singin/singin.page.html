@@ -70,11 +70,31 @@
 
             <ion-slide>
                 <!-- <ion-list> -->
+
                 <div class="table">
-                    <div class="row" style="margin-top: 40%; ">
+                    <div class="row" style="margin-top: 20px; ">
+                        <div class="col-12">
+                            <ion-card mode="ios">
+                                <ion-item lines="none">
+                                    <ion-label>
+                                        <p>C&oacute;digo de la persona que te invit&oacute; a usar la app </p>
+                                    </ion-label>
+                                </ion-item>
+                                <ion-item lines="none">
+                                    <ion-icon slot="start" name="qr-code-outline" class="referalIcon"></ion-icon>
+                                    <ion-input type="text" class="inputReferal" placeholder="Código referente (opcional)" name="codereferal" #codeReferal="ngModel" [(ngModel)]="bodyDriver.codeReferal" pattern="[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ]{0,15}" maxlength="15"></ion-input>
+
+                                    <span class="msgValidation" *ngIf="codeReferal.errors?.pattern && codeReferal.touched">
+                                        <small class="text-danger">*Solo letras, números sin espacios en blanco</small>
+                                    </span>
+                                </ion-item>
+                            </ion-card>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 30px; ">
                         <div class="col-12">
 
-                            <!-- <br><br><br> -->
+                            <!-- <br><br> -->
                         </div>
                     </div>
 

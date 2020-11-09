@@ -31,6 +31,7 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { BackgroundGeolocation } from '@ionic-native/background-geolocation/ngx';
 import { ChartsModule } from 'ng2-charts';
+import { Clipboard } from '@ionic-native/clipboard/ngx';
 
 // the second parameter 'fr-FR' is optional
 registerLocaleData(localeEs, 'es');
@@ -66,6 +67,7 @@ const configIO: SocketIoConfig = { url: environment.URL_SERVER, options: {} };
     LaunchNavigator,
     BackgroundGeolocation,
     ChartsModule,
+    Clipboard,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

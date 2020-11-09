@@ -1,0 +1,89 @@
+<ion-header no-border>
+
+    <ion-toolbar no-border>
+
+        <ion-buttons slot="start">
+            <ion-back-button> </ion-back-button>
+        </ion-buttons>
+
+        <ion-buttons slot="end">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons>
+
+    </ion-toolbar>
+
+    <ion-toolbar no-border>
+        <ion-title class="titleCoupon text-center"> 90 </ion-title>
+        <p class="text-center">
+            Puntos disponibles en este momento
+        </p>
+    </ion-toolbar>
+
+</ion-header>
+
+<ion-content>
+
+    <ion-grid fixed>
+        <ion-row>
+            <ion-col size="12">
+
+                <ion-segment value="VIGENT" (ionChange)="segmentChanged($event)">
+
+                    <ion-segment-button value="VIGENT">
+                        <ion-label>Disponibles</ion-label>
+                    </ion-segment-button>
+
+                    <ion-segment-button value="USED">
+                        <ion-label>Gastados</ion-label>
+                    </ion-segment-button>
+
+                    <ion-segment-button value="EXP">
+                        <ion-label>Expirados</ion-label>
+                    </ion-segment-button>
+
+                </ion-segment>
+
+            </ion-col>
+        </ion-row>
+
+        <ion-row>
+            <ion-col size="12" sy>
+
+                <ion-slides style="width: 100%; height: 450px;">
+                    <ion-slide>
+
+                        <ion-list>
+                            <img src="./assets/img/015-bitcoin.png" alt="Not found" style="width: 100px; height: 100px;">
+                            <p style="font-size: 13px;">
+                                No tienes puntos disponibles en este momento
+                            </p>
+                        </ion-list>
+
+                    </ion-slide>
+                </ion-slides>
+
+            </ion-col>
+        </ion-row>
+
+
+    </ion-grid>
+
+    <div class="row banner">
+
+        <div class="col-2 text-center">
+            <img src="./assets/img/015-bitcoin.png" class="icon" alt="Not found" style="width: 75px; height: 50px;">
+        </div>
+        <div class="col-10">
+            <p style="padding-top: 5px;">
+                <b>
+                Acumula puntos por cada amigo que invites y canjealos por premios
+            </b>
+            </p>
+        </div>
+
+        <div class="circle one"></div>
+        <div class="circle two"></div>
+        <div class="circle trhee"></div>
+        <div class="circle four"></div>
+    </div>
+</ion-content>

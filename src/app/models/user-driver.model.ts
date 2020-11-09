@@ -18,6 +18,7 @@ export class DriverModel extends PersonModel {
     year: number;
     color: string;
     dateSoatExpiration: string;
+    codeReferal: string;
 
     constructor() {
         super();
@@ -34,6 +35,7 @@ export class DriverModel extends PersonModel {
         this.img = '';
         this.srcImg = '';
         this.google = false;
+        this.codeReferal = '';
 
         this.userName = '';
         this.userPassword = '';

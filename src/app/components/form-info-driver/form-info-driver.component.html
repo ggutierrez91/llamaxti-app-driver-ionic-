@@ -44,6 +44,10 @@
                         <small class="text-danger">*Mínimo {{ longTypeDoc }}</small>
                     </span>
 
+                    <span class="msgValidation" *ngIf="document.errors?.pattern && document.touched">
+                        <small class="text-danger">*Solo n&uacute;meros</small>
+                    </span>
+
                     <ion-select (ionChange)="onChangeTypeDoc()" [selectedText]="typeDocText" name="typeDoc" [(ngModel)]="bodyDriver.fkTypeDocument" okText="Ok" cancelText="Cerrar" [interfaceOptions]="typeDocAlertOptions">
 
                         <ion-select-option *ngFor="let typeDoc of dataTypeDocument" [value]="typeDoc.pkTypeDocument">
@@ -52,12 +56,12 @@
 
                     </ion-select>
 
-                    <!-- (ionChange)="onVerifyDni($event)" -->
-                    <ion-input type="text" placeholder="# documento" class="ion-text-right" clearInput="true" inputmode="tel" debounce="750" name="document" #document="ngModel" [(ngModel)]="bodyDriver.document" required="true" [minlength]="longTypeDoc" (ionChange)="onVerifyDni($event)">
+                    <!-- (ionChange)="onVerifyDni($event)" debounce="750" -->
+                    <ion-input type="text" placeholder="# documento" class="ion-text-right" clearInput="true" inputmode="tel" name="document" #document="ngModel" [(ngModel)]="bodyDriver.document" required="true" [minlength]="longTypeDoc" pattern="[0-9]{0,15}">
 
                     </ion-input>
 
-                    <ion-spinner color="primary" slot="end" name="bubbles" *ngIf="loadingReniec"></ion-spinner>
+                    <!-- <ion-spinner color="primary" slot="end" name="bubbles" *ngIf="loadingReniec"></ion-spinner> -->
                 </ion-item>
 
                 <ion-item class="ionitem" [ngClass]="{
@@ -71,20 +75,20 @@
                     <ion-icon slot="start" name="language-outline"></ion-icon>
 
                     <span class="msgValidation" *ngIf="names.errors?.required && names.touched">
-                  <small class="text-danger">*Requerido</small>
-              </span>
+                        <small class="text-danger">*Requerido</small>
+                    </span>
 
                     <span class="msgValidation" *ngIf="names.errors?.minlength && names.touched">
-                  <small class="text-danger">*M&iacute;nimo 3 caracteres</small>
-              </span>
+                        <small class="text-danger">*M&iacute;nimo 3 caracteres</small>
+                    </span>
 
                     <span class="msgValidation" *ngIf="names.errors?.maxlength && names.touched">
-                  <small class="text-danger">*M&aacute;nimo 40 caracteres</small>
-              </span>
+                        <small class="text-danger">*M&aacute;nimo 40 caracteres</small>
+                    </span>
 
                     <span class="msgValidation" *ngIf="names.errors?.pattern && names.touched">
-                  <small class="text-danger">*Solo letras</small>
-              </span>
+                        <small class="text-danger">*Solo letras</small>
+                    </span>
 
                     <ion-input mode="ios" type="text" placeholder="Nombres" class="ion-text-right" clearInput="true" name="names" #names="ngModel" [(ngModel)]="bodyDriver.name" required="true" pattern="^[a-zA-Z áéíóúüñÁÉÍÚÓÜÑ]{0,40}$" minlength="3" maxlength="40">
                     </ion-input>

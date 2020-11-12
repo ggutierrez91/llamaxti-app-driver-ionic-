@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { IAmountRef } from 'src/app/interfaces/referal.interface';
@@ -14,7 +14,7 @@ import { IonSlides } from '@ionic/angular';
   templateUrl: './share-code.page.html',
   styleUrls: ['./share-code.page.scss'],
 })
-export class ShareCodePage implements OnInit {
+export class ShareCodePage implements OnInit, OnDestroy {
   @ViewChild( IonSlides, {static: true} ) slideShared: IonSlides;
   confSbc: Subscription;
   dataConf: IAmountRef = {
@@ -71,6 +71,12 @@ export class ShareCodePage implements OnInit {
     this.sh.share( subject, msg, '', url ).then( (resShared) => {
       console.log('Se compartió ubicación exitosamente', resShared);
     }).catch( e => console.error( 'Error al compartir ubicación', e ) );
+  }
+
+  ngOnDestroy() {
+    if (this.confSbc) {
+      this.confSbc.unsubscribe();
+    }
   }
 
 }

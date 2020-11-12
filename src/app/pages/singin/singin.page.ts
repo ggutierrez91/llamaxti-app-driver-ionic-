@@ -29,7 +29,7 @@ export class SinginPage implements OnInit, OnDestroy {
   driverFiles: DriverFilesModel;
 
   optSlider = {
-    initialSlide: 4,
+    initialSlide: 0,
     direction: 'horizontal',
     speed: 900,
     effect: 'fade',
@@ -133,7 +133,7 @@ export class SinginPage implements OnInit, OnDestroy {
       this.bodyDriver.numberPlate = this.bodyDriver.numberPlate.toUpperCase();
 
       this.driverSbc = this.authSvc.onSaveDriver( this.bodyDriver )
-      .pipe( retry() )
+      // .pipe( retry() )
       .subscribe( async (resSingin) => {
         if (!resSingin.ok) {
           throw new Error( resSingin.error );

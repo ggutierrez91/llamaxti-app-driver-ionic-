@@ -7,12 +7,14 @@ import { IonicModule } from '@ionic/angular';
 import { PointsPageRoutingModule } from './points-routing.module';
 
 import { PointsPage } from './points.page';
+import { PipesModule } from 'src/app/pipes/pipes.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
+    PipesModule,
     PointsPageRoutingModule
   ],
   declarations: [PointsPage]

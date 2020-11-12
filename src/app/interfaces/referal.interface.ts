@@ -7,3 +7,15 @@ export interface IAmountRef {
     daysExpClient: number;
     daysExpDriver: number;
 }
+
+
+export interface IReferal {
+    pkReferalUser: number;
+    bonus: number;
+    bonusUsed: number;
+    bonusVigent: number;
+    dateExpiration: string;
+    nameRefered: string;
+    dateRegister: string;
+    dateUsed: string;
+}

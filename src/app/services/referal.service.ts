@@ -17,4 +17,12 @@ export class ReferalService {
       return this.http.get<IResApi>( URI_API + `/ConfigRef/Amount`, { headers: { Authorization: this.st.token } } );
   }
 
+  onReferal( status = 'OK', page: number ) {
+    return this.http.get<IResApi>( URI_API + `/Referal?status=${ status }&page=${ page }`, { headers: { Authorization: this.st.token } } );
+  }
+
+  onReferalTotal() {
+    return this.http.get<IResApi>( URI_API + `/Referal/Total`, { headers: { Authorization: this.st.token } } );
+  }
+
 }

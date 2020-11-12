@@ -6,9 +6,11 @@ import * as moment from 'moment';
 })
 export class ExpiredPipe implements PipeTransform {
 
-  transform(value: string): unknown {
+  transform(value: string, withHour = true ): unknown {
 
-    let dateExp = moment( value ).locale('es').format('ddd DD MMM hh:mma');
+    const format = withHour ? 'ddd DD MMM hh:mma' : 'ddd DD MMM';
+
+    let dateExp = moment( value ).locale('es').format(format);
     dateExp = dateExp.replace('.', '');
     dateExp = dateExp.replace('.', '');
     return dateExp;

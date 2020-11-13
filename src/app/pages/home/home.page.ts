@@ -678,7 +678,7 @@ export class HomePage implements OnInit, OnDestroy {
   onGetVehicleUsing() {
 
     this.usingSbc = this.vehicleSvc.onGetUsing( this.st.pkDriver )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( async ( res ) => {
 
       if (!res.ok) {

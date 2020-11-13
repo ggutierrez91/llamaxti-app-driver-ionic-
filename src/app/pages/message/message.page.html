@@ -5,19 +5,22 @@
             </ion-back-button>
         </ion-buttons>
 
-        <ion-title>Mensajer&iacute;a</ion-title>
 
         <ion-buttons slot="end">
             <ion-menu-button menu="main-menu"></ion-menu-button>
         </ion-buttons>
 
     </ion-toolbar>
+
+    <ion-toolbar color="dark">
+        <ion-title class="fontTitle">Mensajer&iacute;a</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content #contentMsg>
 
     <ion-list *ngIf="!loading">
-        <ion-card *ngFor="let msg of dataMsg">
+        <ion-card mode="ios" *ngFor="let msg of dataMsg">
 
             <ion-item class="ion-activated" detail lines="none" (click)="onShowDetail( msg )">
                 <ion-avatar>

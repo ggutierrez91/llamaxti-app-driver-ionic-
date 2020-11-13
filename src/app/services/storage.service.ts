@@ -131,7 +131,7 @@ export class StorageService {
     const value = await this.storage.get( 'dataVehicle' );
     if (value) {
       const dataJson = JSON.parse( value ) ;
-
+      console.log('data vehicle', dataJson);
       const dataVehicle = dataJson;
       this.pkVehicle = Number( dataVehicle.pkVehicle ) || 0;
       this.fkCategory = dataVehicle.pkCategory;

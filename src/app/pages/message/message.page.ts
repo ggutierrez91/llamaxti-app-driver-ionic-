@@ -48,7 +48,7 @@ export class MessagePage implements OnInit, OnDestroy {
 
   onListenMsg() {
     this.msgIOSbc = this.io.onListen('new-msg')
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( (res: any) => {
       console.log('new msg socket', res);
       this.dataMsg.push( res.data );
@@ -60,7 +60,7 @@ export class MessagePage implements OnInit, OnDestroy {
     this.loading = true;
     this.msgSbc = this.msgSvc.onGetMessages( pkUser, page )
     .pipe(
-      retry(),
+      // retry(),
       map( (value) => {
         console.log(value);
         const newData: IMessage[] = [];
@@ -121,7 +121,7 @@ export class MessagePage implements OnInit, OnDestroy {
 
   onListenNewResponse() {
     this.responseIOSbc = this.io.onListen('new-response-msg')
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( (res: any) => {
       const finded = this.dataMsg.find( msg => msg.pkMessage === Number( res.pkMessage ) );
       if (finded) {
@@ -151,7 +151,6 @@ export class MessagePage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log('destruyendo msg page');
     if (this.msgSbc) {
       this.msgSbc.unsubscribe();
     }

@@ -36,17 +36,6 @@
                 </div>
             </div>
 
-            <!-- <div class="row">
-                <div class="col-12 text-center">
-                    <h6 *ngIf="!loadingData">
-                        <p>
-                            {{ st.dataUser.nameComplete }}
-                        </p>
-                    </h6>
-                    <i *ngIf="loadingData" class="fa fa-spinner fa-pulse"></i>
-                </div>
-            </div> -->
-
             <div class="row" style="height: 120px;">
 
             </div>
@@ -77,11 +66,11 @@
                 Puntos
             </ion-item>
 
-            <ion-item (click)="onRedirect('/coupon')" detail lines="none">
+            <!-- <ion-item (click)="onRedirect('/coupon')" detail lines="none">
                 <i slot="start" class="fas fa-ticket-alt" color="primary"></i>
-                <!-- <ion-icon slot="start" name="ticket-outline" color="primary"></ion-icon> -->
+                <ion-icon slot="start" name="ticket-outline" color="primary"></ion-icon> 
                 Cupones
-            </ion-item>
+            </ion-item> -->
 
             <ion-item lines="none" class="itemGroup fontMenu">
                 Jornada laboral
@@ -111,8 +100,6 @@
                 Inicio
             </ion-item>
 
-
-
             <ion-item (click)="onRedirect('/profile')" detail>
                 <ion-icon slot="start" name="person-circle-outline" color="primary"></ion-icon>
                 Mi perfil
@@ -138,8 +125,6 @@
                 </ion-badge>
                 Mensajería
             </ion-item>
-
-
 
             <!-- <ion-item (click)="onRedirect('card')" detail>
                 <ion-icon slot="start" name="card-outline" color="primary"></ion-icon>

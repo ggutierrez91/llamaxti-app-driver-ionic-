@@ -50,6 +50,7 @@
 <ion-content>
 
     <div class="mapHome" #mapDriver>
+
         <div #infoPolygon>
             <div class="">
                 <h4 class="card-title">Zonas calientes</h4>
@@ -226,18 +227,15 @@
 
     </div>
 
-    <!-- fab placed to the top end -->
-    <!-- <ion-fab vertical="top" horizontal="end" slot="fixed" *ngIf="showBtnPlay">
-        <ion-fab-button [color]=" st.playGeo ? 'danger' : 'success' " (click)=" onChangePlayGeo() ">
-            <ion-icon [name]=" st.playGeo ? 'stop' : 'play' "></ion-icon>
-        </ion-fab-button>
-    </ion-fab> -->
-
+    <ion-card mode="ios" class="cardJournal" *ngIf="st.dataJournal.pkJournalDriver !== 0">
+        <ion-item lines="none" [ngClass]="{'vigent': !st.dataJournal.expired, 'expired': st.dataJournal.expired }">
+            <ion-icon slot="start" name="clipboard-outline"></ion-icon>
+            <ion-label>
+                {{ st.dataJournal.codeJournal }}
+                <p *ngIf="st.dataJournal.expired"> Expir&oacute; </p>
+                <p *ngIf="!st.dataJournal.expired"> Vigente </p>
+            </ion-label>
+        </ion-item>
+    </ion-card>
 
 </ion-content>
-
-<!-- <ion-footer>
-    <ion-toolbar color="dark">
-        
-    </ion-toolbar>
-</ion-footer> -->

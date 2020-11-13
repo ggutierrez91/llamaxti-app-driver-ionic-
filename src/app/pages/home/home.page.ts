@@ -107,7 +107,9 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.onLoadMap();
     this.apps.onLoadTokenTacker();
-    this.st.onLoadJournal(); // cargando jornada laboral
+
+    this.onLoadJournalDriver();
+
     this.st.onLoadToken().then( () => {
       // this.indexHex = this.st.indexHex;
       this.st.occupied = false;
@@ -135,6 +137,33 @@ export class HomePage implements OnInit, OnDestroy {
     });
 
     this.infoWindowPolygon = new google.maps.InfoWindow();
+
+  }
+
+  onLoadJournalDriver() {
+
+    this.st.onLoadJournal().then( async () => {
+
+      if (this.st.dataJournal.pkJournalDriver === 0 || this.st.dataJournal.expired) {
+
+        const alertJournal = await this.alertCtrl.create({
+          header: 'Mensaje al usuario',
+          message: 'Por favor aperture una nueva jornada laboral',
+          mode: 'ios',
+          translucent: true,
+          buttons: [{
+            text: 'Aceptar',
+            handler: () => {
+
+            }
+          }]
+        });
+
+        await alertJournal.present();
+
+      }
+
+    }).catch(e => console.error('Error al cargar jornada laboral storage', e) ); // cargando jornada laboral
 
   }
 
@@ -437,7 +466,7 @@ export class HomePage implements OnInit, OnDestroy {
         mode: 'ios',
         animated: true,
         buttons: [{
-          text: 'Ok',
+          text: 'Aceptar',
           handler: () => {}
         }]
       });

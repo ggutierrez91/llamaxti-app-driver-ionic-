@@ -104,8 +104,8 @@ export class JournalPage implements OnInit, OnDestroy {
         throw new Error( res.error );
       }
 
-      await this.ui.onShowToast( this.onGetError( res.showError ), 4500 );
-      
+      await this.ui.onShowToast( this.onGetError( res.showError, res.data.pkJournalAux ), 4500 );
+
       if (res.showError === 0) {
         const finded = this.dataConf.find( conf => conf.pkConfigJournal === this.fkConfJournal );
         if (finded) {
@@ -190,14 +190,14 @@ export class JournalPage implements OnInit, OnDestroy {
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 2) {
-      arrErr = ['Error', 'esta jornada ya ha sido cerrada']
+      arrErr = ['Error', 'esta jornada ya ha sido cerrada'];
     }
 
     return arrErr.join(', ');
 
   }
 
-  onGetError( showError: number ) {
+  onGetError( showError: number, pkJournalAux = 0 ) {
     const arrErr = showError === 0 ? ['Se aperturó con éxito'] : ['Error'];
 
     // tslint:disable-next-line: no-bitwise
@@ -207,16 +207,50 @@ export class JournalPage implements OnInit, OnDestroy {
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 2) {
-      arrErr.push('ya existe una jornada con este código');
+
+      const finded = this.dataJournal.find( conf => conf.pkJournalDriver === pkJournalAux );
+      if (finded) {
+        this.dataJournal.push({
+          pkJournalDriver: pkJournalAux,
+          codeJournal: finded.codeJournal,
+          fkConfigJournal: finded.fkConfigJournal,
+          dateStart: finded.dateStart,
+          dateEnd: finded.dateEnd,
+          totalJournal: 0,
+          countService: 0,
+          nameJournal: finded.nameJournal,
+          rateJournal: finded.rateJournal,
+          modeJournal: finded.modeJournal
+        });
+
+        const dataJournal = {
+          pkJournalDriver: pkJournalAux,
+          codeJournal: finded.codeJournal,
+          nameJournal: finded.nameJournal,
+          rateJournal: finded.rateJournal,
+          modeJournal: finded.modeJournal,
+          dateStart: finded.dateStart,
+          expired: finded.expired
+        };
+        this.st.dataJournal = dataJournal;
+
+        this.st.onSetItem('dataJournal', dataJournal, true);
+      }
+      arrErr.push('jornada vigente');
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 4) {
-      arrErr.push('no se encontró conductor');
+      arrErr.push('ya existe una jornada con este código');
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 8) {
+      arrErr.push('no se encontró conductor');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 16) {
       arrErr.push('tarifa inválida');
     }
 

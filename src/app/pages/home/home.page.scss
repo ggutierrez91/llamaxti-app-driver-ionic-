@@ -107,3 +107,19 @@
     font-size: 12.3px;
     font-display: initial;
 }
+
+.cardJournal {
+    position: absolute;
+    top: -5px;
+    left: 2px;
+    width: 150px;
+    height: 62px;
+}
+
+.vigent {
+    --color: var( --ion-color-success);
+}
+
+.expired {
+    --color: var( --ion-color-danger);
+}

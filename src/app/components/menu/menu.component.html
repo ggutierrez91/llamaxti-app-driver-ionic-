@@ -86,10 +86,18 @@
                 Historial
             </ion-item>
 
-            <ion-item (click)="onRedirect('/statistics')" detail lines="none">
+            <ion-item (click)="onRedirect('/statistics')" detail>
                 <ion-icon slot="start" name="bar-chart-outline" color="primary"></ion-icon>
                 Mis estadísticas
             </ion-item>
+
+            <ion-item (click)="onRedirect('/accounts')" detail lines="none">
+                <i slot="start" class="fas fa-file-invoice-dollar"></i>
+                <!-- <ion-icon slot="start" name="bar-chart-outline" color="primary"></ion-icon> -->
+                Mis cuentas bancarias
+            </ion-item>
+
+
 
             <ion-item lines="none" class="itemGroup fontMenu">
                 Mi cuenta

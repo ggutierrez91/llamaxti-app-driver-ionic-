@@ -103,16 +103,24 @@
                                                <!-- &nbsp;&nbsp;
                                                 <span class="badge " [ngClass]="{'badge-danger': journal.expired, 'badge-success': !journal.expired}"> {{ journal.expired }} </span> -->
 
-                                            </span> <br>
-                                            <p>
-                                                <small> {{ journal.nameJournal }} S/ {{ journal.rateJournal | number:'.2-2' }} </small>
-                                                <br> - - - - - - - - - - - - - - - - - - - - - - - <br> Expira {{ journal.dateExpired | expired }}
-                                            </p>
+                                            </span>
+
                                         </ion-label>
-                                        <ion-button *ngIf="journal.expired" slot="end" expand="full" color="danger" shape="round" (click)="onCloseJournal( journal.pkJournalDriver )">
+                                        <ion-button *ngIf="journal.expired" slot="end" expand="full" color="danger" shape="round" (click)="onCloseJournal( journal.pkJournalDriver )" [disabled]="loadingClose">
                                             Cerrar
                                             <ion-spinner *ngIf="loadingClose" name="bubbles"></ion-spinner>
                                         </ion-button>
+                                    </ion-item>
+                                    <ion-item lines="none">
+                                        <ion-label>
+                                            <p>
+                                                <small> {{ journal.nameJournal }} S/ {{ journal.rateJournal | number:'.2-2' }} </small>
+                                                <br> - - - - - - - - - - - - - - - - - - - - - - - - <br> Expira <span [ngClass]="{
+                                                    'text-success': !journal.expired,
+                                                    'text-danger': journal.expired
+                                                }"> {{ journal.dateExpired | expired }} </span>
+                                            </p>
+                                        </ion-label>
                                     </ion-item>
                                 </ion-card-content>
 

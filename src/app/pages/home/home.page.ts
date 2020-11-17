@@ -107,7 +107,13 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.onLoadMap();
     this.apps.onLoadTokenTacker();
-    this.st.onLoadJournal(); // cargando jornada laboral
+    this.st.onLoadJournal().then( () => {
+
+      // cargando jornada laboral
+      console.log(this.st.dataJournal);
+
+    }).catch( e => console.error('Error al cargar jorunal storage', e) );
+    
     this.st.onLoadToken().then( () => {
       // this.indexHex = this.st.indexHex;
       this.st.occupied = false;
@@ -265,11 +271,11 @@ export class HomePage implements OnInit, OnDestroy {
   onChangePlayGeo() {
 
     this.st.playGeo = !this.st.playGeo;
-    console.log('Play geo', this.st.playGeo);
+    // console.log('Play geo', this.st.playGeo);
 
     this.io.onEmit('change-play-geo', { value: this.st.playGeo }, async (resIO: any) => {
           await this.st.onSetItem('playGeo', this.st.playGeo, false);
-          console.log('cambiando playGeo socket', resIO);
+          // console.log('cambiando playGeo socket', resIO);
 
           if (this.st.playGeo) {
 

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { IonSlide, IonSlides } from '@ionic/angular';
+import { IonSlides } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import IConfJ from 'src/app/interfaces/confJournal.interface';
@@ -99,7 +99,7 @@ export class JournalPage implements OnInit, OnDestroy {
   onOpenJournal() {
 
     this.loading = true;
-    this.addSbc = this.journalSvc.onAddJDriver( this.fkConfJournal ).subscribe( async(res) => {
+    this.addSbc = this.journalSvc.onAddJDriver( this.fkConfJournal ).subscribe( async (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
@@ -109,12 +109,15 @@ export class JournalPage implements OnInit, OnDestroy {
       if (res.showError === 0) {
         const finded = this.dataConf.find( conf => conf.pkConfigJournal === this.fkConfJournal );
         if (finded) {
+
+          const dateStart = moment( res.data.dateStart );
           this.dataJournal.push({
             pkJournalDriver: res.data.pkJournal,
             codeJournal: res.data.codeJournal,
             fkConfigJournal: this.fkConfJournal,
             dateStart: res.data.dateStart,
             dateEnd: '',
+            dateExpired: dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm'),
             totalJournal: 0,
             countService: 0,
             nameJournal: finded.nameJournal,
@@ -129,6 +132,7 @@ export class JournalPage implements OnInit, OnDestroy {
             rateJournal : finded.rateJournal,
             modeJournal : finded.modeJournal,
             dateStart: res.data.dateStart,
+            dateExpired: dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm'),
             expired: false
           };
           this.st.dataJournal = dataJournal;

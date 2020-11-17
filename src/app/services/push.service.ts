@@ -77,13 +77,17 @@ export class PushService {
     this.oneSignal.endInit();
 
     this.oneSignal.getIds().then( async (info) => {
-      console.log('os id', info.userId);
-      this.osID = info.userId;
-      this.st.osID = info.userId;
-      this.socket.emit( 'config-osID', { osId: info.userId }, (resIO: any) => {
+
+      const newId = `${ info.userId }-driver`;
+      console.log('os id', newId);
+      this.oneSignal.setExternalUserId( newId );
+      this.osID = newId;
+      this.st.osID = newId;
+      this.socket.emit( 'config-osID', { osId: newId }, (resIO: any) => {
         console.log('config osid socket');
       });
-      await this.st.onSetItem('osID', info.userId);
+      await this.st.onSetItem('osID', newId);
+
     });
 
   }

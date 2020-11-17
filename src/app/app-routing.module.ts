@@ -94,7 +94,13 @@ const routes: Routes = [
     path: 'share-code',
     canLoad: [TokenGuard, AuthGuard],
     loadChildren: () => import('./pages/share-code/share-code.module').then( m => m.ShareCodePageModule)
+  },
+  {
+    path: 'accounts',
+    canLoad: [TokenGuard, AuthGuard],
+    loadChildren: () => import('./pages/accounts/accounts.module').then( m => m.AccountsPageModule)
   }
+
 
 
 

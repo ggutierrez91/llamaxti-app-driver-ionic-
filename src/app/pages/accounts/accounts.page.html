@@ -1,0 +1,146 @@
+<ion-header no-border>
+    <ion-toolbar no-border>
+        <ion-buttons slot="start">
+            <ion-back-button>
+
+            </ion-back-button>
+        </ion-buttons>
+
+        <ion-buttons slot="end">
+            <ion-menu-button menu="main-menu"></ion-menu-button>
+        </ion-buttons>
+
+    </ion-toolbar>
+    <ion-toolbar no-border>
+        <ion-title class="titleCoupon">Mis cuentas</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+    <ion-list>
+
+        <ion-grid fixed>
+            <ion-row>
+                <ion-col size="12">
+                    <ion-card mode="ios">
+                        <form #frmAccount="ngForm">
+
+                            <ion-item lines="none">
+                                <!-- <ion-icon name="business-outline"></ion-icon> -->
+                                <ion-icon slot="start" name="business-outline"></ion-icon>
+                                <ion-label>
+                                    Banco
+                                    <p>
+                                        <span *ngIf="bank.errors?.required && bank.touched">
+                                            <small class="text-danger">
+                                                *Requerido
+                                            </small>
+                                        </span>
+                                    </p>
+                                </ion-label>
+                                <ion-select name="bank" #bank="ngModel" [(ngModel)]="body.fkBank" title="Banco" required>
+                                    <ion-select-option [value]="item.pkBank" *ngFor="let item of dataBank">
+                                        {{ item.bankAlias }}
+                                    </ion-select-option>
+                                </ion-select>
+
+                            </ion-item>
+
+                            <ion-item lines="none">
+                                <ion-icon slot="start" name="keypad-outline"></ion-icon>
+
+                                <span class="msgValidation" *ngIf="cc.errors?.required && cc.touched">
+                                  <small class="text-danger">*Requerido</small>
+                              </span>
+
+                                <span class="msgValidation" *ngIf="cc.errors?.pattern && cc.touched">
+                                  <small class="text-danger">*Formato inv&aacute;lido</small>
+                              </span>
+
+                                <ion-input name="ccAccount" #cc="ngModel" [(ngModel)]="body.ccAccount" inputmode="tel" type="text" placeholder="N° cuenta" required="true" [minlength]="16" [maxlength]="20" pattern="^[0-9]{3,4}-[0-9\-]{4,16}"></ion-input>
+
+                                <ion-button slot="end" expand="block" fill="clear" shape="round" color="primary" (click)="onAddAccount( frmAccount )" [disabled]="frmAccount.invalid">
+                                    Guardar
+
+                                    <ion-spinner *ngIf="loading" color="primary" name="bubbles"></ion-spinner>
+                                </ion-button>
+
+                            </ion-item>
+
+                            <ion-item lines="none">
+
+                                <ion-icon slot="start" name="keypad-outline"></ion-icon>
+
+                                <span class="msgValidation" *ngIf="cci.errors?.required && cci.touched">
+                                <small class="text-danger">*Requerido</small>
+                              </span>
+
+                                <span class="msgValidation" *ngIf="cci.errors?.pattern && cci.touched">
+                                  <small class="text-danger">*Formato inv&aacute;lido</small>
+                              </span>
+
+                                <ion-input name="cciAccount" #cci="ngModel" [(ngModel)]="body.cciAccount" inputmode="tel" type="text" placeholder="N° cuenta interbancaria" required="true" [minlength]="19" [maxlength]="30" pattern="^[0-9]{3,4}-[0-9\-]{4,19}"></ion-input>
+
+                            </ion-item>
+
+                        </form>
+
+                    </ion-card>
+                </ion-col>
+            </ion-row>
+
+
+            <ion-item-divider>
+                <!-- <ion-label>divider</ion-label> -->
+            </ion-item-divider>
+
+            <ion-slides style="width: 100%; height: 410px;">
+                <ion-slide>
+
+                    <ion-list *ngIf="dataAccount.length > 0">
+
+                        <ion-card class="cardcoupon" mode="ios" *ngFor="let account of dataAccount">
+
+                            <ion-card-content>
+                                <ion-item lines="none">
+                                    <ion-label>
+                                        {{ account.bankName }}&nbsp;
+
+
+                                    </ion-label>
+                                    <ion-button (click)="onDelAccount( account.pkAccountDriver )" color="danger" slot="end" expand="block" fill="clear" shape="round">
+                                        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+                                    </ion-button>
+                                </ion-item>
+
+                                <ion-item lines="none">
+                                    <ion-label>
+
+                                        <p>
+                                            Nº cta {{ account.ccAccount }} <br> Nº cta int {{ account.cciAccount }}
+                                        </p>
+                                    </ion-label>
+                                </ion-item>
+                            </ion-card-content>
+
+                        </ion-card>
+
+                    </ion-list>
+
+                    <ion-list *ngIf="dataAccount.length === 0">
+                        <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
+                        <p style="font-size: 13px;">
+                            <b>Cero cuentas</b> <br> No tienes cuentas registradas en este momento
+                        </p>
+                    </ion-list>
+
+                </ion-slide>
+
+            </ion-slides>
+
+        </ion-grid>
+
+    </ion-list>
+
+</ion-content>

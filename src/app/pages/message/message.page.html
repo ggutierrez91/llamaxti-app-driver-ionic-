@@ -5,7 +5,6 @@
             </ion-back-button>
         </ion-buttons>
 
-
         <ion-buttons slot="end">
             <ion-menu-button menu="main-menu"></ion-menu-button>
         </ion-buttons>
@@ -59,14 +58,25 @@
 
         </ion-card>
 
-        <ion-item *ngIf="dataMsg.length === 0">
-            <ion-label>Bandeja vacía</ion-label>
-        </ion-item>
+
     </ion-list>
+
+    <ion-slides *ngIf="dataMsg.length === 0" style="width: 100%; height: 100%;">
+        <ion-slide>
+
+            <ion-list>
+                <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
+                <p style="font-size: 13px;">
+                    No tienes mensajes disponibles en este momento
+                </p>
+            </ion-list>
+
+        </ion-slide>
+    </ion-slides>
 
     <ion-list *ngIf="loading">
 
-        <ion-card *ngFor="let item of [1,1,1,1,1,1]">
+        <ion-card mode="ios" *ngFor="let item of [1,1,1,1,1,1]">
             <ion-item class="ion-activated" detail lines="none">
                 <ion-avatar>
                     <ion-skeleton-text animated></ion-skeleton-text>

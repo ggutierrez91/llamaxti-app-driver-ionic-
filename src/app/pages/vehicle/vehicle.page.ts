@@ -213,6 +213,8 @@ export class VehiclePage implements OnInit, OnDestroy {
     await popover.present();
     const { data } = await popover.onWillDismiss();
 
+    console.log('data opt', data);
+
     if (data.opt === 1) {
       await this.onEditVehicle( data.value );
     } else if (data.opt === 2) {

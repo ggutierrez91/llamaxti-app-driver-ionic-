@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { retry, map } from 'rxjs/operators';
 import { IMessage } from 'src/app/interfaces/message.interface';
 import { environment } from '../../../environments/environment.prod';
-import { ModalController, IonContent } from '@ionic/angular';
+import { ModalController, IonContent, IonSlides } from '@ionic/angular';
 import { ModalMessagePage } from '../modal-message/modal-message.page';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 
@@ -20,6 +20,7 @@ const URI_SERVER = environment.URL_SERVER;
 export class MessagePage implements OnInit, OnDestroy {
 
   @ViewChild('contentMsg', {static: true}) content: IonContent;
+  @ViewChild(IonSlides, {static: false}) slideMsg: IonSlides;
 
   msgSbc: Subscription;
   readedSbc: Subscription;
@@ -37,7 +38,7 @@ export class MessagePage implements OnInit, OnDestroy {
   constructor(public st: StorageService, private io: SocketService, private msgSvc: MessageService, private modalCtrl: ModalController, private ui: UiUtilitiesService ) { }
 
   ngOnInit() {
-
+    // this.slideMsg.lockSwipes( true );
     this.st.onLoadToken().then( (ok) => {
 
       this.onGetMessage( 1, this.st.pkUser );

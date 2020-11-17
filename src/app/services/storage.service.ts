@@ -3,6 +3,7 @@ import { IResPromise } from '../interfaces/response-prom.interfaces';
 import { Storage } from '@ionic/storage';
 import { AuthService } from './auth.service';
 import { IUserToken } from '../interfaces/user-token.interface';
+import * as moment from 'moment';
 @Injectable({
   providedIn: 'root'
 })
@@ -105,7 +106,10 @@ export class StorageService {
       this.dataJournal.modeJournal = data.modeJournal;
       this.dataJournal.rateJournal = data.rateJournal;
       this.dataJournal.dateStart = data.dateStart;
-      this.dataJournal.expired = data.expired || false;
+
+      const startDate = moment( data.dateStart );
+      const current = moment();
+      this.dataJournal.expired = startDate.diff( current, 'hours' ) > 23 ? true : false;
     }
 
   }
@@ -135,7 +139,7 @@ export class StorageService {
       const dataVehicle = dataJson;
       this.pkVehicle = Number( dataVehicle.pkVehicle ) || 0;
       this.fkCategory = dataVehicle.pkCategory;
-      this.category = dataVehicle.aliasCategory  || '';
+      this.category = dataVehicle.nameCategory  || '';
       this.codeCategory = dataVehicle.codeCategory;
       this.brand = dataVehicle.nameBrand  || '';
       this.nameModel = dataVehicle.nameModel  || '';

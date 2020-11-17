@@ -76,7 +76,7 @@ export class LoginPage implements OnInit, OnDestroy {
               this.loading = false;
             }).catch( e => console.error( 'error al redirigir al home', e ) );
 
-          }).catch( e => console.error('errror al configurar socket'));
+          }).catch( e => console.error('errror al configurar socket', e));
 
         }
 

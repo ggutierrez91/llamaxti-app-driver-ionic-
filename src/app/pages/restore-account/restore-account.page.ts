@@ -43,7 +43,7 @@ export class RestoreAccountPage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number ) {
-    const arrError = showError === 0 ? ['Mensaje enviado con éxito, el link caducará en 60 minutos revise su email'] : ['Error'];
+    const arrError = showError === 0 ? ['Mensaje enviado con éxito, el link caducará en 60 minutos revise su email'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if ( showError & 1 ) {

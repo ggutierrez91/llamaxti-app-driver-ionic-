@@ -85,7 +85,7 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number ) {
-    let arrErrors = showError === 0 ? [''] : ['Error'];
+    let arrErrors = showError === 0 ? [''] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {

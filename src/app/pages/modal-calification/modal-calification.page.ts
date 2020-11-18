@@ -50,7 +50,7 @@ export class ModalCalificationPage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number ) {
-    const arrErr = showError === 0 ? ['Se calificó servicio con éxito'] : ['Error'];
+    const arrErr = showError === 0 ? ['Se calificó servicio con éxito'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {

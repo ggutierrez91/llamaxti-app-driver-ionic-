@@ -185,7 +185,7 @@ export class JournalPage implements OnInit, OnDestroy {
   }
 
   onGetErrorClose( showError: number ) {
-    let arrErr = showError === 0 ? ['Se cerró con éxito'] : ['Error'];
+    let arrErr = showError === 0 ? ['Se cerró con éxito'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {
@@ -202,7 +202,7 @@ export class JournalPage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number, pkJournalAux = 0 ) {
-    const arrErr = showError === 0 ? ['Se aperturó con éxito'] : ['Error'];
+    const arrErr = showError === 0 ? ['Se aperturó con éxito'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {

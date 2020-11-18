@@ -91,56 +91,56 @@
             </ion-row>
 
 
-            <ion-item-divider>
-                <!-- <ion-label>divider</ion-label> -->
-            </ion-item-divider>
-
-            <ion-slides style="width: 100%; height: 410px;">
-                <ion-slide>
-
-                    <ion-list *ngIf="dataAccount.length > 0">
-
-                        <ion-card class="cardcoupon" mode="ios" *ngFor="let account of dataAccount">
-
-                            <ion-card-content>
-                                <ion-item lines="none">
-                                    <ion-label>
-                                        {{ account.bankName }}&nbsp;
-
-
-                                    </ion-label>
-                                    <ion-button (click)="onDelAccount( account.pkAccountDriver )" color="danger" slot="end" expand="block" fill="clear" shape="round">
-                                        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
-                                    </ion-button>
-                                </ion-item>
-
-                                <ion-item lines="none">
-                                    <ion-label>
-
-                                        <p>
-                                            Nº cta {{ account.ccAccount }} <br> Nº cta int {{ account.cciAccount }}
-                                        </p>
-                                    </ion-label>
-                                </ion-item>
-                            </ion-card-content>
-
-                        </ion-card>
-
-                    </ion-list>
-
-                    <ion-list *ngIf="dataAccount.length === 0">
-                        <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
-                        <p style="font-size: 13px;">
-                            <b>Cero cuentas</b> <br> No tienes cuentas registradas en este momento
-                        </p>
-                    </ion-list>
-
-                </ion-slide>
-
-            </ion-slides>
 
         </ion-grid>
 
+        <ion-item-divider>
+            <!-- <ion-label>divider</ion-label> -->
+        </ion-item-divider>
+
+        <ion-slides style="width: 100%; height: fit-content;">
+            <ion-slide>
+
+                <ion-list *ngIf="dataAccount.length > 0">
+
+                    <ion-card class="cardcoupon" mode="ios" *ngFor="let account of dataAccount">
+
+                        <ion-card-content>
+                            <ion-item lines="none">
+                                <ion-label>
+                                    {{ account.bankName }}&nbsp;
+
+
+                                </ion-label>
+                                <ion-button (click)="onDelAccount( account.pkAccountDriver )" color="danger" slot="end" expand="block" fill="clear" shape="round">
+                                    <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+                                </ion-button>
+                            </ion-item>
+
+                            <ion-item lines="none">
+                                <ion-label>
+
+                                    <p>
+                                        Nº cta {{ account.ccAccount }} <br> Nº cta int {{ account.cciAccount }}
+                                    </p>
+                                </ion-label>
+                            </ion-item>
+                        </ion-card-content>
+
+                    </ion-card>
+
+                </ion-list>
+
+                <ion-list *ngIf="dataAccount.length === 0">
+                    <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
+                    <p style="font-size: 13px;">
+                        <b>Cero cuentas</b> <br> No tienes cuentas registradas en este momento
+                    </p>
+                </ion-list>
+
+            </ion-slide>
+
+        </ion-slides>
     </ion-list>
 
 </ion-content>

@@ -57,7 +57,7 @@ export class ChangePasswordPage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number ) {
-    let arrErr = showError === 0 ? ['Se actualizó con éxito'] : ['Error'];
+    let arrErr = showError === 0 ? ['Se actualizó con éxito'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {

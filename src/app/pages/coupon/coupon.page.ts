@@ -148,7 +148,7 @@ export class CouponPage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number ) {
-    const arrErr = showError === 0 ? ['Has recibido un cupón'] : ['Error'];
+    const arrErr = showError === 0 ? ['Has recibido un cupón'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {

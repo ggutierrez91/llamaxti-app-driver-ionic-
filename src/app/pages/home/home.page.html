@@ -227,7 +227,7 @@
 
     </div>
 
-    <ion-card mode="ios" class="cardJournal" *ngIf="st.dataJournal.pkJournalDriver !== 0">
+    <ion-card mode="ios" class="cardJournal" *ngIf=" st.dataJournal.pkJournalDriver && st.dataJournal.pkJournalDriver !== 0">
         <ion-item lines="none" [ngClass]="{'vigent': !st.dataJournal.expired, 'expired': st.dataJournal.expired }">
             <ion-icon slot="start" name="clipboard-outline"></ion-icon>
             <ion-label>

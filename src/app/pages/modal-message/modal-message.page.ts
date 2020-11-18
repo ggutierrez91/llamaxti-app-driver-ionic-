@@ -140,7 +140,7 @@ export class ModalMessagePage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number ) {
-    const arrError = showError === 0 ? ['Respuesta enviada con éxito'] : ['Error'];
+    const arrError = showError === 0 ? ['Respuesta enviada con éxito'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if ( showError & 1 ) {

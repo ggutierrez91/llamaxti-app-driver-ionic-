@@ -116,7 +116,7 @@ export class ContactsPage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number ) {
-    const arrErr = showError === 0 ? ['Se eliminó con éxito'] : ['Error'];
+    const arrErr = showError === 0 ? ['Se eliminó con éxito'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 8) {

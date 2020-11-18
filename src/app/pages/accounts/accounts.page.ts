@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { AlertController } from '@ionic/angular';
+import { AlertController, IonSlides } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { IAccount } from 'src/app/interfaces/accounts.interface';
 import { IBank } from 'src/app/interfaces/bank.interface';
@@ -16,7 +16,7 @@ import * as moment from 'moment';
   styleUrls: ['./accounts.page.scss'],
 })
 export class AccountsPage implements OnInit, OnDestroy {
-
+  @ViewChild( IonSlides, {static: true} ) accountSlide: IonSlides;
   bankSbc: Subscription;
   addSbc: Subscription;
   delSbc: Subscription;
@@ -35,7 +35,7 @@ export class AccountsPage implements OnInit, OnDestroy {
   constructor( private st: StorageService, private ui: UiUtilitiesService, private accountSvc: AccountsService, private alertCtrl: AlertController ) { }
 
   ngOnInit() {
-
+    this.accountSlide.lockSwipes( true );
     this.body = new AccountModel();
     this.st.onLoadToken().then( () => {
       this.onLoadBank();
@@ -171,7 +171,7 @@ export class AccountsPage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number ) {
-    const arrErr = showError === 0 ? [`Se ${ this.action } una cuenta exitosamente`] : ['Alerta'];
+    let arrErr = showError === 0 ? [`Se ${ this.action } una cuenta exitosamente`] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {
@@ -201,6 +201,11 @@ export class AccountsPage implements OnInit, OnDestroy {
     // tslint:disable-next-line: no-bitwise
     if (showError & 32) {
       arrErr.push('no se encontró cuenta');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 64) {
+      arrErr = ['Alerta', 'solo puede registrar un máximo de 02 cuentas'];
     }
 
     return arrErr.join(', ');

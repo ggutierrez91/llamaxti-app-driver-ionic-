@@ -101,8 +101,8 @@ export class HomePage implements OnInit, OnDestroy {
     this.bodyPush = new PushModel();
     this.bodyNoty = new NotyModel('/notification', this.st.pkUser);
     this.zombie.keepAwake().then(
-      (success) => { console.log('Teléfono en estado zombie :D', success); },
-      (e) => { console.log('Error al prevenir bloqueo de pantalla', e); }
+      (success) => console.log('Teléfono en estado zombie :D') ,
+      (e) => console.log('Error al prevenir bloqueo de pantalla', e)
     );
 
     this.onLoadMap();
@@ -110,7 +110,8 @@ export class HomePage implements OnInit, OnDestroy {
     this.st.onLoadJournal().then( () => {
 
       // cargando jornada laboral
-      console.log(this.st.dataJournal);
+      // console.log('data journal driver',this.st.dataJournal);
+      this.onLoadJournalDriver();
 
     }).catch( e => console.error('Error al cargar jorunal storage', e) );
 
@@ -148,7 +149,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.st.onLoadJournal().then( async () => {
 
-      if (this.st.dataJournal.pkJournalDriver === 0 || this.st.dataJournal.expired) {
+      if ( !this.st.dataJournal.pkJournalDriver || this.st.dataJournal.pkJournalDriver === 0 || this.st.dataJournal.expired) {
 
         const alertJournal = await this.alertCtrl.create({
           header: 'Mensaje al usuario',
@@ -253,7 +254,7 @@ export class HomePage implements OnInit, OnDestroy {
   onEmitCurrentPosition( lat: number, lng: number ) {
     this.io.onEmit('current-position-driver', {lat, lng }, (res: IResSocketCoors) => {
 
-      console.log('Respuesta socket coords', res);
+      // console.log('Respuesta socket coords', res);
       if (res.ok) {
 
         const oldIndexHex = this.indexHex;
@@ -557,7 +558,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number ) {
-    let arrError = showError === 0 ? ['Contra-oferta enviada con éxito'] : ['Error'];
+    let arrError = showError === 0 ? ['Contra-oferta enviada con éxito'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {
@@ -636,7 +637,7 @@ export class HomePage implements OnInit, OnDestroy {
   onLoadJournal() {
 
     this.journalSbc = this.taxiSvc.onGetJournal()
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -696,7 +697,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   onListenJournal() {
     this.socktJournalbc = this.io.onListen('change-journal')
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( (res: any) => {
       const styleMap: any = res.codeJournal === 'DIURN' ? environment.styleMapDiur : environment.styleMapNocturn;
       this.map.setOptions({
@@ -832,7 +833,7 @@ export class HomePage implements OnInit, OnDestroy {
       // recibimos la data del nuevo servicio
       this.onLoadSound();
       const indexHex = resSocket.indexHex;
-      console.log('socket new service', resSocket);
+      // console.log('socket new service', resSocket);
 
       if ( indexHex === this.indexHex) {
         this.dataServices.unshift( resSocket.data );
@@ -876,11 +877,11 @@ export class HomePage implements OnInit, OnDestroy {
     .pipe( retry() )
     .subscribe( (res: IResDisposal) => {
 
-      console.log('socket cancel service', res);
+      // console.log('socket cancel service', res);
 
       this.dataServices = this.dataServices.filter( ss => ss.pkService !== res.pkService );
       this.ui.onShowToast( res.msg, 4500 );
-      console.log(this.dataServices);
+      // console.log(this.dataServices);
       // if (res.indexHex === this.st.indexHex) {
       // }
 

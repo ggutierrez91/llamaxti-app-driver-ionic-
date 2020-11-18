@@ -280,7 +280,7 @@ export class VehiclePage implements OnInit, OnDestroy {
 
   onGetError( showError: number ) {
 
-    const arrError = showError === 0 ? ['Se cambio con éxito'] : ['Error'];
+    const arrError = showError === 0 ? ['Se cambio con éxito'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {
@@ -313,7 +313,7 @@ export class VehiclePage implements OnInit, OnDestroy {
 
   onGetErrorDel( showError: number ) {
 
-    const arrError = showError === 0 ? ['Se eliminó con éxito'] : ['Error'];
+    const arrError = showError === 0 ? ['Se eliminó con éxito'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {

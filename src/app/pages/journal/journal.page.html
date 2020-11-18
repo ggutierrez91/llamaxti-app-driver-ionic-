@@ -53,9 +53,6 @@
                                 </ion-select-option>
                             </ion-select>
 
-
-
-
                         </ion-item>
 
                     </form>
@@ -84,20 +81,21 @@
             </ion-col>
         </ion-row>
 
-        <ion-row>
-            <ion-col size="12">
 
-                <ion-slides style="width: 100%; height: 300px;">
-                    <ion-slide>
 
-                        <ion-list *ngIf="dataJournal.length > 0">
+    </ion-grid>
 
-                            <ion-card class="cardjournal" mode="ios" *ngFor="let journal of dataJournal">
+    <ion-slides class="slideCard">
+        <ion-slide>
 
-                                <ion-card-content>
-                                    <ion-item lines="none">
-                                        <ion-label>
-                                            <span>
+            <ion-list *ngIf="dataJournal.length > 0">
+
+                <ion-card class="cardjournal" mode="ios" *ngFor="let journal of dataJournal">
+
+                    <ion-card-content>
+                        <ion-item lines="none">
+                            <ion-label>
+                                <span>
                                                 <i class="fas fa-clipboard-list"></i> &nbsp;
                                                 <!-- <i class="fas fa-id-card-alt"></i> -->
                                                {{ journal.codeJournal }}
@@ -105,79 +103,73 @@
                                                <!-- &nbsp;&nbsp;
                                                 <span class="badge " [ngClass]="{'badge-danger': journal.expired, 'badge-success': !journal.expired}"> {{ journal.expired }} </span> -->
 
-                                            </span>
+                                </span>
 
-                                        </ion-label>
-                                        <ion-button *ngIf="journal.expired" slot="end" expand="full" color="danger" shape="round" (click)="onCloseJournal( journal.pkJournalDriver )" [disabled]="loadingClose">
-                                            Cerrar
-                                            <ion-spinner *ngIf="loadingClose" name="bubbles"></ion-spinner>
-                                        </ion-button>
-                                    </ion-item>
-                                    <ion-item lines="none">
-                                        <ion-label>
-                                            <p>
-                                                <small> {{ journal.nameJournal }} S/ {{ journal.rateJournal | number:'.2-2' }} </small>
-                                                <br> - - - - - - - - - - - - - - - - - - - - - - - - <br> Expira <span [ngClass]="{
+                            </ion-label>
+                            <ion-button *ngIf="journal.expired" slot="end" expand="full" color="danger" shape="round" (click)="onCloseJournal( journal.pkJournalDriver )" [disabled]="loadingClose">
+                                Cerrar
+                                <ion-spinner *ngIf="loadingClose" name="bubbles"></ion-spinner>
+                            </ion-button>
+                        </ion-item>
+                        <ion-item lines="none">
+                            <ion-label>
+                                <p>
+                                    <small> {{ journal.nameJournal }} S/ {{ journal.rateJournal | number:'.2-2' }} </small>
+                                    <br> - - - - - - - - - - - - - - - - - - - - - - - - <br> Expira <span [ngClass]="{
                                                     'text-success': !journal.expired,
                                                     'text-danger': journal.expired
                                                 }"> {{ journal.dateExpired | expired }} </span>
-                                            </p>
-                                        </ion-label>
-                                    </ion-item>
-                                </ion-card-content>
+                                </p>
+                            </ion-label>
+                        </ion-item>
+                    </ion-card-content>
 
-                            </ion-card>
+                </ion-card>
 
-                        </ion-list>
+            </ion-list>
 
-                        <ion-list *ngIf="dataJournal.length === 0">
-                            <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
-                            <p style="font-size: 13px;">
-                                No tienes jornadas abiertas en este momento
-                            </p>
-                        </ion-list>
-                    </ion-slide>
+            <ion-list *ngIf="dataJournal.length === 0">
+                <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
+                <p style="font-size: 13px;">
+                    No tienes jornadas abiertas en este momento
+                </p>
+            </ion-list>
+        </ion-slide>
 
-                    <ion-slide>
+        <ion-slide>
 
-                        <ion-list *ngIf="dataJournalClosed.length > 0">
+            <ion-list *ngIf="dataJournalClosed.length > 0">
 
-                            <ion-card class="cardjournal" mode="ios" *ngFor="let journal of dataJournalClosed">
+                <ion-card class="cardjournal" mode="ios" *ngFor="let journal of dataJournalClosed">
 
-                                <ion-card-content>
-                                    <ion-item lines="none">
-                                        <ion-label>
-                                            <span>
+                    <ion-card-content>
+                        <ion-item lines="none">
+                            <ion-label>
+                                <span>
                                                 <i class="fas fa-clipboard-list"></i> &nbsp;
                                                {{ journal.codeJournal }}
 
                                             </span> <br>
-                                            <p>
-                                                <small> {{ journal.nameJournal }} S/ {{ journal.rateJournal | number:'.2-2' }} </small>
-                                                <br> - - - - - - - - - - - - - - - - - - - - - - - <br> F. cierre {{ journal.dateEnd | expired }}
-                                            </p>
-                                        </ion-label>
-                                    </ion-item>
-                                </ion-card-content>
+                                <p>
+                                    <small> {{ journal.nameJournal }} S/ {{ journal.rateJournal | number:'.2-2' }} </small>
+                                    <br> - - - - - - - - - - - - - - - - - - - - - - - <br> F. cierre {{ journal.dateEnd | expired }}
+                                </p>
+                            </ion-label>
+                        </ion-item>
+                    </ion-card-content>
 
-                            </ion-card>
+                </ion-card>
 
-                        </ion-list>
+            </ion-list>
 
-                        <ion-list *ngIf="dataJournalClosed.length === 0">
-                            <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
-                            <p style="font-size: 13px;">
-                                No tienes jornadas cerradas en este momento
-                            </p>
-                        </ion-list>
-                    </ion-slide>
-                </ion-slides>
-
-            </ion-col>
-        </ion-row>
-
-    </ion-grid>
-
+            <ion-list *ngIf="dataJournalClosed.length === 0">
+                <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
+                <p style="font-size: 13px;">
+                    No tienes jornadas cerradas en este momento
+                </p>
+            </ion-list>
+        </ion-slide>
+    </ion-slides>
 
 
 </ion-content>

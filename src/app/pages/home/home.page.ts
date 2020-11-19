@@ -301,7 +301,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.io.onEmit('change-play-geo', { value: this.st.playGeo }, async (resIO: any) => {
           await this.st.onSetItem('playGeo', this.st.playGeo, false);
-          // console.log('cambiando playGeo socket', resIO);
+          console.log('cambiando playGeo socket', resIO);
 
           if (this.st.playGeo) {
 

@@ -104,7 +104,7 @@ export class PointsPage implements OnInit, OnDestroy {
         throw new Error( res.error );
       }
 
-      this.totalReferal = res.total;
+      this.totalReferal = res.total || 0;
 
     });
 

@@ -108,7 +108,12 @@
                                 </div>
                                 <div class="col-12">
                                     <span style="font-size: 12.5px;">
-                                        <i [ngClass]="{'fa-money-check': ts.paymentType === 'CARD', 'fa-money-bill-alt': ts.paymentType !== 'CARD'}" class="fas"></i>
+                                        <i class="fas" 
+                                        [ngClass]="{
+                                            'fa-money-bill-wave': ts.paymentType === 'CASH',
+                                            'fa-coins': ts.paymentType === 'CRED',  
+                                            'fa-money-check': ts.paymentType === 'CARD'
+                                        }" ></i>
                                         &nbsp;
                                         {{ ts.rateOffer | number: '.2-2' }}
                                     </span>
@@ -186,7 +191,12 @@
                             <span style="font-size: 13.7px;">
                                 <i class="fa fa-star" aria-hidden="true"></i>&nbsp;
                                 4.5 &nbsp;
-                                <i [ngClass]="{'fa-money-check': dataMore.paymentType === 'CARD', 'fa-money-bill-alt': dataMore.paymentType !== 'CARD'}" class="fas"></i>
+                                <i class="fas " 
+                                        [ngClass]="{
+                                            'fa-money-bill-wave': dataMore.paymentType === 'CASH',
+                                            'fa-coins': dataMore.paymentType === 'CRED',  
+                                            'fa-money-check': dataMore.paymentType === 'CARD'
+                                        }" ></i>
                                 {{ dataMore.paymentType | payment }}
                             </span>
                         </div>

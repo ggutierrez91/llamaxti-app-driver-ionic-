@@ -19,4 +19,5 @@ export interface IResDisposal {
     pkService: number;
     msg: string;
     indexHex: string;
+    fkUserDriver?: number;
 }

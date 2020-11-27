@@ -9,9 +9,9 @@ export interface IServices {
     fkCategory?: number;
     codeCategory?: string;
     coordsOrigin?: ICoords;
+    coordsDestination?: ICoords;
     latOrigin?: number;
     lngOrigin?: number;
-    coordsDestination?: ICoords;
     streetOrigin?: string;
     streetDestination?: string;
 
@@ -54,6 +54,12 @@ export interface IServices {
     fkCouponUser?: number;
     discount?: number;
     discountType?: string;
+    monitorToken?: string;
+
+    // datos del pago
+    cardCulqui?: string;
+    cardTkn?: string;
+    chargeCulqui?: string;
 
 }
 

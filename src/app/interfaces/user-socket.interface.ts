@@ -8,6 +8,7 @@ export interface IUerSocket {
     pkCategory: number;
     codeCategory: string;
     occupied: boolean;
+    playGeo: boolean;
 }
 
 

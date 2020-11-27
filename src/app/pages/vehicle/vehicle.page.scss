@@ -2,6 +2,11 @@ ion-icon {
     font-size: 27px;
 }
 
+ion-toolbar {
+    --border-style: none;
+    --border-width: none;
+}
+
 .btn-header {
     position: absolute;
     top: -8px;
@@ -18,6 +23,28 @@ ion-icon {
     top: 22px;
     right: 50px;
     font-size: 10px;
+}
+
+.imgCar {
+    height: 300px;
+    position: relative;
+}
+
+.verticalColor {
+    top: 0px;
+    left: 1px;
+    position: absolute;
+    width: 100px;
+    height: fit-content;
+    background: rgb(0, 124, 236);
+    background: linear-gradient(90deg, rgba(0, 124, 236, 1) 23%, rgba(255, 255, 255, 0.4990371148459384) 50%, rgba(255, 255, 255, 0.3029586834733894) 61%, rgba(255, 255, 255, 0) 76%);
+}
+
+.numberPlate {
+    border: 1px solid #4e4e4e;
+    border-radius: 10px 10px 10px 10px;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .bagdeColor {

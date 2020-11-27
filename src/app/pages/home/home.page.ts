@@ -5,11 +5,11 @@ import { IResDisposal, IResSocket, IResSocketCoors } from '../../interfaces/resp
 import { TaxiService } from '../../services/taxi.service';
 import { environment } from '../../../environments/environment';
 import { StorageService } from '../../services/storage.service';
-import { IPolygons, IServiceSocket, IServices } from '../../interfaces/services.interface';
+import { IPolygons, IServiceSocket, IServices, IServiceAccepted } from '../../interfaces/services.interface';
 import { Router } from '@angular/router';
 import { VehicleService } from '../../services/vehicle.service';
 import { AlertController, NavController, Platform } from '@ionic/angular';
-import { IOffer } from '../../interfaces/offer.interface';
+import { IOffer, ISocketOffer } from '../../interfaces/offer.interface';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { retry } from 'rxjs/operators';
 import { Insomnia } from '@ionic-native/insomnia/ngx';
@@ -234,7 +234,8 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onEmitGeo() {
-    this.geoSbc = this.geo.onListenGeo( ).pipe( retry(3) ).subscribe(
+    this.geoSbc = this.geo.onListenGeo( ).pipe( retry(3) )
+    .subscribe(
       (position: Geoposition) => {
 
         const lat = position.coords.latitude;
@@ -335,7 +336,9 @@ export class HomePage implements OnInit, OnDestroy {
   // funciones para cards services
   onGetServices( page: number ) {
 
-    this.cardsSbc = this.taxiSvc.onGetServices( page ).pipe( retry() ).subscribe( (res) => {
+    this.cardsSbc = this.taxiSvc.onGetServices( page )
+    // .pipe( retry() )
+    .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
@@ -490,7 +493,8 @@ export class HomePage implements OnInit, OnDestroy {
 
     await this.ui.onShowLoading('Enviando oferta...');
 
-    this.offerSbc = this.taxiSvc.onNewOffer( this.bodyAcceptOffer ).subscribe( async (res) => {
+    this.offerSbc = this.taxiSvc.onNewOffer( this.bodyAcceptOffer )
+    .subscribe( async (res) => {
 
       if (!res.ok) {
         throw new Error( res.error );
@@ -626,7 +630,8 @@ export class HomePage implements OnInit, OnDestroy {
     this.bodyPush.osId = [osId];
     this.bodyPush.data = { declined: false };
 
-    this.osSbc = this.os.onSendPushUser( this.bodyPush ).subscribe( (res) => {
+    this.osSbc = this.os.onSendPushUser( this.bodyPush )
+    .subscribe( (res) => {
         console.log('push enviado con èxito', res);
     });
 
@@ -657,10 +662,10 @@ export class HomePage implements OnInit, OnDestroy {
   onListenOfferClient() {
     this.socketOfferSbc = this.io.onListen( 'newOffer-service-client' )
     .pipe( retry() )
-    .subscribe( async (res: any) => {
-
+    .subscribe( async (res: ISocketOffer) => {
+      console.log('home acepted service', res);
       if (res.accepted) {
-        const offer: IOffer = res.res.dataOffer;
+        const offer: IServices = res.dataOffer;
         const alertService = await this.alertCtrl.create({
           header: 'Mensaje al usuario',
           subHeader: 'Iniciando servicio de taxi ✅',
@@ -675,6 +680,9 @@ export class HomePage implements OnInit, OnDestroy {
               await this.st.onSetItem('current-service', offer, true);
               await this.st.onSetItem('current-page', '/service-run', false);
               await this.st.onSetItem('occupied-driver', true, false);
+              await this.st.onSetItem('playGeo', true, false);
+              await this.st.onSetItem('run', true);
+              this.st.playGeo = true;
 
               this.io.onEmit('occupied-driver', { occupied: true, pkUser: this.st.pkUser }, (resOccupied) => {
                 console.log('Cambiando estado conductor', resOccupied);
@@ -807,8 +815,8 @@ export class HomePage implements OnInit, OnDestroy {
       this.infoWindowPolygon.setContent(this.infoPolygon.nativeElement);
       this.infoWindowPolygon.setPosition( positionPolygon );
 
-      const tServices = this.arrPolygons.find( pp => pp.indexHex === indexHex ).totalServices || 0;
-      const tDrivers = this.arrPolygons.find( pp => pp.indexHex === indexHex ).totalDrivers || 0;
+      // const tServices = this.arrPolygons.find( pp => pp.indexHex === indexHex ).totalServices || 0;
+      // const tDrivers = this.arrPolygons.find( pp => pp.indexHex === indexHex ).totalDrivers || 0;
 
       this.totalServicesZone = totalServices;
       this.totalDriverZone = totalDrivers;
@@ -831,7 +839,7 @@ export class HomePage implements OnInit, OnDestroy {
     .pipe( retry() )
     .subscribe( (resSocket: IServiceSocket) => {
       // recibimos la data del nuevo servicio
-      this.onLoadSound();
+      // this.onLoadSound();
       const indexHex = resSocket.indexHex;
       // console.log('socket new service', resSocket);
 
@@ -880,7 +888,13 @@ export class HomePage implements OnInit, OnDestroy {
       // console.log('socket cancel service', res);
 
       this.dataServices = this.dataServices.filter( ss => ss.pkService !== res.pkService );
-      this.ui.onShowToast( res.msg, 4500 );
+      if (res.fkUserDriver && res.fkUserDriver !== this.st.pkUser) {
+        this.ui.onShowToast( res.msg, 4500 );
+      }
+      
+      if (!res.fkUserDriver) {
+        this.ui.onShowToast( res.msg, 4500 );
+      }
       // console.log(this.dataServices);
       // if (res.indexHex === this.st.indexHex) {
       // }

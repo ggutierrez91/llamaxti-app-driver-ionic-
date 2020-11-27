@@ -111,9 +111,11 @@ export class StorageService {
       this.dataJournal.rateJournal = data.rateJournal;
       this.dataJournal.dateStart = data.dateStart;
 
-      const startDate = moment( data.dateStart );
+      const startDate = moment( data.dateStart ).add(24, 'hours');
       const current = moment();
-      this.dataJournal.expired = startDate.diff( current, 'hours' ) > 23 ? true : false;
+
+      console.log('diferencia horas', startDate.diff( current, 'minutes' ));
+      this.dataJournal.expired = startDate.diff( current, 'minutes' ) > 0 ? false : true;
     }
 
   }

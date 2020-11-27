@@ -139,7 +139,7 @@ export class VehiclePage implements OnInit, OnDestroy {
   onGetVehicles() {
     this.loading = true;
     this.vhSbc = this.vehicleSvc.onGetVehicle( this.st.pkDriver )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -149,6 +149,8 @@ export class VehiclePage implements OnInit, OnDestroy {
 
       this.dataVehicle.forEach( async (vh) => {
         vh.srcTaxiFrontal = this.pathImg + vh.pkVehicle + `/${ vh.imgTaxiFrontal || 'xd.png' }${ this.tokenPath }`;
+
+        console.log(vh.srcTaxiFrontal);
 
         if (vh.driverUsing) {
 

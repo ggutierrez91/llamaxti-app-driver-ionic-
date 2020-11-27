@@ -34,7 +34,6 @@ export class AppUtilitiesService {
     this.navCtrl.navigateRoot( page );
   }
 
-
   async onLoadTokenTacker() {
 
     this.token = await this.st.get('token') || '';

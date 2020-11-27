@@ -37,21 +37,23 @@ export class PushService {
       let occupied = false;
       if (declined) {
         await this.st.onSetItem('current-page', '/home', false);
-        await this.st.onSetItem('listenOffer', false, false);
         await this.st.onSetItem('current-service', null, false);
-        this.navCtrl.navigateRoot('/home' );
+        await this.st.onSetItem('run', false);
+        // this.navCtrl.navigateRoot('/home' );
 
       }
 
       if (accepted) {
         occupied = true;
+        console.log('servicio aceptado', osNoti.payload.additionalData);
+        await this.st.onSetItem('current-page', '/service-run', false );
         await this.st.onSetItem('current-service', osNoti.payload.additionalData.dataOffer, true);
-        await this.st.onSetItem('listenOffer', true, false);
-        await this.st.onSetItem( 'current-page', '/service-run', false );
-        this.navCtrl.navigateRoot('/service-run');
+        await this.st.onSetItem('playGeo', true, false);
+        await this.st.onSetItem('run', true);
+        this.st.playGeo = true;
+        // await this.navCtrl.navigateRoot('/service-run');
       }
-      this.st.occupied = occupied;
-      // await this.st.onSetItem('occupied-driver', occupied, false);
+
       this.onLoadSound();
 
       // this.io.onEmit('occupied-driver', { occupied, pkUser: this.st.pkUser }, (resOccupied) => {
@@ -64,12 +66,16 @@ export class PushService {
       // console.log('push abierta', osNoti);
       const accepted = osNoti.notification.payload.additionalData.accepted || false;
       const declined = Boolean( osNoti.notification.payload.additionalData.declined ) || false;
-      if (accepted) {
-        this.navCtrl.navigateRoot('/service-run' );
+      let occupied = false;
+      if (declined) {
+        this.navCtrl.navigateRoot('/home' );
+
       }
 
-      if (declined) {
-        this.navCtrl.navigateRoot('/home');
+      if (accepted) {
+        occupied = true;
+        console.log('servicio aceptado', osNoti.notification.data);
+        await this.navCtrl.navigateRoot('/service-run');
       }
 
     });

@@ -1,17 +1,13 @@
 <ion-header no-border>
-    <ion-toolbar color="dark">
+    <ion-toolbar>
         <ion-buttons slot="start">
-            <ion-back-button color="light">
+            <ion-back-button>
             </ion-back-button>
-        </ion-buttons>
-
-        <ion-buttons slot="end">
-            <ion-menu-button menu="main-menu"></ion-menu-button>
         </ion-buttons>
 
     </ion-toolbar>
 
-    <ion-toolbar color="dark">
+    <ion-toolbar>
         <ion-title class="fontTitle">Mis veh&iacute;culos</ion-title>
     </ion-toolbar>
 </ion-header>
@@ -26,37 +22,46 @@
             </ion-button>
         </ion-list-header>
 
-        <ion-item *ngFor="let vh of dataVehicle" (click)="onShowOptions( $event, vh )">
-            <ion-avatar slot="start">
-                <img [src]="vh.srcTaxiFrontal | imgDriver: 'TAXI_FRONTAL'" />
-            </ion-avatar>
-            <ion-label>
-                {{ vh.numberPlate }}
-                <p>
-                    {{ vh.nameBrand || 'Pendiente' }}
-                </p>
-            </ion-label>
+        <ion-card mode="ios" *ngFor="let vh of dataVehicle">
+            <ion-img [src]="vh.srcTaxiFrontal " class="imgCar"></ion-img>
+            <ion-item lines="none">
+                <div slot="start" class="bagdeColor" [ngClass]="{
+                    'bg-blue': vh.color === 'BLUE',
+                    'bg-red': vh.color === 'RED',
+                    'bg-black': vh.color === 'BLACK',
+                    'bg-white': vh.color === 'WHITE',
+                    'bg-yellow': vh.color === 'YELLOW',
+                    'bg-brown': vh.color === 'BROWN',
+                    'bg-green': vh.color === 'GREEN',
+                    'bg-beige': vh.color === 'BEIGE',
+                    'bg-gray': vh.color === 'GRAY'
+                }">
+                </div>
+                <ion-label slot="start">
+                    {{ vh.nameBrand || 'Pendiente' }} &nbsp;
+                    <span class="numberPlate">
+                        {{ vh.numberPlate }}
+                    </span>
 
-            <div class="bagdeColor" [ngClass]="{
-                'bg-blue': vh.color === 'BLUE',
-                'bg-red': vh.color === 'RED',
-                'bg-black': vh.color === 'BLACK',
-                'bg-white': vh.color === 'WHITE',
-                'bg-yellow': vh.color === 'YELLOW',
-                'bg-brown': vh.color === 'BROWN',
-                'bg-green': vh.color === 'GREEN',
-                'bg-beige': vh.color === 'BEIGE',
-                'bg-gray': vh.color === 'GRAY'
-            }">
-            </div>
-            &nbsp; &nbsp;
-            <ion-text>
-                <h6> {{ vh.year }}</h6>
-                <p *ngIf="vh.driverUsing" style="font-size: 13px; font-weight: bold;" class="text-success">
-                    En uso
-                </p>
-            </ion-text>
-        </ion-item>
+                    <p>
+                        {{ vh.nameCategory }}
+
+                    </p>
+                </ion-label>
+
+                <ion-label>
+                    {{ vh.year }}
+                    <p *ngIf="vh.driverUsing" style="font-size: 13px; font-weight: bold;" class="text-success">
+                        En uso
+                    </p>
+                </ion-label>
+                <ion-button slot="end" (click)="onShowOptions( $event, vh )" expand="block" fill="clear" shape="round">
+                    <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+                </ion-button>
+
+            </ion-item>
+        </ion-card>
+
 
     </ion-list>
 

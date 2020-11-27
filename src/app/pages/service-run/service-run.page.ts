@@ -129,12 +129,12 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     this.onLoadMap();
     this.apps.onLoadTokenTacker();
     this.st.onLoadToken().then( async () => {
-      await this.st.onSetItem('run', true);
-      this.apps.run = true;
 
       this.io.onEmit('occupied-driver', { occupied: true, pkUser: this.st.pkUser }, (resOccupied) => {
         console.log('Cambiando estado conductor', resOccupied);
       });
+
+      window.tracker.backgroundGeolocation.start();
 
       this.onLoadMap();
       this.onLoadGeo();
@@ -200,7 +200,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     .pipe( retry() )
     .subscribe( async (res) => {
       await this.onResetStorage();
-      window.tracker.backgroundGeolocation.stop();
+      // window.tracker.backgroundGeolocation.stop();
       this.navCtrl.navigateRoot('/home');
     });
 
@@ -209,8 +209,8 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   async onLoadService() {
     this.loading = true;
     await this.ui.onShowLoading('Cargando información...');
-    this.dataService = await this.st.onGetItem('current-service', true);
 
+    this.dataService = await this.st.onGetItem('current-service', true);
     if (!this.dataService) {
       await this.ui.onHideLoading();
       const alertFound = await this.alertCtrl.create({
@@ -232,7 +232,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     }
 
     this.infoServiceSbc = this.serviceSvc.onServiceInfo( this.dataService.pkService )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( async (res) => {
 
       if (!res.ok) {
@@ -546,9 +546,9 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       await this.onResetStorage();
 
 
-      this.io.onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
-        console.log('Cambiando estado conductor', resOccupied);
-      });
+      // this.io.onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
+      //   console.log('Cambiando estado conductor', resOccupied);
+      // });
 
       if (res.data.ok) {
         await this.ui.onHideLoading();
@@ -600,7 +600,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     const msg = '🚨🚨 Monitorear servicio 🚨🚨';
     const subject = 'Monitrea en tiempo real la ubicación y la información del viaje y vigila la integridad del conductor y pasajero';
-    const url = URI_API + `/#/segurity/monitor/${ this.dataServiceInfo.monitorToken }`;
+    const url = URI_API + `/#/segurity/monitor/${ this.dataService.monitorToken }`;
     this.sh.share( subject, msg, '', url ).then( (resShared) => {
       console.log('Se compartió ubicación exitosamente', resShared);
     }).catch( e => console.error( 'Error al compartir ubicación', e ) );
@@ -679,9 +679,13 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     await this.st.onSetItem('current-page', '/home', false);
     await this.st.onSetItem('current-service', null, false);
     await this.st.onSetItem('occupied-driver', false, false);
-    await this.st.onSetItem('run', false);
+    await this.st.onSetItem('playGeo', true, false);
+    await this.st.onSetItem('run', false, false);
+    this.st.occupied = false;
+    this.st.playGeo = true;
     this.apps.run = false;
     this.apps.pkClient = 0;
+    this.st.pkService = 0;
   }
 
   onEmitCancel() {

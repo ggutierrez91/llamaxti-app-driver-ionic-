@@ -17,7 +17,8 @@ export class SocketService {
     device: 'MOVILE',
     pkCategory: 0,
     codeCategory: 'no especificado',
-    occupied: false
+    occupied: false,
+    playGeo: false
   };
 
   public statusSocket = false;
@@ -66,6 +67,7 @@ export class SocketService {
     this.usersocket.pkCategory = this.st.fkCategory;
     this.usersocket.codeCategory = this.st.codeCategory;
     this.usersocket.occupied = this.st.occupied;
+    this.usersocket.playGeo = this.st.playGeo;
   }
 
   onSingUser(): Promise<IResSocket> {

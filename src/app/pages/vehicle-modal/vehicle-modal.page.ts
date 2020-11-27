@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
-import { ModalController, PickerController, ActionSheetController, IonSlides, IonContent, Platform } from '@ionic/angular';
+import { ModalController, PickerController, ActionSheetController, IonSlides, IonContent } from '@ionic/angular';
 import { VehicleModel } from '../../models/vehicle.model';
 import { VehicleFilesModel, ETypeFile } from '../../models/vehicle-files.model';
 import * as moment from 'moment';
@@ -13,8 +13,6 @@ import { IResApi } from '../../interfaces/response-api.interface';
 import { UploadService } from '../../services/upload.service';
 import { EEntity } from 'src/app/models/user-driver-files.model';
 import { Subscription } from 'rxjs';
-import { retry } from 'rxjs/operators';
-// import { setTimeout } from 'timers';
 
 const URI_SERVER = environment.URL_SERVER;
 declare var window: any;
@@ -31,7 +29,6 @@ export class VehicleModalPage implements OnInit, OnDestroy {
   @Input() loadData: boolean;
   @Input() data: IVehicle;
   @Input() token: string;
-  
 
   bodyVehicle: VehicleModel;
   filesVehicle: VehicleFilesModel;
@@ -153,7 +150,7 @@ export class VehicleModalPage implements OnInit, OnDestroy {
           default:
             break;
         }
-        // console.log('data', this.data);
+
         this.bodyVehicle.pkVehicle = this.data.pkVehicle;
         this.bodyVehicle.numberPlate = this.data.numberPlate;
         this.bodyVehicle.color = this.data.color;
@@ -394,7 +391,7 @@ export class VehicleModalPage implements OnInit, OnDestroy {
 
   onAddVehicle() {
     this.vhSbc = this.vehicleSvc.onAddVehicle( this.bodyVehicle )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( async ( res ) => {
         if (!res.ok) {
           throw new Error( res.error );
@@ -441,7 +438,7 @@ export class VehicleModalPage implements OnInit, OnDestroy {
 
   onUpdateVehicle() {
     this.vhSbc = this.vehicleSvc.onUpdateVehicle( this.bodyVehicle )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( async ( res ) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -468,9 +465,6 @@ export class VehicleModalPage implements OnInit, OnDestroy {
             arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
           }
         }) );
-        // this.filesVehicle.filesVehicle.forEach( async (item)  => {
-        //   // pkVehicleDriver
-        // });
 
         await this.uiSvc.onHideLoading();
 
@@ -496,21 +490,26 @@ export class VehicleModalPage implements OnInit, OnDestroy {
 
   onGetError( showError: number ) {
 
-    let arrError = showError === 0 ? ['Vehiculo creado exitosamente'] : ['Ya existe un vehículo'];
+    let arrError = showError === 0 ? ['Vehiculo creado exitosamente'] : ['Alerta!'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {
-      arrError.push( 'con este número de placa' );
+      arrError.push( 'ya existe un vehículo con esta placa' );
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 2) {
-      arrError = [ 'No se encontro registro del conductor' ];
+      arrError = [ 'Alerta!', 'No se encontro registro del conductor' ];
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 4) {
       arrError.push( 'conductor inactivo' );
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 8) {
+      arrError = [ 'Alerta!', 'Solo puede tener 03 vehículos como máximo' ];
     }
 
     return arrError.join(', ');

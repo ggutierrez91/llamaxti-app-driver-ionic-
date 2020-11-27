@@ -9,6 +9,7 @@ export default interface IJournal {
     nameJournal: string;
     rateJournal: number;
     modeJournal: string;
+    paidOut: boolean;
     expired?: boolean;
     dateExpired?: string;
 }

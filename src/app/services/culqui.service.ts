@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { TokenCulquiModel, ClientCulquiModel, CardCulquiModel } from '../models/culqui.model';
-import { ItokenCulqui, IClientCulqui, ICardCulqui } from '../interfaces/response-culqui.interface';
 import { environment } from '../../environments/environment';
 import { IResApi } from '../interfaces/response-api.interface';
 import { StorageService } from './storage.service';
+import { CardModel } from '../models/card.model';
+import { RefundModel } from '../models/refund.model';
+import { ChargeModel } from '../models/charge.model';
 
 const URI_API = environment.URL_SERVER;
 
@@ -15,28 +16,15 @@ export class CulquiService {
 
   constructor(private http: HttpClient, private st: StorageService) { }
 
-  onGetToken( apiKey: string, body: TokenCulquiModel ) {
-    return this.http.post<ItokenCulqui>( '/v2/tokens', body, { headers: { Authorization: `Bearer ${ apiKey }` } } );
+  onGetToken( body: CardModel ) {
+    return this.http.post<IResApi>( URI_API + '/Culqui/Token', body, { headers: { Authorization: this.st.token } } );
   }
 
-  onAddClient( apiKey: string, body: ClientCulquiModel ) {
-    return this.http.post<IClientCulqui>( '/v2/customers', body, { headers: { Authorization: `Bearer ${ apiKey }` } } );
+  onAddCarge( body: ChargeModel ) {
+    return this.http.post<IResApi>( URI_API + '/Culqui/Charge/Journal', body, { headers: { Authorization: this.st.token } } );
   }
 
-  onAddCard( apiKey: string, body: CardCulquiModel ) {
-    return this.http.post<ICardCulqui>( '/v2/cards', body, { headers: { Authorization: `Bearer ${ apiKey }` } } );
-  }
-
-  onDeleteCard( apiKey: string, id: string) {
-
-    return this.http.delete<ICardCulqui>( `/v2/cards/${id}`, { headers: { Authorization: `Bearer ${ apiKey }` } } );
-  }
-
-  onGetCulquiKey( token: string ) {
-
-    this.st.onLoadToken();
-
-    return this.http.get<IResApi>( URI_API + '/Culqui/Key', {headers: { Authorization: token }} );
-
+  onAddRefund( body: RefundModel ) {
+    return this.http.post<IResApi>( URI_API + '/Culqui/Refund', body, { headers: { Authorization: this.st.token } } );
   }
 }

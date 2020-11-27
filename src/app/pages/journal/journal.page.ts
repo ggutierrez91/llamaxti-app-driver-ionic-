@@ -8,6 +8,13 @@ import { JournalService } from 'src/app/services/journal.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { UiUtilitiesService } from 'src/app/services/ui-utilities.service';
 import * as moment from 'moment';
+import { JournalModel } from '../../models/journal.model';
+import { CardModel } from '../../models/card.model';
+import { ChargeModel } from '../../models/charge.model';
+import { formatNumber } from '@angular/common';
+import { ICargeCulqui, ItokenCulqui } from 'src/app/interfaces/culqui.interface';
+import { IResApi } from 'src/app/interfaces/response-api.interface';
+import { CulquiService } from 'src/app/services/culqui.service';
 
 @Component({
   selector: 'app-journal',
@@ -22,24 +29,36 @@ export class JournalPage implements OnInit, OnDestroy {
   getJSbc: Subscription;
   getJClosedSbc: Subscription;
   addSbc: Subscription;
+  tokenSbc: Subscription;
+  cargeSbc: Subscription;
 
   dataJournal: IJournal[] = [];
   dataJournalClosed: IJournal[] = [];
   dataConf: IConfJ[] = [];
-  fkConfJournal = null;
+  bodyJournal: JournalModel;
   loading = false;
   loadingClose = false;
 
-  constructor( private st: StorageService, private journalSvc: JournalService, private ui: UiUtilitiesService ) { }
+  bodyCard: CardModel;
+  bodyCharge: ChargeModel;
+
+  // tslint:disable-next-line: max-line-length
+  constructor( public st: StorageService, private journalSvc: JournalService, private ui: UiUtilitiesService, private culquiSvc: CulquiService ) { }
 
   ngOnInit() {
+    this.bodyCard = new CardModel();
+    this.bodyCharge = new ChargeModel();
+    this.bodyJournal = new JournalModel();
     this.JournalSlide.lockSwipes( true );
     this.st.onLoadJournal();
     this.st.onLoadToken().then( () => {
       this.onLoadConf();
       this.onGetJournal();
     }).catch( e => console.error('Error al cargar storage') );
-
+    
+    this.st.onLoadCards().then( () => {
+      console.log('cargando tarjetas');
+    }).catch( e => console.error('Error al cargar tarjetas storage') );
   }
 
   onLoadConf() {
@@ -96,55 +115,160 @@ export class JournalPage implements OnInit, OnDestroy {
     });
   }
 
-  onOpenJournal() {
+  onRefreshToken(): Promise<IResApi> {
+    return new Promise( (resolve, reject) => {
+      this.tokenSbc = this.culquiSvc.onGetToken( this.bodyCard ).subscribe( (res) => {
+        if (!res.ok) {
+          resolve({ ok: false, error: res.error });
+        }
+
+        resolve({ ok: true, data: res.data });
+      });
+    });
+  }
+
+  onCarge(): Promise<IResApi> {
+    return new Promise( (resolve, reject) => {
+      this.cargeSbc = this.culquiSvc.onAddCarge( this.bodyCharge ).subscribe( (res) => {
+        if (!res.ok) {
+          resolve({ ok: false, error: res.error });
+        }
+
+        resolve({ ok: true, data: res.data });
+      });
+    });
+  }
+
+  async onOpenJournal() {
 
     this.loading = true;
-    this.addSbc = this.journalSvc.onAddJDriver( this.fkConfJournal ).subscribe( async (res) => {
+    await this.ui.onShowLoading('Espere...');
+
+    if (this.bodyJournal.advancePayment) {
+
+      const resToken = await this.onRefreshToken();
+      if (!resToken.ok) {
+        await this.ui.onHideLoading();
+        return this.ui.onShowToastTop('Error al verificar tarjeta', 4500);
+      }
+      const dataToken: ItokenCulqui = resToken.data;
+      this.bodyCharge.source_id = dataToken.id;
+      this.bodyJournal.cardTkn = dataToken.id;
+
+    }
+
+    this.addSbc = this.journalSvc.onAddJDriver( this.bodyJournal )
+    .subscribe( async (res) => {
       if (!res.ok) {
         throw new Error( res.error );
       }
 
-      await this.ui.onShowToast( this.onGetError( res.showError, res.data.pkJournalAux ), 4500 );
-
       if (res.showError === 0) {
-        const finded = this.dataConf.find( conf => conf.pkConfigJournal === this.fkConfJournal );
-        if (finded) {
 
-          const dateStart = moment( res.data.dateStart );
-          this.dataJournal.push({
-            pkJournalDriver: res.data.pkJournal,
-            codeJournal: res.data.codeJournal,
-            fkConfigJournal: this.fkConfJournal,
-            dateStart: res.data.dateStart,
-            dateEnd: '',
-            dateExpired: dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm'),
-            totalJournal: 0,
-            countService: 0,
-            nameJournal: finded.nameJournal,
-            rateJournal: finded.rateJournal,
-            modeJournal: finded.modeJournal
-          });
+        const dateStart = moment( res.data.dateStart );
+        const newJournal = {
+          pkJournalDriver: res.data.pkJournal,
+          codeJournal: res.data.codeJournal,
+          fkConfigJournal: this.bodyJournal.fkConfJournal,
+          dateStart: res.data.dateStart,
+          dateEnd: '',
+          dateExpired: dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm'),
+          totalJournal: 0,
+          countService: 0,
+          nameJournal: this.bodyJournal.nameJournal,
+          rateJournal: this.bodyJournal.rateJournal,
+          modeJournal: this.bodyJournal.modeJournal,
+          paidOut: false
+        };
 
-          const dataJournal = {
-            pkJournalDriver : Number( res.data.pkJournal ),
-            codeJournal : res.data.codeJournal,
-            nameJournal : finded.nameJournal,
-            rateJournal : finded.rateJournal,
-            modeJournal : finded.modeJournal,
-            dateStart: res.data.dateStart,
-            dateExpired: dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm'),
-            expired: false
-          };
-          this.st.dataJournal = dataJournal;
+        const dataJournal = {
+          pkJournalDriver : Number( res.data.pkJournal ),
+          codeJournal : res.data.codeJournal,
+          nameJournal : this.bodyJournal.nameJournal,
+          rateJournal : this.bodyJournal.rateJournal,
+          modeJournal : this.bodyJournal.modeJournal,
+          dateStart: res.data.dateStart,
+          dateExpired: dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm'),
+          expired: false
+        };
+        this.st.dataJournal = dataJournal;
 
-          await this.st.onSetItem('dataJournal', dataJournal, true);
+        await this.st.onSetItem('dataJournal', dataJournal, true);
 
+        if (this.bodyJournal.advancePayment) {
+          this.bodyCharge.pkJournal = res.data.pkJournal;
+          const resCarge = await this.onCarge( );
+          await this.ui.onHideLoading();
+          if (!resCarge.ok) {
+            // console.log('Error al procesar pago', resCarge.error);
+            return this.ui.onShowToastTop( resCarge.error.merchant_message || 'Error al procesar pago' , 5000);
+          }
+          newJournal.paidOut = true;
+          const dataCarge: ICargeCulqui = resCarge.data;
+
+        } else {
+          await this.ui.onHideLoading();
         }
+
+        this.dataJournal.push(newJournal);
+        this.bodyJournal.onReset();
+      } else {
+        await this.ui.onHideLoading();
       }
+      await this.ui.onShowToast( this.onGetError( res.showError, res.data.pkJournalAux ), 4500 );
       this.loading = false;
 
     });
 
+  }
+
+  onChangeConf() {
+    const finded = this.dataConf.find( rec => rec.pkConfigJournal === this.bodyJournal.fkConfJournal );
+
+    // console.log(finded);
+    if (finded) {
+      this.bodyJournal.nameJournal = finded.nameJournal;
+      this.bodyJournal.modeJournal = finded.modeJournal;
+      this.bodyJournal.rateJournal = finded.rateJournal;
+      this.bodyJournal.advancePayment = finded.advancePayment;
+
+      if ( finded.advancePayment ) {
+        if ( this.st.cardsCulqui.length > 0 ) {
+          this.bodyJournal.cardTkn = this.st.cardsCulqui[0].token;
+          this.bodyJournal.cardCulqui = this.st.cardsCulqui[0].card_number;
+
+          this.bodyCard.card_number = this.st.cardsCulqui[0].cardAll;
+          this.bodyCard.expiration_month = this.st.cardsCulqui[0].expiration_month;
+          this.bodyCard.expiration_year = this.st.cardsCulqui[0].expiration_year;
+          this.bodyCard.cvv = this.st.cardsCulqui[0].cvv;
+          this.bodyCard.email = this.st.cardsCulqui[0].email;
+    
+          this.bodyCharge.email = this.st.cardsCulqui[0].email;
+          const culquiAmount = Number( formatNumber( finded.rateJournal, 'en', '.2-2' ).replace('.', '') );
+          this.bodyCharge.amount = culquiAmount;
+          this.bodyJournal.chargeAmount = culquiAmount;
+
+        }
+      } else {
+        this.bodyJournal.cardTkn = null;
+        this.bodyJournal.cardCulqui = '';
+        this.bodyJournal.chargeAmount = 0;
+      }
+
+    }
+  }
+
+  onChangeCard() {
+    const finded = this.st.cardsCulqui.find( rec => rec.token === this.bodyJournal.cardTkn );
+    if (finded) {
+      this.bodyCard.card_number = finded.cardAll;
+      this.bodyCard.expiration_month = finded.expiration_month;
+      this.bodyCard.expiration_year = finded.expiration_year;
+      this.bodyCard.cvv = finded.cvv;
+      this.bodyCard.email = finded.email;
+
+      this.bodyCharge.email = finded.email;
+    }
   }
 
   onCloseJournal( pkJournal: number ) {
@@ -214,18 +338,6 @@ export class JournalPage implements OnInit, OnDestroy {
 
       const finded = this.dataJournal.find( conf => conf.pkJournalDriver === pkJournalAux );
       if (finded) {
-        this.dataJournal.push({
-          pkJournalDriver: pkJournalAux,
-          codeJournal: finded.codeJournal,
-          fkConfigJournal: finded.fkConfigJournal,
-          dateStart: finded.dateStart,
-          dateEnd: finded.dateEnd,
-          totalJournal: 0,
-          countService: 0,
-          nameJournal: finded.nameJournal,
-          rateJournal: finded.rateJournal,
-          modeJournal: finded.modeJournal
-        });
 
         const dataJournal = {
           pkJournalDriver: pkJournalAux,

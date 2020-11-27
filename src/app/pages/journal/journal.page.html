@@ -6,9 +6,9 @@
         </ion-buttons>
 
 
-        <ion-buttons slot="end">
+        <!-- <ion-buttons slot="end">
             <ion-menu-button menu="main-menu"></ion-menu-button>
-        </ion-buttons>
+        </ion-buttons> -->
     </ion-toolbar>
 
     <ion-toolbar>
@@ -37,21 +37,48 @@
 
                             </ion-label>
 
-                            <ion-button slot="end" expand="block" fill="outline" shape="round" (click)="onOpenJournal()" [disabled]="frmJournal.invalid || loading">
-                                Abrir jornada
-                                <ion-spinner *ngIf="loading" name="bubbles"></ion-spinner>
-                            </ion-button>
-                        </ion-item>
-                        <ion-item lines="none">
-
-                            <ion-select name="cJournal" #cJournal="ngModel" [(ngModel)]="fkConfJournal" placeholder="Seleccione" title="Tarifa" [ngClass]="{
+                            <ion-select mode="ios" name="cJournal" #cJournal="ngModel" [(ngModel)]="bodyJournal.fkConfJournal" placeholder="Seleccione" [ngClass]="{
                                 'is-invalid': cJournal.errors?.required && cJournal.touched,
                                 'is-valid': !cJournal.errors?.required && cJournal.touched
-                            }" required>
+                            }" required (ionChange)="onChangeConf()">
                                 <ion-select-option [value]="item.pkConfigJournal" *ngFor="let item of dataConf">
                                     {{ item.nameJournal }}
                                 </ion-select-option>
                             </ion-select>
+                        </ion-item>
+
+                        <ion-item lines="none" *ngIf="bodyJournal.advancePayment">
+
+                            <ion-label>
+                                <ion-icon slot="start" name="card-outline"></ion-icon>
+                                Tarjeta
+                                <span *ngIf="cJournal.errors?.required && cJournal.touched">
+                                    <small class="text-danger">
+                                        *Requerido
+                                    </small>
+                                </span>
+
+                            </ion-label>
+
+                            <ion-select mode="ios" name="card" #card="ngModel" [(ngModel)]="bodyJournal.cardTkn" placeholder="Seleccione" [ngClass]="{
+                                'is-invalid': card.errors?.required && card.touched,
+                                'is-valid': !card.errors?.required && card.touched
+                            }" required (ionChange)="onChangeCard()">
+                                <ion-select-option *ngIf="st.cardsCulqui.length === 0" disabled> Asocie tarjetas primero </ion-select-option>
+                                <ion-select-option [value]="item.token" *ngFor="let item of st.cardsCulqui">
+                                    {{ item.card_number }}
+                                </ion-select-option>
+                            </ion-select>
+
+                        </ion-item>
+
+                        <ion-item lines="none">
+
+                            <ion-button expand="block" fill="outline" shape="round" (click)="onOpenJournal()" [disabled]="frmJournal.invalid || loading">
+                                Abrir jornada
+                                <ion-spinner *ngIf="loading" name="bubbles"></ion-spinner>
+                            </ion-button>
+
 
                         </ion-item>
 

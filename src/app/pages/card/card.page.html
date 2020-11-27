@@ -1,0 +1,189 @@
+<ion-header no-border>
+    <ion-toolbar mode="md">
+        <ion-buttons slot="start">
+            <ion-back-button>
+                <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+                <!-- <ion-icon slot="start" name="add"></ion-icon> -->
+            </ion-back-button>
+        </ion-buttons>
+
+
+
+    </ion-toolbar>
+
+    <ion-toolbar mode="md">
+        <ion-title class="titleCoupon">Mis tarjetas</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-list>
+        <form #frmCard="ngForm">
+
+
+            <ion-grid fixed>
+
+                <ion-row>
+                    <ion-col size="12">
+
+                        <ion-card mode="ios">
+
+
+                            <ion-grid fixed>
+                                <ion-row>
+                                    <ion-col size="12">
+
+                                        <ion-item lines="none">
+                                            <ion-icon slot="start" name="card" color="tertiary"></ion-icon>
+                                            <!-- <i slot="start" class="fas fa-credit-card iconsCard"></i> -->
+                                            <ion-input mode="ios" type="text" placeholder="0000 0000 0000 0000" class="ion-text-right" inputmode="tel" name="cardnumber" #cnumber="ngModel" [(ngModel)]="body.card_number" pattern="[0-9]{0,20}" minlength="14" maxlength="19" required></ion-input>
+
+                                            <ion-button expand="block" fill="clear" shape="round" [disabled]="frmCard.invalid" (click)="onValidCard( frmCard )">
+                                                Validar
+                                            </ion-button>
+                                        </ion-item>
+
+                                        <span class="msgValidation" *ngIf="cnumber.errors?.required && cnumber.touched">
+                                      <small class="text-danger">*Requerido</small>
+                                  </span>
+
+                                        <span class="msgValidation" *ngIf="cnumber.errors?.minlength && cnumber.touched">
+                                      <small class="text-danger">*M&iacute;nimo 14 d&iacute;gitos</small>
+                                  </span>
+
+                                        <span class="msgValidation" *ngIf="cnumber.errors?.maxlength && cnumber.touched">
+                                      <small class="text-danger">*M&aacute;nimo 19 d&iacute;gitos</small>
+                                  </span>
+
+                                        <span class="msgValidation" *ngIf="cnumber.errors?.pattern && cnumber.touched">
+                                      <small class="text-danger">*Solo n&uacute;meros</small>
+                                  </span>
+
+                                    </ion-col>
+                                </ion-row>
+                                <ion-row>
+                                    <ion-col size="6">
+                                        <ion-item lines="none">
+                                            <ion-icon slot="start" name="calendar" color="tertiary"></ion-icon>
+                                            <!-- <i slot="start" class="fas fa-calendar-day iconsCard"></i> -->
+                                            <ion-input mode="ios" type="text" placeholder="00/00" class="ion-text-right" inputmode="tel" (ionChange)="onChangeExp()" name="expire" #expire="ngModel" [(ngModel)]="body.expiration" pattern="[0-9\/]{0,6}" required minlength="5" maxlength="5"></ion-input>
+
+
+                                        </ion-item>
+
+                                        <span class="msgValidation" *ngIf="expire.errors?.minlength && expire.touched">
+                                      <small class="text-danger">*M&iacute;nimo 4 d&iacute;gitos</small>
+                                  </span>
+
+                                        <span class="msgValidation" *ngIf="expire.errors?.maxlength && expire.touched">
+                                      <small class="text-danger">*M&aacute;nimo 4 d&iacute;gitos</small>
+                                  </span>
+
+                                        <span class="msgValidation" *ngIf="expire.errors?.pattern && expire.touched">
+                                      <small class="text-danger">*Solo n&uacute;meros</small>
+                                  </span>
+                                    </ion-col>
+
+                                    <ion-col size="6">
+                                        <ion-item lines="none">
+                                            <ion-label slot="start" class="iconsCard">cvv</ion-label>
+                                            <ion-input name="cvv" #cvv="ngModel" [(ngModel)]="body
+                                      .cvv" mode="ios" type="text" placeholder="000" class="ion-text-right" inputmode="tel" pattern="[0-9]{3,4}" required></ion-input>
+
+                                        </ion-item>
+
+                                        <span class="msgValidation" *ngIf="cvv.errors?.required && cvv.touched">
+                                      <small class="text-danger">*Requerido</small>
+                                  </span>
+
+                                        <span class="msgValidation" *ngIf="cvv.errors?.pattern && cvv.touched">
+                                      <small class="text-danger">*cvv inv&aacute;lido</small>
+                                  </span>
+                                    </ion-col>
+                                </ion-row>
+
+                                <ion-row>
+                                    <ion-col size="12">
+
+                                        <ion-item lines="none">
+                                            <ion-icon slot="start" color="tertiary" name="mail"></ion-icon>
+                                            <ion-input mode="ios" type="email" placeholder="example@dominio.com" class="ion-text-right" inputmode="email" name="email" #email="ngModel" [(ngModel)]="body.email" pattern="^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$" required="true"></ion-input>
+                                        </ion-item>
+
+                                        <span class="msgValidation" *ngIf="email.errors?.required && email.touched">
+                                          <small class="text-danger">*Requerido</small>
+                                      </span>
+
+                                        <span class="msgValidation" *ngIf="email.errors?.pattern && email.touched">
+                                          <small class="text-danger">*email inv&aacute;lido</small>
+                                      </span>
+                                    </ion-col>
+                                </ion-row>
+                            </ion-grid>
+                        </ion-card>
+
+                    </ion-col>
+                </ion-row>
+
+            </ion-grid>
+
+        </form>
+
+        <ion-item-divider>
+            <!-- <ion-label>Label</ion-label> -->
+        </ion-item-divider>
+
+        <ion-slides style="width: 100%; height: fit-content;">
+            <ion-slide>
+
+
+
+                <ion-list lines="none" *ngIf="st.cardsCulqui.length === 0 ">
+                    <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
+                    <p style="font-size: 13px;">
+                        <b>Sin tarjetas asociadas</b> <br> Recuerda que las tarjetas que asocies quedan guardadas en la menoria de tu teléfono, llamataxi no verá esta información
+                    </p>
+                </ion-list>
+
+                <ion-list>
+                    <ion-card mode="ios" *ngFor="let card of st.cardsCulqui" style="width: 300px;">
+
+                        <ion-item lines="none">
+                            <ion-label>
+                                {{ card.bank }}
+                                <p>
+
+                                    {{ card.card_number }}
+                                </p>
+                            </ion-label>
+
+                            <ion-button slot="end" (click)="onRemoveCard( card.token )" expand="block" fill="clear" shape="round" color="danger" [disabled]="loadingRm">
+                                <ion-icon name="close-outline"></ion-icon>
+                            </ion-button>
+                        </ion-item>
+
+                        <ion-item lines="none">
+                            <ion-label>
+                                {{ card.expiration }}
+                            </ion-label>
+                            <ion-label slot="end" class="text-right">
+                                {{ card.card_brand }}
+                                <p>
+                                    {{ card.card_type }}
+                                </p>
+                            </ion-label>
+                        </ion-item>
+
+                    </ion-card>
+                </ion-list>
+
+            </ion-slide>
+        </ion-slides>
+
+
+        <!-- <ion-item>
+          <ion-skeleton-text animated style="width: 50%"></ion-skeleton-text>
+      </ion-item> -->
+
+    </ion-list>
+</ion-content>

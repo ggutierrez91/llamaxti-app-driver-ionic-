@@ -4,6 +4,8 @@ import { Storage } from '@ionic/storage';
 import { AuthService } from './auth.service';
 import { IUserToken } from '../interfaces/user-token.interface';
 import * as moment from 'moment';
+import { ICard, ItokenCulqui } from '../interfaces/culqui.interface';
+import { CardModel } from '../models/card.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -20,6 +22,8 @@ export class StorageService {
     img: '',
     codeReferal: ''
   };
+
+  public cardsCulqui: ICard[] = [];
 
   public dataJournal = {
     pkJournalDriver: 0,
@@ -54,7 +58,7 @@ export class StorageService {
   public playGeo = false;
   public pkService = 0;
 
-  constructor( private storage: Storage, private authSvc: AuthService ) { }
+  constructor( private st: Storage, private authSvc: AuthService ) { }
 
   async onSaveCredentials( token: string, data: any ) {
       this.token = token;
@@ -74,21 +78,21 @@ export class StorageService {
       this.dataJournal.dateStart = data.dateStart;
       // this.dataJournal.dateStart = data.dateStart;
 
-      await this.storage.set('tokenDriver', token);
-      await this.storage.set('dataUser', JSON.stringify( data ));
-      await this.storage.set('dataJournal', JSON.stringify( this.dataJournal ));
+      await this.st.set('tokenDriver', token);
+      await this.st.set('dataUser', JSON.stringify( data ));
+      await this.st.set('dataJournal', JSON.stringify( this.dataJournal ));
       return true;
   }
 
   onSetItem( name: string, value: any, isJson = false ): Promise<IResPromise> {
     return new Promise( async ( resolve) => {
-      await this.storage.set( name, isJson ? JSON.stringify( value ) : value );
+      await this.st.set( name, isJson ? JSON.stringify( value ) : value );
       resolve({ ok: true });
     });
   }
 
   async onLoadData() {
-    const value = await this.storage.get( 'dataUser' );
+    const value = await this.st.get( 'dataUser' );
     if (value) {
       this.dataUser =  JSON.parse( value );
       this.nameComplete = this.dataUser.nameComplete;
@@ -97,7 +101,7 @@ export class StorageService {
 
   async onLoadJournal() {
 
-    const value = await this.storage.get( 'dataJournal' );
+    const value = await this.st.get( 'dataJournal' );
     if (value) {
       const data =  JSON.parse( value );
       this.dataJournal.pkJournalDriver = data.pkJournalDriver;
@@ -115,12 +119,12 @@ export class StorageService {
   }
 
   async onLoadToken() {
-    this.token = await this.storage.get('tokenDriver') || 'xD';
-    this.osID = await this.storage.get('osID') || '';
-    // this.indexHex = await this.storage.get('indexHex') || '';
-    this.occupied = await this.storage.get('occupied-driver') || false;
-    this.playGeo =  Boolean( await this.storage.get('playGeo') ) || false;
-    const value = await this.storage.get( 'dataUser' );
+    this.token = await this.st.get('tokenDriver') || 'xD';
+    this.osID = await this.st.get('osID') || '';
+    // this.indexHex = await this.st.get('indexHex') || '';
+    this.occupied = await this.st.get('occupied-driver') || false;
+    this.playGeo =  Boolean( await this.st.get('playGeo') ) || false;
+    const value = await this.st.get( 'dataUser' );
     if (value) {
       this.dataUser =  JSON.parse( value );
       this.pkDriver = this.dataUser.pkDriver ;
@@ -132,7 +136,7 @@ export class StorageService {
   }
 
   async onLoadVehicle() {
-    const value = await this.storage.get( 'dataVehicle' );
+    const value = await this.st.get( 'dataVehicle' );
     if (value) {
       const dataJson = JSON.parse( value ) ;
       console.log('data vehicle', dataJson);
@@ -153,9 +157,40 @@ export class StorageService {
 
   async onGetItem(name: string, isJson = false) {
 
-    const value = await this.storage.get( name );
+    const value = await this.st.get( name );
     return isJson ? JSON.parse( value ) : value ;
 
+  }
+
+  
+  async onSaveCard( data: ItokenCulqui, body: CardModel ) {
+    this.cardsCulqui.unshift({
+      token: data.id,
+      card_number: data.card_number,
+      cvv: body.cvv,
+      expiration_year: body.expiration_year,
+      expiration_month: body.expiration_month,
+      email: body.email,
+      cardAll: body.card_number,
+      expiration: body.expiration,
+      card_brand: data.iin.card_brand,
+      card_category: data.iin.card_category,
+      card_type: data.iin.card_type,
+      bank: data.iin.issuer.name,
+      card_last_foru: data.last_four,
+      pkUser: this.pkUser
+    });
+    await this.st.set('cardsCulqui', JSON.stringify( this.cardsCulqui ) );
+  }
+
+  async onLoadCards() {
+    const data = await this.st.get( 'cardsCulqui' );
+    if (data) {
+
+      const cardsTemp: ICard[] = JSON.parse( data );
+
+      this.cardsCulqui = cardsTemp.filter( rec => rec.pkUser === this.pkUser );
+    }
   }
 
   async onClearStorage() {
@@ -181,14 +216,14 @@ export class StorageService {
       dateStart: '',
       expired: false
     };
-    await this.storage.set('tokenDriver', null);
-    await this.storage.set('playGeo', false);
-    await this.storage.set( 'dataVehicle', null);
-    await this.storage.set( 'dataUser', null);
-    await this.storage.set( 'dataJournal', null);
-    await this.storage.set( 'current-service', null);
+    await this.st.set('tokenDriver', null);
+    await this.st.set('playGeo', false);
+    await this.st.set( 'dataVehicle', null);
+    await this.st.set( 'dataUser', null);
+    await this.st.set( 'dataJournal', null);
+    await this.st.set( 'current-service', null);
 
-    // await this.storage.clear();
+    // await this.st.clear();
   }
 
   async onAuthToken(): Promise<IResPromise> {

@@ -1,39 +1,32 @@
+
 export class CardModel {
-    pkCard: number;
-    fkPerson: number;
-    idCardCulqui: string;
-    idClientCulqui: string;
-    cardNumber: string;
-    lastFour: string;
-    bank: string;
-    countryBank: string;
-    countryCodeBank: string;
-    brandCard: string;
-    typeCard: string;
+
+    // tslint:disable-next-line: variable-name
+    card_number: string;
+    cvv: string;
+    // tslint:disable-next-line: variable-name
+    expiration_month: string;
+    // tslint:disable-next-line: variable-name
+    expiration_year: string;
+    email: string;
+    // cardAll: string;
+    expiration: string;
 
     constructor() {
-        this.pkCard = 0;
-        this.fkPerson = 0;
-        this.idCardCulqui = '';
-        this.idClientCulqui = '';
-        this.cardNumber = '';
-        this.lastFour = '';
-        this.bank = '';
-        this.countryBank = '';
-        this.countryCodeBank = '';
-        this.brandCard = '';
-        this.typeCard = '';
+        this.card_number = '';
+        this.cvv = '';
+        this.expiration_month = '';
+        this.expiration_year = '';
+        this.email = '';
+        this.expiration = '';
     }
 
     onReset() {
-        this.idCardCulqui = '';
-        this.idClientCulqui = '';
-        this.cardNumber = '';
-        this.lastFour = '';
-        this.bank = '';
-        this.countryBank = '';
-        this.countryCodeBank = '';
-        this.brandCard = '';
-        this.typeCard = '';
+        this.card_number = '';
+        this.cvv = '';
+        this.expiration_month = '';
+        this.expiration_year = '';
+        this.email = '';
+        this.expiration = '';
     }
 }

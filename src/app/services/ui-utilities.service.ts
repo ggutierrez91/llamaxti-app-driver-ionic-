@@ -63,4 +63,24 @@ export class UiUtilitiesService {
     await toast.present();
   }
 
+  async onShowToastTop( message: string, duration = 1000 ) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration,
+      translucent: true,
+      color: 'light',
+      animated: true,
+      mode: 'ios',
+      position: 'top',
+      buttons: [{
+        text: 'Ok',
+        role: 'close',
+        handler: () => {
+        }
+      }]
+    });
+
+    await toast.present();
+  }
+
 }

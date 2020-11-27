@@ -99,7 +99,13 @@ const routes: Routes = [
     path: 'accounts',
     canLoad: [TokenGuard, AuthGuard],
     loadChildren: () => import('./pages/accounts/accounts.module').then( m => m.AccountsPageModule)
+  },
+  {
+    path: 'card',
+    canLoad: [TokenGuard, AuthGuard],
+    loadChildren: () => import('./pages/card/card.module').then( m => m.CardPageModule)
   }
+
 
 
 

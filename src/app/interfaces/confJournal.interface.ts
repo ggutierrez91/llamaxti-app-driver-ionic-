@@ -4,5 +4,6 @@ export default interface IConfJ {
     nameJournal: string;
     rateJournal: number;
     modeJournal: string;
+    advancePayment: boolean;
 
 }

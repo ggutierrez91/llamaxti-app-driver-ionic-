@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { IResApi } from '../interfaces/response-api.interface';
 import { StorageService } from './storage.service';
 import { environment } from '../../environments/environment.prod';
+import { JournalModel } from '../models/journal.model';
 
 const URI_API = environment.URL_SERVER;
 
@@ -18,9 +19,9 @@ export class JournalService {
     return this.http.get<IResApi>( URI_API + `/ConfigJournal`, {headers: { Authorization: this.st.token }} );
   }
 
-  onAddJDriver( fkConfigJournal: number ) {
+  onAddJDriver( body: JournalModel ) {
     // this.st.onLoadToken();
-    return this.http.post<IResApi>( URI_API + `/JournalDriver`, { fkConfigJournal }, {headers: { Authorization: this.st.token }} );
+    return this.http.post<IResApi>( URI_API + `/JournalDriver`, body, {headers: { Authorization: this.st.token }} );
   }
 
   onCloseJDriver( pk: number ) {

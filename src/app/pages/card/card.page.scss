@@ -1,0 +1,45 @@
+.itemHeader {
+    --border-width: 0px;
+    border: none;
+    --inner-border-width: 0px;
+}
+
+.titleCoupon {
+    font-family: 'Overpass', sans-serif;
+    font-size: 32px;
+}
+
+.iconsCard {
+    color: #f96332;
+    font-size: 20px;
+    padding-left: 3px;
+}
+
+.first-card {
+    position: relative;
+    width: fit-content;
+    height: fit-content;
+}
+
+.last-card {
+    position: absolute;
+    width: 90%;
+    height: fit-content;
+}
+
+.bcp-first {
+    --background: #f96332 !important;
+}
+
+.bcp-last {
+    --background: rgba($color: #0d0fb9, $alpha: 1.0);
+}
+
+.bbva-first {
+    --background: #32baf9 !important;
+    --color: #FFF !important;
+}
+
+.bbva-last {
+    --background: rgba($color: #32baf9, $alpha: 1.0);
+}

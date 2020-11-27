@@ -1,33 +1,14 @@
 <ion-header no-border>
-    <ion-toolbar color="dark">
+    <ion-toolbar mode="md">
         <ion-buttons slot="start">
-            <ion-back-button color="light">
+            <ion-back-button>
             </ion-back-button>
         </ion-buttons>
-        <ion-title>Mi Perfil</ion-title>
 
-        <ion-label slot="end">
-            <!-- <ion-icon *ngIf="io.statusSocket" slot="only-icon" name="radio-button-on-outline" color="success">
-            </ion-icon>
+    </ion-toolbar>
 
-            <ion-icon *ngIf="!io.statusSocket" slot="only-icon" name="radio-button-off-outline" color="danger">
-            </ion-icon> -->
-
-            <ion-badge *ngIf="io.statusSocket" color="success" mode="ios" class="network text-center">
-                {{ io.statusSocket | network }}
-            </ion-badge>
-
-            <ion-badge *ngIf="!io.statusSocket" color="danger" mode="ios" class="network text-center">
-                {{ io.statusSocket | network }}
-            </ion-badge>
-        </ion-label>
-
-
-        <ion-buttons slot="end">
-            <ion-menu-button menu="main-menu"></ion-menu-button>
-        </ion-buttons>
-
-
+    <ion-toolbar mode="md">
+        <ion-title class="titlePage">Mi Perfil</ion-title>
     </ion-toolbar>
 </ion-header>
 
@@ -113,18 +94,16 @@
                                         <!-- <i class="now-ui-icons design_image"></i> -->
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                <!-- <li class="nav-item">
                                     <a class="nav-link" data-toggle="tab" href="#home" role="tablist">
                                         <i class="fas fa-history"></i>
-                                        <!-- <i class="now-ui-icons location_world"></i> -->
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" data-toggle="tab" href="#messages" role="tablist">
                                         <i class="fas fa-medal"></i>
-                                        <!-- <i class="now-ui-icons design-2_ruler-pencil"></i> -->
                                     </a>
-                                </li>
+                                </li> -->
                             </ul>
                         </div>
                         <br>
@@ -233,7 +212,7 @@
 
                             </div>
 
-                            <div class="tab-pane" id="home" role="tabpanel">
+                            <!-- <div class="tab-pane" id="home" role="tabpanel">
                                 <div class="row">
 
                                     <div class="col-md-5 ml-auto mr-auto">
@@ -321,7 +300,7 @@
                                     </div>
 
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
 
                     </div>

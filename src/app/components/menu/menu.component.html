@@ -78,6 +78,7 @@
 
             <ion-item (click)="onRedirect('/journal')" detail>
                 <ion-icon slot="start" name="hourglass-outline" color="primary"></ion-icon>
+
                 Jornadas
             </ion-item>
 
@@ -91,10 +92,16 @@
                 Mis estadísticas
             </ion-item>
 
-            <ion-item (click)="onRedirect('/accounts')" detail lines="none">
+            <ion-item (click)="onRedirect('/accounts')" detail>
                 <i slot="start" class="fas fa-file-invoice-dollar"></i>
                 <!-- <ion-icon slot="start" name="bar-chart-outline" color="primary"></ion-icon> -->
                 Mis cuentas bancarias
+            </ion-item>
+
+            <ion-item (click)="onRedirect('/card')" detail lines="none">
+                <ion-icon slot="start" name="card-outline" color="primary"></ion-icon>
+                <!-- <ion-icon slot="start" name="bar-chart-outline" color="primary"></ion-icon> -->
+                Mis tarjetas
             </ion-item>
 
 

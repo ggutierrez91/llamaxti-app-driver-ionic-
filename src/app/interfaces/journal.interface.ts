@@ -4,12 +4,23 @@ export default interface IJournal {
     fkConfigJournal: number;
     dateStart: string;
     dateEnd: string;
-    totalJournal: number;
-    countService: number;
+
     nameJournal: string;
     rateJournal: number;
     modeJournal: string;
     paidOut: boolean;
+
+    datePaid: string;
+    illPay: boolean;
+    cardCulqui: string;
+    chargeAmount: number;
+    totalCash: number;
+    totalCard: number;
+    totalCredit: number;
+    totalDiscount: number;
+    totalFn: number;
+    countService: number;
+
     expired?: boolean;
     dateExpired?: string;
 }

@@ -8,6 +8,17 @@
 }
 
 .slideCard {
+    position: relative;
     width: 100%;
     height: fit-content;
+}
+
+.modalConfirmPay {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    right: 50px;
+    width: 80%;
+    height: 400px;
+    padding: 20px;
 }

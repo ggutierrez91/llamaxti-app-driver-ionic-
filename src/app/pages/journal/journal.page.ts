@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { IonSlides } from '@ionic/angular';
+import { ActionSheetController, AlertController, IonSlides } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import IConfJ from 'src/app/interfaces/confJournal.interface';
@@ -42,8 +42,10 @@ export class JournalPage implements OnInit, OnDestroy {
   bodyCard: CardModel;
   bodyCharge: ChargeModel;
 
+  showConfirmPay = false;
+
   // tslint:disable-next-line: max-line-length
-  constructor( public st: StorageService, private journalSvc: JournalService, private ui: UiUtilitiesService, private culquiSvc: CulquiService ) { }
+  constructor( public st: StorageService, private journalSvc: JournalService, private ui: UiUtilitiesService, private culquiSvc: CulquiService, private alertCtrl: AlertController, private sheetCtrl: ActionSheetController ) { }
 
   ngOnInit() {
     this.bodyCard = new CardModel();
@@ -55,7 +57,7 @@ export class JournalPage implements OnInit, OnDestroy {
       this.onLoadConf();
       this.onGetJournal();
     }).catch( e => console.error('Error al cargar storage') );
-    
+
     this.st.onLoadCards().then( () => {
       console.log('cargando tarjetas');
     }).catch( e => console.error('Error al cargar tarjetas storage') );
@@ -84,7 +86,8 @@ export class JournalPage implements OnInit, OnDestroy {
   }
 
   onGetJournal() {
-    this.getJSbc = this.journalSvc.onGetJournal( true ).subscribe( (res) => {
+    this.getJSbc = this.journalSvc.onGetJournal( true )
+    .subscribe( (res) => {
 
       if (!res.ok) {
         throw new Error( res.error );
@@ -166,19 +169,28 @@ export class JournalPage implements OnInit, OnDestroy {
       if (res.showError === 0) {
 
         const dateStart = moment( res.data.dateStart );
-        const newJournal = {
+        const newJournal: IJournal = {
           pkJournalDriver: res.data.pkJournal,
           codeJournal: res.data.codeJournal,
           fkConfigJournal: this.bodyJournal.fkConfJournal,
           dateStart: res.data.dateStart,
           dateEnd: '',
           dateExpired: dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm'),
-          totalJournal: 0,
           countService: 0,
           nameJournal: this.bodyJournal.nameJournal,
           rateJournal: this.bodyJournal.rateJournal,
           modeJournal: this.bodyJournal.modeJournal,
-          paidOut: false
+          illPay: true,
+          cardCulqui: this.bodyJournal.cardCulqui,
+          chargeAmount: 0,
+          totalCash: 0,
+          totalCard: 0,
+          totalCredit: 0,
+          totalDiscount: 0,
+          totalFn: 0,
+          paidOut: false,
+          datePaid: '',
+          expired: false
         };
 
         const dataJournal = {
@@ -204,6 +216,8 @@ export class JournalPage implements OnInit, OnDestroy {
             return this.ui.onShowToastTop( resCarge.error.merchant_message || 'Error al procesar pago' , 5000);
           }
           newJournal.paidOut = true;
+          newJournal.datePaid = moment().format('YYYY-MM-DD hh:mm:ss');
+          newJournal.illPay = false;
           const dataCarge: ICargeCulqui = resCarge.data;
 
         } else {
@@ -271,41 +285,61 @@ export class JournalPage implements OnInit, OnDestroy {
     }
   }
 
-  onCloseJournal( pkJournal: number ) {
+  async onSubmitClose() {
+    
     this.loadingClose = true;
-    this.addSbc = this.journalSvc.onCloseJDriver( pkJournal ).subscribe( async(res) => {
-      if (!res.ok) {
-        throw new Error( res.error );
-      }
+    // this.addSbc = this.journalSvc.onCloseJDriver( journal.pkJournalDriver ).subscribe( async(res) => {
+    //   if (!res.ok) {
+    //     throw new Error( res.error );
+    //   }
 
-      await this.ui.onShowToast( this.onGetErrorClose( res.showError ), 4500 );
+    //   await this.ui.onShowToast( this.onGetErrorClose( res.showError ), 4500 );
 
-      if (res.showError === 0) {
-        const finded = this.dataJournal.find( conf => conf.pkJournalDriver === pkJournal );
-        if (finded) {
+    //   if (res.showError === 0) {
+    //     const finded = this.dataJournal.find( conf => conf.pkJournalDriver === pkJournal );
+    //     if (finded) {
 
-          finded.dateEnd = res.data.dateEnd;
-          this.dataJournalClosed.unshift( finded );
+    //       finded.dateEnd = res.data.dateEnd;
+    //       this.dataJournalClosed.unshift( finded );
 
-          const dataJournal = {
-            pkJournalDriver : 0,
-            codeJournal : '',
-            nameJournal : '',
-            rateJournal : 0,
-            modeJournal : '',
-            dateStart: '',
-            expired: true
-          };
-          this.st.dataJournal = dataJournal;
+    //       const dataJournal = {
+    //         pkJournalDriver : 0,
+    //         codeJournal : '',
+    //         nameJournal : '',
+    //         rateJournal : 0,
+    //         modeJournal : '',
+    //         dateStart: '',
+    //         expired: true
+    //       };
+    //       this.st.dataJournal = dataJournal;
 
-          await this.st.onSetItem('dataJournal', dataJournal, true);
-          this.dataJournal = this.dataJournal.filter( jd => jd.pkJournalDriver !== pkJournal );
+    //       await this.st.onSetItem('dataJournal', dataJournal, true);
+    //       this.dataJournal = this.dataJournal.filter( jd => jd.pkJournalDriver !== pkJournal );
 
-        }
-      }
-      this.loadingClose = false;
+    //     }
+    //   }
+    //   this.loadingClose = false;
 
-    });
+    // });
+
+  }
+
+  async onCloseJournal( journal: IJournal ) {
+
+    if (!journal.paidOut) {
+
+      // const sheetCards = await this.sheetCtrl.create({
+      //   header: 'Seleccione una tarjeta',
+      //   subHeader: 'Total a pagar S/ 0.00',
+        
+      // });
+
+    } else {
+      this.onSubmitClose();
+    }
+
+
+    
   }
 
   onGetErrorClose( showError: number ) {

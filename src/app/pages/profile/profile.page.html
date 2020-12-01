@@ -1,22 +1,17 @@
-<ion-header no-border>
-    <ion-toolbar mode="md">
-        <ion-buttons slot="start">
-            <ion-back-button>
-            </ion-back-button>
-        </ion-buttons>
-
-    </ion-toolbar>
-
-    <ion-toolbar mode="md">
-        <ion-title class="titlePage">Mi Perfil</ion-title>
-    </ion-toolbar>
-</ion-header>
 
 <ion-content no-border>
     <div class="wrapper backProfile">
         <div class="page-header clear-filter page-header-small" filter-color="orange">
 
             <div class="container ">
+
+                <button class="btn btn-primary btn-round btn-lg btnEditProfile" (click)="onShowEditProfile()">
+                    <i class="fas fa-edit "></i> 
+                    Editar
+                    <span *ngIf="loadingModal">
+                        <i class="fa fa-spinner fa-pulse" aria-hidden="true"></i>
+                    </span>
+                </button>
 
                 <div class="photo-container">
                     <img *ngIf="!loading" [src]="pathImg + dataProfile.img + '?token=' + st.token " alt="">
@@ -57,22 +52,7 @@
         <div class="section">
             <div class="container">
                 <div class="button-container">
-                    <button class="btn btn-primary btn-round btn-lg" (click)="onShowEditProfile()">
-                        <i class="fas fa-edit "></i> 
-                        Editar
-                        <span *ngIf="loadingModal">
-                            <i class="fa fa-spinner fa-pulse" aria-hidden="true"></i>
-                        </span>
-                    </button>
-                    <!-- <a class="btn btn-primary btn-round btn-lg">
-                    </a> -->
-
-                    <!-- <a href="#button" class="btn btn-default btn-round btn-lg btn-icon" rel="tooltip" title="" data-original-title="Follow me on Twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#button" class="btn btn-default btn-round btn-lg btn-icon" rel="tooltip" title="" data-original-title="Follow me on Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a> -->
+                    
                 </div>
 
                 <h3 class="title">Acerca de mi</h3>
@@ -313,3 +293,17 @@
     </div>
 
 </ion-content>
+
+<ion-header no-border>
+    <ion-toolbar mode="md">
+        <ion-buttons slot="start">
+            <ion-back-button>
+            </ion-back-button>
+        </ion-buttons>
+
+    </ion-toolbar>
+
+    <ion-toolbar mode="md">
+        <ion-title class="titlePage">Mi Perfil</ion-title>
+    </ion-toolbar>
+</ion-header>

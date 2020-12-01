@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { CouponPageRoutingModule } from './coupon-routing.module';
+import { LiquidationsPageRoutingModule } from './liquidations-routing.module';
 
-import { CouponPage } from './coupon.page';
+import { LiquidationsPage } from './liquidations.page';
 import { PipesModule } from 'src/app/pipes/pipes.module';
 
 @NgModule({
@@ -15,8 +15,8 @@ import { PipesModule } from 'src/app/pipes/pipes.module';
     FormsModule,
     IonicModule,
     PipesModule,
-    CouponPageRoutingModule
+    LiquidationsPageRoutingModule
   ],
-  declarations: [CouponPage]
+  declarations: [LiquidationsPage]
 })
-export class CouponPageModule {}
+export class LiquidationsPageModule {}

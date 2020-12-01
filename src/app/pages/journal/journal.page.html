@@ -5,10 +5,6 @@
             </ion-back-button>
         </ion-buttons>
 
-
-        <!-- <ion-buttons slot="end">
-            <ion-menu-button menu="main-menu"></ion-menu-button>
-        </ion-buttons> -->
     </ion-toolbar>
 
     <ion-toolbar>
@@ -79,7 +75,6 @@
                                 <ion-spinner *ngIf="loading" name="bubbles"></ion-spinner>
                             </ion-button>
 
-
                         </ion-item>
 
                     </form>
@@ -109,8 +104,8 @@
         </ion-row>
 
 
-
     </ion-grid>
+
 
     <ion-slides class="slideCard">
         <ion-slide>
@@ -123,29 +118,30 @@
                         <ion-item lines="none">
                             <ion-label>
                                 <span>
-                                                <i class="fas fa-clipboard-list"></i> &nbsp;
-                                                <!-- <i class="fas fa-id-card-alt"></i> -->
-                                               {{ journal.codeJournal }}
+                                    <i class="fas fa-clipboard-list"></i> &nbsp;
+                                    {{ journal.codeJournal }}
 
-                                               <!-- &nbsp;&nbsp;
-                                                <span class="badge " [ngClass]="{'badge-danger': journal.expired, 'badge-success': !journal.expired}"> {{ journal.expired }} </span> -->
+                                    <!-- &nbsp;&nbsp;
+                                    <span class="badge " [ngClass]="{'badge-danger': journal.expired, 'badge-success': !journal.expired}"> {{ journal.expired }} </span> -->
 
                                 </span>
 
                             </ion-label>
-                            <ion-button *ngIf="journal.expired" slot="end" expand="full" color="danger" shape="round" (click)="onCloseJournal( journal.pkJournalDriver )" [disabled]="loadingClose">
-                                Cerrar
+                            <ion-button *ngIf="journal.expired" slot="end" expand="full" color="danger" shape="round" (click)="onCloseJournal( journal )" [disabled]="loadingClose">
+
+                                <span *ngIf="!journal.paidOut">Cerrar y pagar</span>
+                                <span *ngIf="journal.paidOut">Cerrar</span>
                                 <ion-spinner *ngIf="loadingClose" name="bubbles"></ion-spinner>
                             </ion-button>
                         </ion-item>
                         <ion-item lines="none">
                             <ion-label>
+                                Total servicios {{ journal.totalFn }}
                                 <p>
                                     <small> {{ journal.nameJournal }} S/ {{ journal.rateJournal | number:'.2-2' }} </small>
-                                    <br> - - - - - - - - - - - - - - - - - - - - - - - - <br> Expira <span [ngClass]="{
-                                                    'text-success': !journal.expired,
-                                                    'text-danger': journal.expired
-                                                }"> {{ journal.dateExpired | expired }} </span>
+                                    <br> - - - - - - - - - - - - - - - - - - - - - - - - <br> Expira <span [ngClass]="{ 'text-success': !journal.expired, 'text-danger': journal.expired }"> 
+                                        {{ journal.dateExpired | expired }} 
+                                    </span>
                                 </p>
                             </ion-label>
                         </ion-item>
@@ -173,10 +169,9 @@
                         <ion-item lines="none">
                             <ion-label>
                                 <span>
-                                                <i class="fas fa-clipboard-list"></i> &nbsp;
-                                               {{ journal.codeJournal }}
-
-                                            </span> <br>
+                                    <i class="fas fa-clipboard-list"></i> &nbsp;
+                                    {{ journal.codeJournal }}
+                                </span> <br>
                                 <p>
                                     <small> {{ journal.nameJournal }} S/ {{ journal.rateJournal | number:'.2-2' }} </small>
                                     <br> - - - - - - - - - - - - - - - - - - - - - - - <br> F. cierre {{ journal.dateEnd | expired }}
@@ -197,6 +192,7 @@
             </ion-list>
         </ion-slide>
     </ion-slides>
+
 
 
 </ion-content>

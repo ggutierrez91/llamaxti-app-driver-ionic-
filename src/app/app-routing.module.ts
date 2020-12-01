@@ -81,11 +81,6 @@ const routes: Routes = [
     loadChildren: () => import('./pages/journal/journal.module').then( m => m.JournalPageModule)
   },
   {
-    path: 'coupon',
-    canLoad: [TokenGuard, AuthGuard],
-    loadChildren: () => import('./pages/coupon/coupon.module').then( m => m.CouponPageModule)
-  },
-  {
     path: 'points',
     canLoad: [TokenGuard, AuthGuard],
     loadChildren: () => import('./pages/points/points.module').then( m => m.PointsPageModule)
@@ -104,7 +99,11 @@ const routes: Routes = [
     path: 'card',
     canLoad: [TokenGuard, AuthGuard],
     loadChildren: () => import('./pages/card/card.module').then( m => m.CardPageModule)
+  },  {
+    path: 'liquidations',
+    loadChildren: () => import('./pages/liquidations/liquidations.module').then( m => m.LiquidationsPageModule)
   }
+
 
 
 

@@ -99,17 +99,11 @@ const routes: Routes = [
     path: 'card',
     canLoad: [TokenGuard, AuthGuard],
     loadChildren: () => import('./pages/card/card.module').then( m => m.CardPageModule)
-  },  {
+  },
+  {
     path: 'liquidations',
     loadChildren: () => import('./pages/liquidations/liquidations.module').then( m => m.LiquidationsPageModule)
-  }
-
-
-
-
-
-
-
+  },
 ];
 
 @NgModule({

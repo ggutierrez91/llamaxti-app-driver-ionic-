@@ -19,6 +19,8 @@ export default interface IJournal {
     totalCredit: number;
     totalDiscount: number;
     totalFn: number;
+    totalPay: number;
+    totalDebt: number;
     countService: number;
 
     expired?: boolean;

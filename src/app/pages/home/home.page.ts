@@ -566,7 +566,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {
-      arrError = ['Error', 'no se encontró servicio'];
+      arrError = ['Alerta', 'no se encontró servicio'];
     }
 
     // tslint:disable-next-line: no-bitwise
@@ -581,12 +581,12 @@ export class HomePage implements OnInit, OnDestroy {
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 8) {
-      arrError = ['Error', 'no se encontró conductor'];
+      arrError = ['Alerta', 'no se encontró conductor'];
     }
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 16) {
-      arrError = ['Error', 'conductor pendiente de verificación'];
+      arrError = ['Alerta', 'conductor pendiente de verificación'];
     }
 
     // tslint:disable-next-line: no-bitwise
@@ -596,7 +596,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 64) {
-      arrError = ['Error', 'vehículo no identificado'];
+      arrError = ['Alerta', 'vehículo no identificado'];
     }
 
     // tslint:disable-next-line: no-bitwise

@@ -22,3 +22,17 @@
     height: 400px;
     padding: 20px;
 }
+
+.labelPaid {
+    position: absolute;
+    bottom: -2px;
+    right: 1px;
+}
+
+.paid {
+    --background: var( --ion-color-success);
+}
+
+.paidOut {
+    --background: var( --ion-color-danger);
+}

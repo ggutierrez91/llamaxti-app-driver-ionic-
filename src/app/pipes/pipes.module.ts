@@ -11,6 +11,7 @@ import { StatusServicePipe } from './status-service.pipe';
 import { TimeMomentPipe } from './time-moment.pipe';
 import { PlayGeoPipe } from './play-geo.pipe';
 import { ExpiredPipe } from './expired.pipe';
+import { PaidPipe } from './paid.pipe';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { ExpiredPipe } from './expired.pipe';
     StatusServicePipe,
     TimeMomentPipe,
     PlayGeoPipe,
-    ExpiredPipe
+    ExpiredPipe,
+    PaidPipe
   ],
   imports: [
     CommonModule
@@ -40,7 +42,8 @@ import { ExpiredPipe } from './expired.pipe';
     StatusServicePipe,
     TimeMomentPipe,
     PlayGeoPipe,
-    ExpiredPipe
+    ExpiredPipe,
+    PaidPipe
   ]
 })
 export class PipesModule { }

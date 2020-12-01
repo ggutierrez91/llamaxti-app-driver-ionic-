@@ -345,3 +345,9 @@
     -webkit-animation-name: fadeInLeft;
     animation-name: fadeInLeft;
 }
+
+.dialog-modal {
+    --height: 330px;
+    --width: 90%;
+    --border-radius: 10px 10px 10px 10px;
+}

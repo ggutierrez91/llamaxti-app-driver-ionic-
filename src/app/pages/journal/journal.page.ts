@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActionSheetController, AlertController, IonSlides } from '@ionic/angular';
+import { ActionSheetController, AlertController, IonSlides, ModalController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import IConfJ from 'src/app/interfaces/confJournal.interface';
@@ -8,13 +8,14 @@ import { JournalService } from 'src/app/services/journal.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { UiUtilitiesService } from 'src/app/services/ui-utilities.service';
 import * as moment from 'moment';
-import { JournalModel } from '../../models/journal.model';
+import { CloseJournalModel, JournalModel } from '../../models/journal.model';
 import { CardModel } from '../../models/card.model';
 import { ChargeModel } from '../../models/charge.model';
 import { formatNumber } from '@angular/common';
 import { ICargeCulqui, ItokenCulqui } from 'src/app/interfaces/culqui.interface';
 import { IResApi } from 'src/app/interfaces/response-api.interface';
 import { CulquiService } from 'src/app/services/culqui.service';
+import { ModalPayJournalPage } from '../modal-pay-journal/modal-pay-journal.page';
 
 @Component({
   selector: 'app-journal',
@@ -38,18 +39,21 @@ export class JournalPage implements OnInit, OnDestroy {
   bodyJournal: JournalModel;
   loading = false;
   loadingClose = false;
+  loadingData = true;
 
   bodyCard: CardModel;
   bodyCharge: ChargeModel;
+  bodyClose: CloseJournalModel;
 
   showConfirmPay = false;
 
   // tslint:disable-next-line: max-line-length
-  constructor( public st: StorageService, private journalSvc: JournalService, private ui: UiUtilitiesService, private culquiSvc: CulquiService, private alertCtrl: AlertController, private sheetCtrl: ActionSheetController ) { }
+  constructor( public st: StorageService, private journalSvc: JournalService, private ui: UiUtilitiesService, private culquiSvc: CulquiService, private alertCtrl: AlertController, private sheetCtrl: ActionSheetController, private modalCtrl: ModalController ) { }
 
   ngOnInit() {
     this.bodyCard = new CardModel();
     this.bodyCharge = new ChargeModel();
+    this.bodyClose = new CloseJournalModel();
     this.bodyJournal = new JournalModel();
     this.JournalSlide.lockSwipes( true );
     this.st.onLoadJournal();
@@ -104,6 +108,7 @@ export class JournalPage implements OnInit, OnDestroy {
         this.st.onSetItem('dataJournal', this.st.dataJournal, true);
 
       }
+      this.loadingData = false;
 
     });
 
@@ -152,6 +157,7 @@ export class JournalPage implements OnInit, OnDestroy {
       const resToken = await this.onRefreshToken();
       if (!resToken.ok) {
         await this.ui.onHideLoading();
+        this.loading = false;
         return this.ui.onShowToastTop('Error al verificar tarjeta', 4500);
       }
       const dataToken: ItokenCulqui = resToken.data;
@@ -169,30 +175,6 @@ export class JournalPage implements OnInit, OnDestroy {
       if (res.showError === 0) {
 
         const dateStart = moment( res.data.dateStart );
-        const newJournal: IJournal = {
-          pkJournalDriver: res.data.pkJournal,
-          codeJournal: res.data.codeJournal,
-          fkConfigJournal: this.bodyJournal.fkConfJournal,
-          dateStart: res.data.dateStart,
-          dateEnd: '',
-          dateExpired: dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm'),
-          countService: 0,
-          nameJournal: this.bodyJournal.nameJournal,
-          rateJournal: this.bodyJournal.rateJournal,
-          modeJournal: this.bodyJournal.modeJournal,
-          illPay: true,
-          cardCulqui: this.bodyJournal.cardCulqui,
-          chargeAmount: 0,
-          totalCash: 0,
-          totalCard: 0,
-          totalCredit: 0,
-          totalDiscount: 0,
-          totalFn: 0,
-          paidOut: false,
-          datePaid: '',
-          expired: false
-        };
-
         const dataJournal = {
           pkJournalDriver : Number( res.data.pkJournal ),
           codeJournal : res.data.codeJournal,
@@ -215,16 +197,16 @@ export class JournalPage implements OnInit, OnDestroy {
             // console.log('Error al procesar pago', resCarge.error);
             return this.ui.onShowToastTop( resCarge.error.merchant_message || 'Error al procesar pago' , 5000);
           }
-          newJournal.paidOut = true;
-          newJournal.datePaid = moment().format('YYYY-MM-DD hh:mm:ss');
-          newJournal.illPay = false;
+
           const dataCarge: ICargeCulqui = resCarge.data;
 
         } else {
           await this.ui.onHideLoading();
         }
 
-        this.dataJournal.push(newJournal);
+        this.onGetJournal();
+
+        // this.dataJournal.push(newJournal);
         this.bodyJournal.onReset();
       } else {
         await this.ui.onHideLoading();
@@ -286,60 +268,80 @@ export class JournalPage implements OnInit, OnDestroy {
   }
 
   async onSubmitClose() {
-    
+
     this.loadingClose = true;
-    // this.addSbc = this.journalSvc.onCloseJDriver( journal.pkJournalDriver ).subscribe( async(res) => {
-    //   if (!res.ok) {
-    //     throw new Error( res.error );
-    //   }
+    this.addSbc = this.journalSvc.onCloseJDriver( this.bodyClose, this.st.token )
+    .subscribe( async (res) => {
+      if (!res.ok) {
+        throw new Error( res.error );
+      }
 
-    //   await this.ui.onShowToast( this.onGetErrorClose( res.showError ), 4500 );
+      await this.ui.onShowToast( this.onGetErrorClose( res.showError ), 4500 );
 
-    //   if (res.showError === 0) {
-    //     const finded = this.dataJournal.find( conf => conf.pkJournalDriver === pkJournal );
-    //     if (finded) {
+      if (res.showError === 0) {
+        this.onRemoveClosed( this.bodyClose.pkJournal, res.data.dateEnd );
+      }
+      this.loadingClose = false;
 
-    //       finded.dateEnd = res.data.dateEnd;
-    //       this.dataJournalClosed.unshift( finded );
+    });
 
-    //       const dataJournal = {
-    //         pkJournalDriver : 0,
-    //         codeJournal : '',
-    //         nameJournal : '',
-    //         rateJournal : 0,
-    //         modeJournal : '',
-    //         dateStart: '',
-    //         expired: true
-    //       };
-    //       this.st.dataJournal = dataJournal;
+  }
 
-    //       await this.st.onSetItem('dataJournal', dataJournal, true);
-    //       this.dataJournal = this.dataJournal.filter( jd => jd.pkJournalDriver !== pkJournal );
+  async onRemoveClosed( pkJournal: number, dateEnd: string ) {
+    const finded = this.dataJournal.find( conf => conf.pkJournalDriver === pkJournal );
+    if (finded) {
 
-    //     }
-    //   }
-    //   this.loadingClose = false;
+      finded.dateEnd = dateEnd; // res.data.dateEnd;
+      this.dataJournalClosed.unshift( finded );
 
-    // });
+      const dataJournal = {
+        pkJournalDriver : 0,
+        codeJournal : '',
+        nameJournal : '',
+        rateJournal : 0,
+        modeJournal : '',
+        dateStart: '',
+        expired: true
+      };
+      this.st.dataJournal = dataJournal;
 
+      await this.st.onSetItem('dataJournal', dataJournal, true);
+      this.dataJournal = this.dataJournal.filter( jd => jd.pkJournalDriver !== pkJournal );
+
+    }
   }
 
   async onCloseJournal( journal: IJournal ) {
 
     if (!journal.paidOut) {
 
-      // const sheetCards = await this.sheetCtrl.create({
-      //   header: 'Seleccione una tarjeta',
-      //   subHeader: 'Total a pagar S/ 0.00',
-        
-      // });
+     const modalPay = await this.modalCtrl.create({
+        mode: 'ios',
+        cssClass: ['dialog-modal'],
+        component: ModalPayJournalPage,
+        componentProps: {
+          journal,
+          token: this.st.token
+        },
+        animated: true,
+     });
+
+     await modalPay.present();
+
+     modalPay.onDidDismiss().then( (value) => {
+        console.log('carrando modal', value);
+        const data = value.data;
+        if (data.ok) {
+          this.onRemoveClosed( data.journal.pkJournalDriver, data.dateEnd );
+        }
+
+     }).catch( e => console.error('error al cerrar modal close') );
 
     } else {
+      this.bodyClose.pkJournal = journal.pkJournalDriver;
       this.onSubmitClose();
     }
 
-
-    
   }
 
   onGetErrorClose( showError: number ) {
@@ -360,7 +362,7 @@ export class JournalPage implements OnInit, OnDestroy {
   }
 
   onGetError( showError: number, pkJournalAux = 0 ) {
-    const arrErr = showError === 0 ? ['Se aperturó con éxito'] : ['Alerta'];
+    let arrErr = showError === 0 ? ['Se aperturó con éxito'] : ['Alerta'];
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 1) {
@@ -402,6 +404,11 @@ export class JournalPage implements OnInit, OnDestroy {
     // tslint:disable-next-line: no-bitwise
     if (showError & 16) {
       arrErr.push('tarifa inválida');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 32) {
+      arrErr = ['Alerta!', 'ha excedido la cantidad de jornadas sin pagar, page primero'];
     }
 
     return arrErr.join(', ');

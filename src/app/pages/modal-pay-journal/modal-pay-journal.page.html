@@ -1,0 +1,84 @@
+<ion-content padding>
+
+    <ion-item color="primary" lines="none">
+        <ion-label>
+            Jornada {{ journal.codeJournal }}
+        </ion-label>
+
+        <ion-button (click)="onClose()" expand="block" fill="clear" shape="round" color="light">
+            Cerrar
+        </ion-button>
+    </ion-item>
+    <ion-grid fixed>
+
+        <ion-row>
+            <ion-col size="12">
+
+                <ion-item lines="none">
+
+                    <ion-label>
+                        <ion-icon slot="start" name="card-outline"></ion-icon>
+                        Tarjeta
+                    </ion-label>
+                    <span *ngIf="card.errors?.required && card.touched">
+                        <small class="text-danger">
+                            *Requerido
+                        </small>
+                    </span>
+
+                    <ion-select mode="ios" name="card" #card="ngModel" [(ngModel)]="bodyClose.cardTkn" placeholder="Seleccione" [ngClass]="{ 'is-invalid': card.errors?.required && card.touched, 'is-valid': !card.errors?.required && card.touched  }" required (ionChange)="onChangeCard()">
+                        <ion-select-option *ngIf="st.cardsCulqui.length === 0" disabled> Asocie tarjetas primero </ion-select-option>
+                        <ion-select-option [value]="item.token" *ngFor="let item of st.cardsCulqui">
+                            {{ item.card_number }}
+                        </ion-select-option>
+                    </ion-select>
+
+                </ion-item>
+
+            </ion-col>
+        </ion-row>
+
+        <ion-row>
+            <ion-col size="12">
+                <ion-item lines="none">
+                    <ion-label>
+                        <ion-icon slot="start" name="cash-outline"></ion-icon>
+                        Deuda acumulada
+                    </ion-label>
+
+                    <ion-label style="text-align: right;">
+                        S/ {{ journal.totalDebt | number: '.2-2' }}
+                    </ion-label>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+
+        <ion-row>
+            <ion-col size="12">
+
+                <ion-item lines="none">
+                    <ion-label>
+                        <ion-icon slot="start" name="cash-outline"></ion-icon>
+                        Total a pagar
+                    </ion-label>
+
+                    <ion-label style="text-align: right;">
+                        S/ {{ journal.totalPay + journal.totalDebt | number: '.2-2' }}
+                    </ion-label>
+                </ion-item>
+
+            </ion-col>
+        </ion-row>
+
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="onSubmit()" expand="block" fill="clear" shape="round">
+                    Cerrar y pagar
+                    <ion-spinner *ngIf="loading" name="bubbles" color="primary"></ion-spinner>
+                </ion-button>
+            </ion-col>
+        </ion-row>
+
+    </ion-grid>
+
+</ion-content>

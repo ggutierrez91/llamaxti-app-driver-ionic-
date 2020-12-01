@@ -32,8 +32,8 @@
                     <ion-icon slot="start" name="calendar-outline"></ion-icon>
 
                     <span class="msgValidation" *ngIf="expLicense.errors?.required && expLicense.touched">
-              <small class="text-danger">*Requerido</small>
-          </span>
+                        <small class="text-danger">*Requerido</small>
+                    </span>
 
                     <ion-label>Expira <span class="text-danger">*</span> </ion-label>
                     <ion-datetime slot="end" [pickerOptions]="pickerOptLicense" [monthNames]="monthNames" [monthShortNames]="monthNames" [min]="minYear" [max]="maxValue" placeholder="D&iacute;a/Mes/A&ntilde;o" name="expLicense" #expLicense="ngModel" [(ngModel)]="bodyDriver.dateLicenseExpiration"

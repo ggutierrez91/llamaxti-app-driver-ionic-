@@ -36,3 +36,19 @@ export class JournalModel {
         this.chargeAmount = 0;
     }
 }
+
+
+export class CloseJournalModel {
+
+    pkJournal: number;
+    cardCulqui: string;
+    chargeAmount: number;
+    cardTkn: string;
+
+    constructor() {
+        this.pkJournal = 0;
+        this.cardCulqui = '';
+        this.chargeAmount = 0;
+        this.cardTkn = '';
+    }
+}

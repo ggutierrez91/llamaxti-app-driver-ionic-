@@ -11,7 +11,6 @@ import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { NgForm } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { UploadService } from '../../services/upload.service';
-import { retry } from 'rxjs/operators';
 
 const URI_SERVER = environment.URL_SERVER;
 declare var window: any;
@@ -196,7 +195,7 @@ export class ModalProfilePage implements OnInit, OnDestroy {
 
   onLoadTypeDoc() {
     this.tdSbc = this.authSvc.onGetTypeDocument()
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -213,7 +212,7 @@ export class ModalProfilePage implements OnInit, OnDestroy {
 
   onLoadNationality() {
     this.natiSbc = this.authSvc.onGetNationality()
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -505,7 +504,7 @@ export class ModalProfilePage implements OnInit, OnDestroy {
       await this.ui.onShowLoading('Guardando...');
       this.bodyProfile.nameComplete = `${ this.bodyProfile.surname }, ${ this.bodyProfile.name }`;
       this.userSbc =  this.userSvc.onUpdateProfi( this.bodyProfile, this.token )
-      .pipe( retry() )
+      // .pipe( retry() )
       .subscribe( async(res) => {
 
         if (!res.ok) {

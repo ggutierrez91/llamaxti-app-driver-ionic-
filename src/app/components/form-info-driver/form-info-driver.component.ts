@@ -109,7 +109,7 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
 
   onLoadNationality() {
     this.sbcNationality = this.authSvc.onGetNationality( '' )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -121,7 +121,7 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
 
   onLoadTypeDoc() {
     this.sbcTypeDocument = this.authSvc.onGetTypeDocument( )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( (res) => {
       if (!res.ok) {
         throw new Error( res.error );
@@ -170,7 +170,7 @@ export class FormInfoDriverComponent implements OnInit, OnDestroy {
     }
     this.loadingReniec = true;
     this.sbcClient = this.authSvc.onReniecDni( this.bodyDriver.document )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( (res: any) => {
       this.loadingReniec = false;
 

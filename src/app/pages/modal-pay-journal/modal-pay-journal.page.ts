@@ -40,11 +40,11 @@ export class ModalPayJournalPage implements OnInit, OnDestroy {
     this.bodyCard = new CardModel();
     this.bodyCharge = new ChargeModel();
     this.bodyClose = new CloseJournalModel();
+    this.bodyClose.pkJournal = this.journal.pkJournalDriver;
 
     this.st.onLoadCards().then( () => {
       if (this.st.cardsCulqui.length > 0) {
 
-        this.bodyClose.pkJournal = this.journal.pkJournalDriver;
 
         this.bodyCard.card_number = this.st.cardsCulqui[0].cardAll;
         this.bodyCard.expiration_month = this.st.cardsCulqui[0].expiration_month;
@@ -90,6 +90,10 @@ export class ModalPayJournalPage implements OnInit, OnDestroy {
     } else {
       // si es mayor se realiza el cargo
       // si falla la act del token culqui solo cerrar, sino cerrar y realizar cargo
+
+      if (this.bodyClose.cardTkn === '') {
+        return this.ui.onShowToastTop('Alerta, Por favor seleccione una tarjeta', 4500);
+      }
 
       const resToken = await this.onRefreshToken();
       if (!resToken.ok) {

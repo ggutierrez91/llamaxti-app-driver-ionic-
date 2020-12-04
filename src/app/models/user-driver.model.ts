@@ -19,6 +19,7 @@ export class DriverModel extends PersonModel {
     color: string;
     dateSoatExpiration: string;
     codeReferal: string;
+    conditions: boolean;
 
     constructor() {
         super();
@@ -42,6 +43,8 @@ export class DriverModel extends PersonModel {
         this.userPassRepit = '';
         this.verifyReniec = false;
         this.brithDate = '';
+
+        this.conditions = false;
 
         // DATOS DEL CONDUCTOR
         this.dateLicenseExpiration = '';

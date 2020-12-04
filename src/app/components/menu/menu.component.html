@@ -98,8 +98,6 @@
                 Mis tarjetas
             </ion-item>
 
-
-
             <ion-item lines="none" class="itemGroup fontMenu">
                 Mi cuenta
             </ion-item>
@@ -135,10 +133,10 @@
                 Mensajería
             </ion-item>
 
-            <!-- <ion-item (click)="onRedirect('card')" detail>
-                <ion-icon slot="start" name="card-outline" color="primary"></ion-icon>
-                Mis tarjetas
-            </ion-item> -->
+            <ion-item (click)="onRedirect('/conditions')" detail>
+                <ion-icon slot="start" name="information-outline" color="primary"></ion-icon>
+                Terminos y condiciones
+            </ion-item>
 
             <ion-item (click)="onRedirect('/disable-account')" detail>
                 <ion-icon slot="start" name="close-outline" color="primary"></ion-icon>
@@ -150,7 +148,6 @@
                 Cerrar sesi&oacute;n
                 <ion-spinner *ngIf="loading" slot="end" name="bubbles" color="primary"></ion-spinner>
             </ion-item>
-
 
             <br>
             <small style="padding-left: 5px;">

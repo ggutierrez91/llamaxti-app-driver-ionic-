@@ -4,7 +4,6 @@ import { SocketService } from '../../services/socket.service';
 import { IServiceHistory } from '../../interfaces/history.interface';
 import { Subscription } from 'rxjs';
 import { HistoryService } from '../../services/history.service';
-import { retry } from 'rxjs/operators';
 import { StorageService } from '../../services/storage.service';
 import { environment } from '../../../environments/environment';
 import { PopoverHistoryComponent } from '../../components/popover-history/popover-history.component';
@@ -86,7 +85,7 @@ export class HistoryPage implements OnInit, OnDestroy {
 
   onGetHistory() {
     this.historySbc = this.historySvc.onGetHistory( this.page )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( ( res ) => {
 
       if (!res.ok) {

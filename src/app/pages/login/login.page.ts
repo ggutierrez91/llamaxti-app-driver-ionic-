@@ -3,7 +3,6 @@ import { LoginModel } from '../../models/login.model';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
-import { retry } from 'rxjs/operators';
 import { StorageService } from 'src/app/services/storage.service';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { NavController, MenuController } from '@ionic/angular';
@@ -44,7 +43,7 @@ export class LoginPage implements OnInit, OnDestroy {
     if (frm.valid) {
       this.loading = true;
       this.sbcLogin = this.authScv.onLogin( this.bodyLogin )
-      .pipe( retry() )
+      // .pipe( retry() )
       .subscribe( async (res) => {
         if (!res.ok) {
           throw new Error( res.error );

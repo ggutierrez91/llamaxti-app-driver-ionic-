@@ -476,7 +476,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
           }
 
           this.pushDistance = this.os.onSendPushUser( this.bodyPush )
-          .pipe( retry() )
+          // .pipe( retry() )
           .subscribe( async (resOs) => {
             this.sendPush += 1;
             console.log('push enviada', resOs);
@@ -645,7 +645,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   onDeleteRun() {
 
     this.deleteSbc = this.serviceSvc.onDeleteRun( this.dataServiceInfo.pkService, false )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( async (res) => {
 
       if (!res.ok) {
@@ -699,7 +699,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
     });
 
     this.osSbc = this.os.onSendPushUser( this.bodyPush )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( async (resOs) => {
       console.log('push enviada', resOs);
       await this.ui.onHideLoading();

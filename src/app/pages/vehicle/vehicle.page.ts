@@ -9,7 +9,6 @@ import { environment } from '../../../environments/environment';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { SocketService } from '../../services/socket.service';
 import { IResSocket } from '../../interfaces/response-socket.interface';
-import { retry } from 'rxjs/operators';
 import { PopoverVehicleComponent } from '../../components/popover-vehicle/popover-vehicle.component';
 
 const URI_SERVER = environment.URL_SERVER;
@@ -118,7 +117,7 @@ export class VehiclePage implements OnInit, OnDestroy {
   async onSubmitDel( pkVehicle: number ) {
     await this.ui.onShowLoading('Eliminando...');
     this.delSbc = this.vehicleSvc.onDeleteVehicle( pkVehicle )
-    .pipe( retry() )
+    // .pipe( retry() )
     .subscribe( async (res) => {
 
       if (!res.ok) {
@@ -231,7 +230,7 @@ export class VehiclePage implements OnInit, OnDestroy {
     this.ui.onShowLoading('Espere...').then( () => {
 
       this.usingSbc = this.vehicleSvc.onUsingVehicle( pkVehicle )
-      .pipe( retry() )
+      // .pipe( retry() )
       .subscribe( async (res) => {
 
         if (!res.ok) {

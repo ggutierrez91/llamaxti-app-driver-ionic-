@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { IonSlides, IonContent, NavController, MenuController } from '@ionic/angular';
+import { IonSlides, IonContent, NavController, MenuController, ModalController } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { DriverModel } from '../../models/user-driver.model';
 import { DriverFilesModel, EEntity, ETypeFile } from '../../models/user-driver-files.model';
@@ -11,6 +11,7 @@ import { StorageService } from '../../services/storage.service';
 import { SocketService } from '../../services/socket.service';
 import { Subscription } from 'rxjs';
 import { retry } from 'rxjs/operators';
+import { ModalConditionsPage } from '../modal-conditions/modal-conditions.page';
 
 @Component({
   selector: 'app-singin',
@@ -40,7 +41,7 @@ export class SinginPage implements OnInit, OnDestroy {
   };
 
   // tslint:disable-next-line: max-line-length
-  constructor(private authSvc: AuthService, private uiSvc: UiUtilitiesService, private uploadSvc: UploadService, private navCtrl: NavController, private st: StorageService, private io: SocketService, private menuCtrl: MenuController) { }
+  constructor(private authSvc: AuthService, private uiSvc: UiUtilitiesService, private uploadSvc: UploadService, private navCtrl: NavController, private st: StorageService, private io: SocketService, private menuCtrl: MenuController, private modalCtrl: ModalController) { }
 
   ngOnInit() {
     /**
@@ -112,6 +113,16 @@ export class SinginPage implements OnInit, OnDestroy {
       this.driverFiles = this.driverFiles;
       this.onNextSlide();
     }
+  }
+
+  async onShowConditions() {
+    const modalConditions = await this.modalCtrl.create({
+      mode: 'ios',
+      component: ModalConditionsPage,
+      animated: true
+    });
+
+    await modalConditions.present();
   }
 
   onNextBackVehicleTwo(data: any) {

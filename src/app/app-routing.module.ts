@@ -104,6 +104,11 @@ const routes: Routes = [
     path: 'liquidations',
     loadChildren: () => import('./pages/liquidations/liquidations.module').then( m => m.LiquidationsPageModule)
   },
+  {
+    path: 'conditions',
+    loadChildren: () => import('./pages/conditions/conditions.module').then( m => m.ConditionsPageModule)
+  },
+
 ];
 
 @NgModule({

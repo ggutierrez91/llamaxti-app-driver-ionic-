@@ -512,7 +512,7 @@ export class HomePage implements OnInit, OnDestroy {
       if (this.dataMore.changeRate) {
         msg = `${ this.st.nameComplete }, acepta llevarte por S/ ${ formatNumber( this.dataMore.rateOffer, 'en', '.2-2' ) }`;
       }
-      this.bodyNoty.notificationTitle = `🔔📢Nueva oferta-llamataxiApp`;
+      this.bodyNoty.notificationTitle = `🔔 Nueva oferta`;
       this.bodyNoty.notificationSubTitle = `De ${ this.dataMore.streetOrigin } hasta ${ this.dataMore.streetDestination }`;
       this.bodyNoty.notificationMessage = msg;
 
@@ -552,7 +552,7 @@ export class HomePage implements OnInit, OnDestroy {
                                             dataOffer: payloadService }, (resSocket) => {
           console.log('Enviando nueva oferta socket', resSocket);
           this.dataServices = this.dataServices.filter( ts => ts.pkService !== this.dataMore.pkService );
-          this.onSendPush('📢📢Nueva oferta - llamataxi app', msg, osIdClient);
+          this.onSendPush('🔵 Nueva oferta', msg, osIdClient);
         });
 
       }

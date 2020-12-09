@@ -1,0 +1,56 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>
+
+            {{ data.codeLiquidation }}
+
+        </ion-title>
+
+        <ion-buttons slot="end">
+            <ion-button (click)="onClose()">
+                <ion-icon name="close"></ion-icon>
+                CERRAR
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+    <ion-list>
+
+        <ion-card class="cardjournal" mode="ios" *ngFor="let journal of dataInfo">
+
+            <ion-item lines="none">
+                <ion-label>
+                    <i class="fas fa-clipboard-list"></i> &nbsp; {{ journal.codeJournal }}
+                    <p>
+                        Cerrado {{ journal.dateEnd | moment }}
+                        <br> - - - - - - - - - - - - - - - - - - - - - - - - <br>
+                        <small> {{ journal.nameJournal }} S/ {{ journal.totalPay | number:'.2-2' }} </small>
+                    </p>
+
+                </ion-label>
+
+            </ion-item>
+
+            <ion-item class="labelPaid">
+                <ion-label>
+                    <ion-icon style="font-size: 25px;" color="warning" name="car-sport-sharp"></ion-icon>
+                    <span style="margin-bottom: 6px;">
+                        {{ journal.countService }}
+                    </span>
+                    <p>
+                        <!-- --ion-color-danger -->
+                        <ion-badge style="text-align: right;" mode="ios" [ngClass]="{'paid': journal.paidOut, 'paidOut': !journal.paidOut}">
+                            {{ journal.paidOut | paid }}
+                        </ion-badge>
+                    </p>
+                </ion-label>
+            </ion-item>
+
+        </ion-card>
+
+    </ion-list>
+
+</ion-content>

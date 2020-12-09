@@ -13,5 +13,65 @@
 </ion-header>
 
 <ion-content>
+    <ion-list *ngIf="!loading">
+        <ion-card mode="ios" *ngFor="let liq of data">
+            <ion-item lines="none">
+                <ion-label>
+                    {{ liq.codeLiquidation }}
+                    <p>
+                        {{ liq.dateRegister | moment }}
+                    </p>
+                </ion-label>
+
+                <ion-label slot="end" color="primary" class="text-right">
+                    S/ {{ liq.amount | number: '.2-2' }}
+                </ion-label>
+            </ion-item>
+
+            <ion-item lines="none">
+                <ion-label>
+                    {{ liq.bankAlias }} <small>( {{ liq.ccAccount }} )</small>
+                    <p>
+                        {{ liq.observation }}
+                    </p>
+                </ion-label>
+                <!-- (click)="onClick()" -->
+                <ion-button slot="end" expand="block" fill="clear" shape="round" (click)="onShowInfo( liq )">
+                    <ion-icon slot="icon-only" name="information-circle"></ion-icon>
+                </ion-button>
+            </ion-item>
+        </ion-card>
+    </ion-list>
+
+    <ion-list *ngIf="loading">
+
+        <ion-item *ngFor="let item of [1,1,1,1,1,1,1]">
+            <ion-avatar slot="start">
+                <ion-skeleton-text animated></ion-skeleton-text>
+            </ion-avatar>
+            <ion-label>
+                <ion-skeleton-text animated style="width: 70%"></ion-skeleton-text>
+                <p>
+                    <ion-skeleton-text animated style="width: 70%"></ion-skeleton-text>
+                </p>
+            </ion-label>
+
+            <div class="bagdeColor">
+            </div>
+            &nbsp; &nbsp;
+            <ion-text>
+                <h6>
+                    <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+                </h6>
+
+            </ion-text>
+        </ion-item>
+
+    </ion-list>
+
+    <ion-infinite-scroll threshold="120px" position="bottom" (ionInfinite)="loadData()">
+        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Cargando...">
+        </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
 
 </ion-content>

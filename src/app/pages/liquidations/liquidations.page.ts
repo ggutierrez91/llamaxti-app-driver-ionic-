@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonInfiniteScroll, ModalController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { StorageService } from 'src/app/services/storage.service';
-import { UiUtilitiesService } from 'src/app/services/ui-utilities.service';
 import { LiquidationsService } from '../../services/liquidations.service';
 import { ILiquidation } from '../../interfaces/liquidation.interface';
 import { ModalInfoLiqPage } from '../modal-info-liq/modal-info-liq.page';
@@ -21,7 +20,7 @@ export class LiquidationsPage implements OnInit, OnDestroy {
   loading = false;
   data: ILiquidation[] = [];
 
-  constructor( private st: StorageService, private ui: UiUtilitiesService, private liquiSvc: LiquidationsService, private modalCtrl: ModalController ) { }
+  constructor( private st: StorageService, private liquiSvc: LiquidationsService, private modalCtrl: ModalController ) { }
 
   ngOnInit() {
     this.loading = true;
@@ -57,9 +56,10 @@ export class LiquidationsPage implements OnInit, OnDestroy {
     const modalInfo = await this.modalCtrl.create({
       component: ModalInfoLiqPage,
       componentProps: {
-        data
+        data,
+        token: this.st.token
       },
-      mode: 'ios',
+      mode: 'md',
       animated: true,
       cssClass: 'modalInfoLiq'
     });

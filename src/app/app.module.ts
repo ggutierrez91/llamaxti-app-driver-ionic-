@@ -32,6 +32,9 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { BackgroundGeolocation } from '@ionic-native/background-geolocation/ngx';
 import { ChartsModule } from 'ng2-charts';
 import { Clipboard } from '@ionic-native/clipboard/ngx';
+import { File } from '@ionic-native/file/ngx';
+
+
 
 // the second parameter 'fr-FR' is optional
 registerLocaleData(localeEs, 'es');
@@ -59,6 +62,7 @@ const configIO: SocketIoConfig = { url: environment.URL_SERVER, options: {} };
     FilePath,
     // tslint:disable-next-line: deprecation
     FileTransfer,
+    File,
     Geolocation,
     NativeGeocoder,
     OneSignal,

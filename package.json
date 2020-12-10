@@ -24,7 +24,7 @@
         "@ionic-native/camera": "^5.26.0",
         "@ionic-native/clipboard": "^5.29.0",
         "@ionic-native/core": "^5.0.7",
-        "@ionic-native/file": "^5.27.0",
+        "@ionic-native/file": "^5.30.0",
         "@ionic-native/file-path": "^5.26.0",
         "@ionic-native/file-transfer": "^5.26.0",
         "@ionic-native/geolocation": "^5.26.0",

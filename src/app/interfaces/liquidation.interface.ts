@@ -21,4 +21,8 @@ export interface ILiqInfo {
     paidOut: boolean;
     dateEnd: string;
     journalStatus: boolean;
+    totalCash: number;
+    totalCard: number;
+    totalCredit: number;
+    totalDiscount: number;
 }

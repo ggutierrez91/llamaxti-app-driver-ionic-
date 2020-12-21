@@ -23,6 +23,9 @@ import { PushService } from '../../services/push.service';
 import { Geoposition } from '@ionic-native/geolocation/ngx';
 import { AppUtilitiesService } from '../../services/app-utilities.service';
 import { Howl } from 'howler';
+import { JournalModel } from 'src/app/models/journal.model';
+import { JournalService } from 'src/app/services/journal.service';
+import * as moment from 'moment';
 
 const URI_SERVER = environment.URL_SERVER;
 
@@ -46,6 +49,7 @@ export class HomePage implements OnInit, OnDestroy {
   declineSbc: Subscription;
   offerSbc: Subscription;
   osSbc: Subscription;
+  addJourSbc: Subscription;
   socktJournalbc: Subscription;
   socketServicesSbc: Subscription;
   socketOfferSbc: Subscription;
@@ -74,7 +78,6 @@ export class HomePage implements OnInit, OnDestroy {
   // variables para cards
   bodyAcceptOffer: OfferModel;
   bodyPush: PushModel;
-  bodyNoty: NotyModel;
   dataServices: IServices[] = [];
   pathImg = URI_SERVER + '/User/Img/Get/';
 
@@ -92,14 +95,19 @@ export class HomePage implements OnInit, OnDestroy {
 
   showBtnPlay = false;
 
+  bodyJournal: JournalModel;
+
   // tslint:disable-next-line: max-line-length
-  constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService, private apps: AppUtilitiesService ) { }
+  constructor( public io: SocketService,  private geo: GeoService,  private taxiSvc: TaxiService, public st: StorageService, private router: Router, private vehicleSvc: VehicleService, private alertCtrl: AlertController, private navCtrl: NavController, private ui: UiUtilitiesService, private zombie: Insomnia, private os: PushService, private apps: AppUtilitiesService, private journalSvc: JournalService ) { }
 
   ngOnInit() {
 
     this.bodyAcceptOffer = new OfferModel();
     this.bodyPush = new PushModel();
-    this.bodyNoty = new NotyModel('/notification', this.st.pkUser);
+    this.bodyJournal = new JournalModel();
+
+    this.bodyJournal.fkConfJournal = 2;
+
     this.zombie.keepAwake().then(
       (success) => console.log('Teléfono en estado zombie :D') ,
       (e) => console.log('Error al prevenir bloqueo de pantalla', e)
@@ -115,6 +123,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     }).catch( e => console.error('Error al cargar jorunal storage', e) );
 
+    this.st.onLoadData();
     this.st.onLoadToken().then( () => {
       // this.indexHex = this.st.indexHex;
       this.st.occupied = false;
@@ -153,13 +162,17 @@ export class HomePage implements OnInit, OnDestroy {
 
         const alertJournal = await this.alertCtrl.create({
           header: 'Mensaje al usuario',
-          message: 'Por favor aperture una nueva jornada laboral',
+          subHeader: 'Por favor aperture una nueva jornada laboral',
+          message: '¿Desea aperturar una nueva jornada con tarifa ocasional?',
           mode: 'ios',
           translucent: true,
           buttons: [{
-            text: 'Aceptar',
+            text: 'No',
+            handler: () => { }
+          }, {
+            text: 'Sí',
             handler: () => {
-
+              this.onOpenJournal();
             }
           }]
         });
@@ -169,6 +182,91 @@ export class HomePage implements OnInit, OnDestroy {
       }
 
     }).catch(e => console.error('Error al cargar jornada laboral storage', e) ); // cargando jornada laboral
+
+  }
+
+  async onOpenJournal() {
+    await this.ui.onShowLoading('Abriendo jornada...');
+    this.addJourSbc = this.journalSvc.onAddJDriver( this.bodyJournal )
+    .subscribe( async (res) => {
+      if (!res.ok) {
+        throw new Error( res.error );
+      }
+
+      if (res.showError === 0) {
+
+        const dateStart = moment( res.data.dateStart );
+        const dataJournal = {
+          pkJournalDriver : Number( res.data.pkJournal ),
+          codeJournal : res.data.codeJournal,
+          nameJournal : res.data.nameJournal,
+          rateJournal : res.data.rateConf,
+          modeJournal : res.data.modeConf,
+          dateStart: res.data.dateStart,
+          dateExpired: dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm'),
+          expired: false
+        };
+        this.st.dataJournal = dataJournal;
+
+        await this.st.onSetItem('dataJournal', dataJournal, true);
+        await this.ui.onHideLoading();
+
+      } else {
+        await this.ui.onHideLoading();
+      }
+      await this.ui.onShowToast( this.onGetErrorJournal( res.showError, res.data ), 4500 );
+
+    });
+  }
+
+  onGetErrorJournal( showError: number, data: any ) {
+    let arrErr = showError === 0 ? ['Se aperturó con éxito'] : ['Alerta'];
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 1) {
+      arrErr.push('aun tiene una jornada abierta, primero cerrar');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 2) {
+
+      const dataJournal = {
+        pkJournalDriver: data.pkJournalAux,
+        codeJournal: data.codeJournalAux,
+        nameJournal: data.nameJournalAux,
+        rateJournal: data.rateAux,
+        modeJournal: data.modeAux,
+        dateStart: data.dateStartAux,
+        expired: false
+      };
+      this.st.dataJournal = dataJournal;
+
+      this.st.onSetItem('dataJournal', dataJournal, true);
+      
+      arrErr.push('jornada vigente');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 4) {
+      arrErr.push('ya existe una jornada con este código');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 8) {
+      arrErr.push('no se encontró conductor');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 16) {
+      arrErr.push('tarifa inválida');
+    }
+
+    // tslint:disable-next-line: no-bitwise
+    if (showError & 32) {
+      arrErr = ['Alerta!', 'ha excedido la cantidad de jornadas sin pagar, page primero'];
+    }
+
+    return arrErr.join(', ');
 
   }
 
@@ -508,13 +606,9 @@ export class HomePage implements OnInit, OnDestroy {
       await this.ui.onHideLoading();
       this.ui.onShowToast( this.onGetError( res.showError ), 4500 );
 
-      let msg = `${ this.st.nameComplete }, ha aceptado tu oferta de S/ ${ formatNumber( this.dataMore.rateOffer, 'en', '.2-2' ) }`;
-      if (this.dataMore.changeRate) {
-        msg = `${ this.st.nameComplete }, acepta llevarte por S/ ${ formatNumber( this.dataMore.rateOffer, 'en', '.2-2' ) }`;
-      }
-      this.bodyNoty.notificationTitle = `🔔 Nueva oferta`;
-      this.bodyNoty.notificationSubTitle = `De ${ this.dataMore.streetOrigin } hasta ${ this.dataMore.streetDestination }`;
-      this.bodyNoty.notificationMessage = msg;
+      // if (this.dataMore.changeRate) {
+      //   msg = `${ this.st.name }, acepta llevarte por S/ ${ formatNumber( this.dataMore.rateOffer, 'en', '.2-2' ) }`;
+      // }
 
       if (res.showError === 0 ) {
 
@@ -552,7 +646,10 @@ export class HomePage implements OnInit, OnDestroy {
                                             dataOffer: payloadService }, (resSocket) => {
           console.log('Enviando nueva oferta socket', resSocket);
           this.dataServices = this.dataServices.filter( ts => ts.pkService !== this.dataMore.pkService );
-          this.onSendPush('🔵 Nueva oferta', msg, osIdClient);
+          this.onSendPush(
+            '🔴 Un conductor aceptó tu servicio',
+            `${ this.st.name }, ha aceptado llevarte a tu destino` , 
+            osIdClient);
         });
 
       }
@@ -629,7 +726,8 @@ export class HomePage implements OnInit, OnDestroy {
     this.bodyPush.title = title;
     this.bodyPush.osId = [osId];
     this.bodyPush.data = { declined: false };
-
+    this.bodyPush.template_id = 'f9ca8118-4653-49aa-baa1-5bbc54af048a';
+  
     this.osSbc = this.os.onSendPushUser( this.bodyPush )
     .subscribe( (res) => {
         console.log('push enviado con èxito', res);

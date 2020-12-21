@@ -121,7 +121,7 @@
                             </span>
 
                         </ion-label>
-                        <ion-button *ngIf="journal.expired" slot="end" expand="full" color="danger" shape="round" (click)="onCloseJournal( journal )" [disabled]="loadingClose">
+                        <ion-button *ngIf="journal.expired || journal.modeJournal != 'FORTODAY'" slot="end" expand="full" color="danger" shape="round" (click)="onCloseJournal( journal )" [disabled]="loadingClose">
 
                             <span *ngIf="!journal.paidOut">Cerrar y pagar</span>
                             <span *ngIf="journal.paidOut">Cerrar</span>
@@ -132,9 +132,15 @@
                         <ion-label>
                             <p>
                                 <small> {{ journal.nameJournal }} S/ {{ journal.rateJournal | number:'.2-2' }} </small>
-                                <br> - - - - - - - - - - - - - - - - - - - - - - - - <br> Expira <span [ngClass]="{ 'text-success': !journal.expired, 'text-danger': journal.expired }"> 
+                                <br> - - - - - - - - - - - - - - - - - - - - - - - - <br>
+                                <span *ngIf=" journal.modeJournal === 'FORTODAY' ">Expira</span>
+                                <span *ngIf=" journal.modeJournal === 'FORTODAY' " [ngClass]="{ 
+                                                'text-success': !journal.expired, 
+                                                'text-danger': journal.expired }"> 
                                     {{ journal.dateExpired | expired }} 
                                 </span>
+
+                                <span *ngIf=" journal.modeJournal != 'FORTODAY' ">Vigente</span>
                             </p>
                         </ion-label>
                     </ion-item>

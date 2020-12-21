@@ -128,6 +128,7 @@ export class ServiceRunPage implements OnInit, OnDestroy {
 
     this.onLoadMap();
     this.apps.onLoadTokenTacker();
+    this.st.onLoadData();
     this.st.onLoadToken().then( async () => {
 
       this.io.onEmit('occupied-driver', { occupied: true, pkUser: this.st.pkUser }, (resOccupied) => {
@@ -461,14 +462,15 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       if (!this.runDestination && this.sendPush < 2 ) {
         if ((this.distance <= 200 && this.distance >= 150) || (this.distance <= 70 && this.distance >= 10 ) ) {
 
-          this.bodyPush.message = `Conductor en ${ this.currentStreet }, a ${ formatNumber( this.distance, 'en', '.1-1' ) } metros - ${ this.minutesText } de tu ubicación`;
+          this.bodyPush.message = `${ this.st.name }, está llegando a ${ formatNumber( this.distance, 'en', '.1-1' ) } metros - ${ this.minutesText } de tu ubicación`;
 
-          this.bodyPush.title = 'Llamataxi-app';
+          this.bodyPush.title = '🔵 Tu conductor está por llegar';
           this.bodyPush.osId = [ this.dataServiceInfo.osIdClient ];
           this.bodyPush.data = {
             accepted: false,
             deleted: false
           };
+          this.bodyPush.template_id = '88a56502-7cfe-4b9a-88f3-623ea991bdb5';
 
           if (this.pushDistance) {
             this.pushDistance.unsubscribe();
@@ -545,11 +547,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
       await this.ui.onShowLoading('Espere...');
       await this.onResetStorage();
 
-
-      // this.io.onEmit('occupied-driver', { occupied: false, pkUser: this.st.pkUser }, (resOccupied) => {
-      //   console.log('Cambiando estado conductor', resOccupied);
-      // });
-
       if (res.data.ok) {
         await this.ui.onHideLoading();
       }
@@ -593,10 +590,6 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   }
 
   onSharedGeo() {
-    // let msg = `Desde ${ this.dataServiceInfo.streetOrigin }, `;
-    // msg += `hasta ${ this.dataServiceInfo.streetDestination }.`;
-    // msg += `Conductor ${ this.dataServiceInfo.nameDriver }`;
-    // const url = `http://www.google.com/maps/place/${ this.lat },${ this.lng }`;
 
     const msg = '🚨🚨 Monitorear servicio 🚨🚨';
     const subject = 'Monitrea en tiempo real la ubicación y la información del viaje y vigila la integridad del conductor y pasajero';
@@ -689,10 +682,11 @@ export class ServiceRunPage implements OnInit, OnDestroy {
   }
 
   onEmitCancel() {
-    this.bodyPush.title = 'Llamataxi-app 🚨🚨';
-    this.bodyPush.message = `${ this.dataServiceInfo.nameDriver }, ha cancelado el servicio 😌.`;
+    this.bodyPush.title = '🔴 Servicio cancelado';
+    this.bodyPush.message = `${ this.st.name }, ha cancelado el servicio 😌.`;
     this.bodyPush.osId = [ this.dataServiceInfo.osIdClient ];
     this.bodyPush.data = { declined: true, accepted: false, url: '/home' };
+    this.bodyPush.template_id = '16d84321-abbd-4e0d-a5e8-c0f1cb14a358';
     const payloadDel = { msg: this.bodyPush.message, pkUser: this.dataServiceInfo.fkClient };
     this.io.onEmit('cancel-service-run', payloadDel, (res) => {
       console.log('emitiendo cancelación de servicio');

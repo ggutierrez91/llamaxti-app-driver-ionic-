@@ -95,6 +95,7 @@ export class StorageService {
     const value = await this.st.get( 'dataUser' );
     if (value) {
       this.dataUser =  JSON.parse( value );
+      this.name = this.dataUser.name;
       this.nameComplete = this.dataUser.nameComplete;
     }
   }
@@ -114,8 +115,13 @@ export class StorageService {
       const startDate = moment( data.dateStart ).add(24, 'hours');
       const current = moment();
 
-      console.log('diferencia horas', startDate.diff( current, 'minutes' ));
-      this.dataJournal.expired = startDate.diff( current, 'minutes' ) > 0 ? false : true;
+      if (this.dataJournal.modeJournal === 'FORTODAY') {
+        console.log('diferencia horas', startDate.diff( current, 'minutes' ));
+        this.dataJournal.expired = startDate.diff( current, 'minutes' ) > 0 ? false : true;
+      } else {
+        this.dataJournal.expired = false;
+      }
+
     }
 
   }

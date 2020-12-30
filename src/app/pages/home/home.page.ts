@@ -140,9 +140,9 @@ export class HomePage implements OnInit, OnDestroy {
       this.onGetPosition();
 
       this.st.onLoadVehicle().then( () => {
-        if (this.st.pkVehicle === 0 ) {
-          this.onGetVehicleUsing();
-        }
+        this.onGetVehicleUsing();
+        // if (this.st.pkVehicle === 0 ) {
+        // }
       });
       this.onListenOfferClient();
       this.onListenNewService();

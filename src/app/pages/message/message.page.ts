@@ -53,25 +53,13 @@ export class MessagePage implements OnInit, OnDestroy {
     .subscribe( (res: any) => {
       console.log('new msg socket', res);
       this.dataMsg.push( res.data );
-      this.content.scrollToBottom(50);
+      this.content.scrollToTop(50);
     });
   }
 
   onGetMessage( page: number, pkUser = 0 ) {
     this.loading = true;
     this.msgSbc = this.msgSvc.onGetMessages( pkUser, page )
-    .pipe(
-      // retry(),
-      map( (value) => {
-        console.log(value);
-        const newData: IMessage[] = [];
-        for (const msg of value.data) {
-          newData.unshift(msg);
-        }
-        value.data = newData;
-        return value;
-      })
-    )
     .subscribe( (res) => {
 
       if (!res.ok) {
@@ -79,7 +67,7 @@ export class MessagePage implements OnInit, OnDestroy {
       }
 
       this.dataMsg = res.data;
-      this.content.scrollToBottom(50);
+      this.content.scrollToTop(50);
       setTimeout(() => {
         this.loading = false;
       }, 3000);

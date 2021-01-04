@@ -970,7 +970,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     // Setup the new Howl.
     const sound = new Howl({
-      src: ['./assets/iphone-noti.mp3']
+      src: ['./assets/Fresh-notification.mp3']
     });
 
     // Play the sound.

@@ -8,6 +8,7 @@ import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { NavController, MenuController } from '@ionic/angular';
 import { SocketService } from '../../services/socket.service';
 import { Router } from '@angular/router';
+import { AppUtilitiesService } from '../../services/app-utilities.service';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +24,7 @@ export class LoginPage implements OnInit, OnDestroy {
   viewPass = false;
   typeInput = 'password';
   // tslint:disable-next-line: max-line-length
-  constructor( private authScv: AuthService, private st: StorageService, private uiSvc: UiUtilitiesService, private navCtrl: NavController, private menuCtrl: MenuController, private io: SocketService, private router: Router) { }
+  constructor( private authScv: AuthService, private st: StorageService, private apps: AppUtilitiesService, private uiSvc: UiUtilitiesService, private navCtrl: NavController, private menuCtrl: MenuController, private io: SocketService, private router: Router) { }
 
   ngOnInit() {
     this.bodyLogin = new LoginModel();
@@ -60,7 +61,8 @@ export class LoginPage implements OnInit, OnDestroy {
             await this.st.onSetItem('pass', this.bodyLogin.userPassword, false);
             await this.st.onSetItem('user', this.bodyLogin.userName, false);
           }
-
+          
+          this.apps.token = res.token;
           await this.st.onSaveCredentials( res.token, res.data );
 
           this.io.onSingUser().then( async (resSocket) => {

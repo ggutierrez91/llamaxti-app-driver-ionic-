@@ -36,7 +36,7 @@ export class AppUtilitiesService {
 
   async onLoadTokenTacker() {
 
-    this.token = await this.st.get('token') || '';
+    this.token = await this.st.get('tokenDriver') || '';
     this.distanceText = await this.st.get('distanceText') || '';
     this.minutesText = await this.st.get('minutesText') || '';
     this.pkClient =  Number( await this.st.get('pkClient') ) || 0;

@@ -11,6 +11,9 @@ import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { NgForm } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { UploadService } from '../../services/upload.service';
+import { Upload21Service } from '../../services/upload21.service';
+import { IResApi } from '../../interfaces/response-api.interface';
+import { File, FileEntry } from '@ionic-native/file/ngx';
 
 const URI_SERVER = environment.URL_SERVER;
 declare var window: any;
@@ -104,8 +107,13 @@ export class ModalProfilePage implements OnInit, OnDestroy {
 
   pathDriver = URI_SERVER + `/Driver/Img/Get/driver/`;
 
+  resJson: IResApi = {
+    ok: false,
+    data: [{nameFile: ''}]
+  };
+
   // tslint:disable-next-line: max-line-length
-  constructor( private camera: Camera, private modalCtrl: ModalController, private pickerCtrl: PickerController, private authSvc: AuthService, private sheetCtrl: ActionSheetController, private ui: UiUtilitiesService, private userSvc: UserService, private upload: UploadService ) { }
+  constructor( private camera: Camera, private modalCtrl: ModalController, private pickerCtrl: PickerController, private authSvc: AuthService, private sheetCtrl: ActionSheetController, private ui: UiUtilitiesService, private userSvc: UserService, private upload: UploadService, private upload21: Upload21Service, private file: File ) { }
 
   ngOnInit() {
 
@@ -496,11 +504,7 @@ export class ModalProfilePage implements OnInit, OnDestroy {
   async onSubmit( frm: NgForm ) {
 
     if (frm.valid) {
-      let resUpImg = {
-        ok: false,
-        data: [{nameFile: ''}],
-        error: null
-      };
+      
       await this.ui.onShowLoading('Guardando...');
       this.bodyProfile.nameComplete = `${ this.bodyProfile.surname }, ${ this.bodyProfile.name }`;
       this.userSbc =  this.userSvc.onUpdateProfi( this.bodyProfile, this.token )
@@ -514,51 +518,41 @@ export class ModalProfilePage implements OnInit, OnDestroy {
         // this.st.dataUser.nameComplete = this.bodyProfile.nameComplete;
 
         if (this.imgProfileNew !== '') {
-          const resImg = await this.upload.onUploadImg( this.imgProfileNew, this.bodyProfile.pkUser, this.token );
-
-          resUpImg = JSON.parse( resImg.response );
-          if (!resUpImg.ok) {
-            console.error( 'Error al subir imagen', resUpImg );
-          } else {
-            this.bodyProfile.img = resUpImg.data[0].nameFile;
-          }
+          
+          await this.onSendUpload( this.imgProfileNew );
 
         }
 
-        let resDocsJson: any;
         const arrFilesUploaded: any[] = [];
 
         await Promise.all( this.driverFiles.filesDriver.map( async (item) => {
           if (item.changeed) {
-            const resDoc = await this.upload.onUploadDocuments(item.pathFile
-                                                              , item.entity
-                                                              , this.bodyProfile.pkDriver
-                                                              , item.typeFile
-                                                              , this.token
-                                                              , item.isPdf);
-            resDocsJson = JSON.parse( resDoc.response );
-            if (!resDocsJson.ok) {
-              console.error( 'Error al subir imagen', resDocsJson.error );
+            const resDoc = await this.onSendDocument(item.pathFile
+                                                      , item.entity
+                                                      , item.typeFile );
+            // resDocsJson = JSON.parse( resDoc.response );
+            if (!resDoc.ok) {
+              console.error( 'Error al subir imagen', resDoc.error );
               return;
             }
 
             if (item.typeFile === this.typeFile.license ) {
-              this.bodyProfile.imgLicense = resDocsJson.newFile;
+              this.bodyProfile.imgLicense = resDoc.newFile;
             }
 
             if (item.typeFile === this.typeFile.photoCheck ) {
-              this.bodyProfile.imgPhotoCheck = resDocsJson.newFile;
+              this.bodyProfile.imgPhotoCheck = resDoc.newFile;
             }
             if (item.typeFile === this.typeFile.criminalRecord ) {
-              this.bodyProfile.imgCriminalRecord = resDocsJson.newFile;
+              this.bodyProfile.imgCriminalRecord = resDoc.newFile;
             }
             if (item.typeFile === this.typeFile.policialRecord ) {
-              this.bodyProfile.imgPolicialRecord = resDocsJson.newFile;
+              this.bodyProfile.imgPolicialRecord = resDoc.newFile;
             }
 
             arrFilesUploaded.push( {
-              img: resDocsJson.newFile,
-              doc: resDocsJson.document,
+              img: resDoc.newFile,
+              doc: resDoc.document,
               msg: `Se subio archivo ${ item.typeFile }`
             });
 
@@ -569,15 +563,70 @@ export class ModalProfilePage implements OnInit, OnDestroy {
         await this.ui.onHideLoading();
         this.modalCtrl.dismiss({
           ok: true,
-          okUpload: resUpImg.ok,
+          okUpload: this.resJson.ok,
           data: this.bodyProfile,
-          newImg: resUpImg.data[0].nameFile,
+          newImg: this.resJson.data[0].nameFile,
           arrFilesUploaded
         });
         // console.table(arrFilesUploaded);
 
       });
     }
+  }
+
+  onSendUpload( uriFile: string ): Promise<any> {
+
+    return new Promise( (resolve) => {
+
+      this.file.resolveLocalFilesystemUrl( uriFile ).then( (entry) => {
+  
+        (<FileEntry>entry).file( async (file) => {
+          // this.readFile(file);
+          const resUpload = await this.upload21.uploadImage( file, this.bodyProfile.pkUser, this.token );
+
+          console.log('response upload', resUpload);
+          this.resJson = resUpload;
+          if (this.resJson.ok) {
+            this.bodyProfile.img = this.resJson.data[0].nameFile;
+          }
+
+          resolve(true);
+          
+        });
+  
+      }).catch( (e) => {
+  
+        resolve(false);
+  
+      });
+    });
+  }
+
+  onSendDocument( uriFile: string, entity: EEntity, doc: ETypeFile ): Promise<IResApi> {
+
+    return new Promise( (resolve) => {
+
+      this.file.resolveLocalFilesystemUrl( uriFile ).then( (entry) => {
+  
+        (<FileEntry>entry).file( async (file) => {
+          // this.readFile(file);
+          const resUpload = await this.upload21.uploadDocument( file, entity, this.bodyProfile.pkDriver, doc, this.token );
+
+          resolve(resUpload);
+          
+        });
+  
+      }).catch( (e) => {
+  
+        resolve({
+          ok: false,
+          error: {
+            message: 'Error al subir documento'
+          }
+        });
+  
+      });
+    });
   }
 
   onGetError( showError: number ) {

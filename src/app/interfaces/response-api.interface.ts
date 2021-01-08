@@ -8,4 +8,6 @@ export interface IResApi {
     message?: string;
     token?: string;
     total?: number;
+    newFile?: string;
+    document?: string;
 }

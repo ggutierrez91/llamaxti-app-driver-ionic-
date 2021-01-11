@@ -14,437 +14,412 @@
 
     <ion-list>
 
-        <ion-slides #slideProfile style="width: 100%; height: 100%;" [options]="optSlider">
-            <ion-slide>
+        <form #frmProfile="ngForm">
 
-                <form #frmProfile="ngForm">
+            <ion-grid fixed>
+                <ion-row>
+                    <ion-col size="6">
 
-                    <ion-grid fixed>
-                        <ion-row>
-                            <ion-col size="12">
-                                <div class="container text-center" style="margin-top: 20px;">
-                                    <div class="photo-container">
-                                        <img [src]="imgProfile" alt="" class="rounded-circle img-raised" style="width: 160px; height: 160px;" (click)="onShowImgOptions()">
-                                    </div>
-                                </div>
-                                <br>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="5">
-
-                                <div class="input-group">
-
-                                    <div class=" input-group-prepend ">
-                                        <div class="input-group-text ">
-                                            <ion-icon slot="start" name="caret-down-outline" class="text-primary"></ion-icon> &nbsp;
-                                        </div>
-                                    </div>
-                                    <div class="form-control text-left text-capitalize" (click)="onShowTypeDoc()">
-                                        <section style="margin-top: 5px;">
-                                            {{ bodyProfile.prefix }}
-                                        </section>
-                                    </div>
-
-                                </div>
-
-                            </ion-col>
-                            <ion-col size="7">
-                                <div class="input-group " [ngClass]="{
-                                  'has-danger': (ndoc.errors?.required || ndoc.errors?.pattern) && ndoc.touched,
-                                  'has-success': !ndoc.errors?.required && !ndoc.errors?.pattern && ndoc.touched
-                                }">
-                                    <div class=" input-group-prepend ">
-                                        <div class="input-group-text ">
-                                            <ion-icon slot="start" class="text-primary" name="keypad-outline"></ion-icon>&nbsp;&nbsp;
-                                        </div>
-                                    </div>
-
-                                    <input type="tel" class="form-control " name="document" #ndoc="ngModel" [(ngModel)]="bodyProfile.document" placeholder="Nro. documento" [ngClass]="{
-                                     'form-control-danger': (ndoc.errors?.required || ndoc.errors?.pattern ) && ndoc.touched,
-                                     'form-control-success': !ndoc.errors?.required && !ndoc.errors?.pattern && ndoc.touched
-                                   }" required pattern="^[0-9]{0,20}$" [minlength]="longitude" [maxlength]="longitude" [readOnly]="bodyProfile.verifyReniec">
-
-                                </div>
-                                <span *ngIf="ndoc.errors?.pattern && ndoc.touched">
-                                  <small class="text-danger">
-                                      *Solo n&uacute;;meros
-                                  </small>
-                              </span>
-                                <span *ngIf="ndoc.errors?.minlength && ndoc.touched">
-                                  <small class="text-danger">
-                                      *M&iacute;mino {{ longitude }} caracteres
-                                  </small>
-                              </span>
-                                <span *ngIf="ndoc.errors?.maxlength && ndoc.touched">
-                                  <small class="text-danger">
-                                      *M&aacute;ximo {{ longitude }} caracteres
-                                  </small>
-                              </span>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="12">
-                                <div class="input-group " [ngClass]="{
-                                  'has-danger': (name.errors?.required || name.errors?.pattern) && name.touched,
-                                  'has-success': !name.errors?.required && !name.errors?.pattern && name.touched
-                                }">
-                                    <div class=" input-group-prepend ">
-                                        <div class="input-group-text ">
-                                            <small class="text-primary" style="margin-top: 4px;">Nombres</small> &nbsp;
-                                        </div>
-                                    </div>
-
-                                    <input type="text" class="form-control " name="name" #name="ngModel" [(ngModel)]="bodyProfile.name" placeholder="Nombres" [ngClass]="{
-                                     'form-control-danger': (name.errors?.required || name.errors?.pattern ) && name.touched,
-                                     'form-control-success': !name.errors?.required && !name.errors?.pattern && name.touched
-                                   }" required pattern="^[a-zA-Z áéíóúñüÁÉÍÓÚÜÑ]{0,50}$" minlength="3" maxlength="50">
-
-                                </div>
-                                <span *ngIf="name.errors?.pattern && name.touched">
-                                  <small class="text-danger">
-                                      *Solo letras
-                                  </small>
-                              </span>
-                                <span *ngIf="name.errors?.minlength && name.touched">
-                                  <small class="text-danger">
-                                      *M&iacute;nimo 3 caracteres
-                                  </small>
-                              </span>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="12">
-                                <div class="input-group " [ngClass]="{
-                                  'has-danger': (surname.errors?.required || surname.errors?.pattern) && surname.touched,
-                                  'has-success': !surname.errors?.required && !surname.errors?.pattern && surname.touched
-                                }">
-                                    <div class=" input-group-prepend ">
-                                        <div class="input-group-text ">
-                                            <small class="text-primary" style="margin-top: 4px;">Apellidos</small> &nbsp;
-                                        </div>
-                                    </div>
-
-                                    <input type="text" class="form-control " name="surname" #surname="ngModel" [(ngModel)]="bodyProfile.surname" placeholder="Apellidos" [ngClass]="{
-                                     'form-control-danger': (surname.errors?.required || surname.errors?.pattern ) && surname.touched,
-                                     'form-control-success': !surname.errors?.required && !surname.errors?.pattern && surname.touched
-                                   }" required pattern="^[a-zA-Z áéíóúñüÁÉÍÓÚÜÑ]{0,50}$" minlength="3" maxlength="50">
-
-                                </div>
-                                <span *ngIf="surname.errors?.pattern && surname.touched">
-                                  <small class="text-danger">
-                                      *Solo letras
-                                  </small>
-                              </span>
-                                <span *ngIf="surname.errors?.minlength && surname.touched">
-                                  <small class="text-danger">
-                                      *M&iacute;nimo 3 caracteres
-                                  </small>
-                              </span>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="5">
-                                <div class="input-group">
-
-                                    <div class=" input-group-prepend ">
-                                        <div class="input-group-text ">
-                                            <ion-icon slot="start" name="male-female-outline" class="text-primary"></ion-icon> &nbsp;
-                                        </div>
-                                    </div>
-                                    <div class="form-control text-left text-capitalize" (click)="onShowSex()">
-                                        <section style="margin-top: 5px;">
-                                            <span *ngIf="bodyProfile.sexText.length > 5">
-                                                {{ bodyProfile.sexText | slice:0:5 }}...
-                                            </span>
-                                            <span *ngIf="bodyProfile.sexText.length < 5">
-                                                {{ bodyProfile.sexText }}
-                                            </span>
-                                        </section>
-                                    </div>
-
-                                </div>
-                            </ion-col>
-                            <ion-col size="7">
-                                <ion-item class="ionitemCreative form-control" [ngClass]="{
-                                      'has-danger': 
-                                          birthDate.errors?.required  && birthDate.touched,
-                                      'has-success': 
-                                          !birthDate.errors?.required && birthDate.touched      
-                                      }">
-                                    <ion-icon slot="start" class="text-primary" name="calendar-outline" style="padding-bottom: 7px !important;"></ion-icon>
-
-                                    <ion-datetime [pickerOptions]="pickerBirthDate" [monthNames]="monthNames" [monthShortNames]="monthNames" [max]="minYear" placeholder="D&iacute;a/Mes/A&ntilde;o" name="birthDate" #birthDate="ngModel" [(ngModel)]="bodyProfile.brithDate" required="true"
-                                        displayFormat="DD/MM/YYYY"></ion-datetime>
-                                </ion-item>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-item-divider>
-                            <ion-label>Informaci&oacute;n de contacto</ion-label>
-                        </ion-item-divider>
+                        <ion-card mode="ios" class="poster">
+                            <img [src]="imgProfile" style="width: 100%; height: 180px;" alt="" (click)="onShowImgOptions()">
+                        </ion-card>
+                    </ion-col>
+                    <ion-col size="6">
                         <br>
+                        <div class="input-group">
 
-                        <ion-row>
-                            <ion-col size="5">
-                                <div class="input-group">
+                            <div class=" input-group-prepend ">
+                                <div class="input-group-text ">
+                                    <ion-icon slot="start" name="caret-down-outline" class="text-primary"></ion-icon> &nbsp;
+                                </div>
+                            </div>
+                            <div class="form-control text-left text-capitalize" (click)="onShowTypeDoc()">
+                                <section style="margin-top: 5px;">
+                                    {{ bodyProfile.prefix }}
+                                </section>
+                            </div>
 
-                                    <div class=" input-group-prepend ">
-                                        <div class="input-group-text ">
-                                            <ion-icon slot="start" name="flag-outline" class="text-primary"></ion-icon> &nbsp;
+                        </div>
+                        <div class="input-group " [ngClass]="{
+                          'has-danger': (ndoc.errors?.required || ndoc.errors?.pattern) && ndoc.touched,
+                          'has-success': !ndoc.errors?.required && !ndoc.errors?.pattern && ndoc.touched
+                        }">
+                            <div class=" input-group-prepend ">
+                                <div class="input-group-text ">
+                                    <ion-icon slot="start" class="text-primary" name="keypad-outline"></ion-icon>&nbsp;&nbsp;
+                                </div>
+                            </div>
 
-                                        </div>
-                                    </div>
-                                    <div class="form-control text-left text-capitalize" (click)="onShowNati()">
-                                        <section style="margin-top: 5px;">
-                                            {{ bodyProfile.nameCountry }}
-                                        </section>
-                                    </div>
+                            <input type="tel" class="form-control " name="document" #ndoc="ngModel" [(ngModel)]="bodyProfile.document" placeholder="Nro. documento" [ngClass]="{
+                             'form-control-danger': (ndoc.errors?.required || ndoc.errors?.pattern ) && ndoc.touched,
+                             'form-control-success': !ndoc.errors?.required && !ndoc.errors?.pattern && ndoc.touched
+                           }" required pattern="^[0-9]{0,20}$" [minlength]="longitude" [maxlength]="longitude" [readOnly]="bodyProfile.verifyReniec">
+
+                        </div>
+                        <span *ngIf="ndoc.errors?.pattern && ndoc.touched">
+                          <small class="text-danger">
+                              *Solo n&uacute;;meros
+                          </small>
+                      </span>
+                        <span *ngIf="ndoc.errors?.minlength && ndoc.touched">
+                          <small class="text-danger">
+                              *M&iacute;mino {{ longitude }} caracteres
+                          </small>
+                      </span>
+                        <span *ngIf="ndoc.errors?.maxlength && ndoc.touched">
+                          <small class="text-danger">
+                              *M&aacute;ximo {{ longitude }} caracteres
+                          </small>
+                      </span>
+
+                    </ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col size="12">
+                        <br>
+                        <div class="input-group " [ngClass]="{
+                          'has-danger': (name.errors?.required || name.errors?.pattern) && name.touched,
+                          'has-success': !name.errors?.required && !name.errors?.pattern && name.touched
+                        }">
+                            <div class=" input-group-prepend ">
+                                <div class="input-group-text ">
+                                    <small class="text-primary" style="margin-top: 4px;">Nombres</small> &nbsp;
+                                </div>
+                            </div>
+
+                            <input type="text" class="form-control " name="name" #name="ngModel" [(ngModel)]="bodyProfile.name" placeholder="Nombres" [ngClass]="{
+                             'form-control-danger': (name.errors?.required || name.errors?.pattern ) && name.touched,
+                             'form-control-success': !name.errors?.required && !name.errors?.pattern && name.touched
+                           }" required pattern="^[a-zA-Z áéíóúñüÁÉÍÓÚÜÑ]{0,50}$" minlength="3" maxlength="50">
+
+                        </div>
+                        <span *ngIf="name.errors?.pattern && name.touched">
+                          <small class="text-danger">
+                              *Solo letras
+                          </small>
+                      </span>
+                        <span *ngIf="name.errors?.minlength && name.touched">
+                          <small class="text-danger">
+                              *M&iacute;nimo 3 caracteres
+                          </small>
+                      </span>
+                    </ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col size="12">
+                        <div class="input-group " [ngClass]="{
+                          'has-danger': (surname.errors?.required || surname.errors?.pattern) && surname.touched,
+                          'has-success': !surname.errors?.required && !surname.errors?.pattern && surname.touched
+                        }">
+                            <div class=" input-group-prepend ">
+                                <div class="input-group-text ">
+                                    <small class="text-primary" style="margin-top: 4px;">Apellidos</small> &nbsp;
+                                </div>
+                            </div>
+
+                            <input type="text" class="form-control " name="surname" #surname="ngModel" [(ngModel)]="bodyProfile.surname" placeholder="Apellidos" [ngClass]="{
+                             'form-control-danger': (surname.errors?.required || surname.errors?.pattern ) && surname.touched,
+                             'form-control-success': !surname.errors?.required && !surname.errors?.pattern && surname.touched
+                           }" required pattern="^[a-zA-Z áéíóúñüÁÉÍÓÚÜÑ]{0,50}$" minlength="3" maxlength="50">
+
+                        </div>
+                        <span *ngIf="surname.errors?.pattern && surname.touched">
+                          <small class="text-danger">
+                              *Solo letras
+                          </small>
+                      </span>
+                        <span *ngIf="surname.errors?.minlength && surname.touched">
+                          <small class="text-danger">
+                              *M&iacute;nimo 3 caracteres
+                          </small>
+                      </span>
+                    </ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col size="5">
+                        <div class="input-group">
+
+                            <div class=" input-group-prepend ">
+                                <div class="input-group-text ">
+                                    <ion-icon slot="start" name="male-female-outline" class="text-primary"></ion-icon> &nbsp;
+                                </div>
+                            </div>
+                            <div class="form-control text-left text-capitalize" (click)="onShowSex()">
+                                <section style="margin-top: 5px;">
+                                    <span *ngIf="bodyProfile.sexText.length > 5">
+                                        {{ bodyProfile.sexText | slice:0:5 }}...
+                                    </span>
+                                    <span *ngIf="bodyProfile.sexText.length < 5">
+                                        {{ bodyProfile.sexText }}
+                                    </span>
+                                </section>
+                            </div>
+
+                        </div>
+                    </ion-col>
+                    <ion-col size="7">
+                        <ion-item class="ionitemCreative form-control" [ngClass]="{
+                              'has-danger': 
+                                  birthDate.errors?.required  && birthDate.touched,
+                              'has-success': 
+                                  !birthDate.errors?.required && birthDate.touched      
+                              }">
+                            <ion-icon slot="start" class="text-primary" name="calendar-outline" style="padding-bottom: 7px !important;"></ion-icon>
+
+                            <ion-datetime [pickerOptions]="pickerBirthDate" [monthNames]="monthNames" [monthShortNames]="monthNames" [max]="minYear" placeholder="D&iacute;a/Mes/A&ntilde;o" name="birthDate" #birthDate="ngModel" [(ngModel)]="bodyProfile.brithDate" required="true"
+                                displayFormat="DD/MM/YYYY"></ion-datetime>
+                        </ion-item>
+                    </ion-col>
+                </ion-row>
+
+                <ion-item-divider>
+                    <ion-label>Informaci&oacute;n de contacto</ion-label>
+                </ion-item-divider>
+                <br>
+
+                <ion-row>
+                    <ion-col size="5">
+                        <div class="input-group">
+
+                            <div class=" input-group-prepend ">
+                                <div class="input-group-text ">
+                                    <ion-icon slot="start" name="flag-outline" class="text-primary"></ion-icon> &nbsp;
 
                                 </div>
-                            </ion-col>
+                            </div>
+                            <div class="form-control text-left text-capitalize" (click)="onShowNati()">
+                                <section style="margin-top: 5px;">
+                                    {{ bodyProfile.nameCountry }}
+                                </section>
+                            </div>
 
-                            <ion-col size="7">
-                                <div class="input-group " [ngClass]="{
-                                  'has-danger': (phone.errors?.required || phone.errors?.pattern) && phone.touched,
-                                  'has-success': !phone.errors?.required && !phone.errors?.pattern && phone.touched
-                                }">
-                                    <div class=" input-group-prepend ">
-                                        <div class="input-group-text ">
-                                            <ion-icon slot="start" class="text-primary" name="call-outline"></ion-icon>&nbsp;
-                                            <small>
-                                                {{ bodyProfile.prefixPhone }}
-                                            </small>&nbsp;
-                                        </div>
-                                    </div>
+                        </div>
+                    </ion-col>
 
-                                    <input type="tel" class="form-control " name="phone" #phone="ngModel" [(ngModel)]="bodyProfile.phone" placeholder="Teléfono" [ngClass]="{
-                                     'form-control-danger': (phone.errors?.required || phone.errors?.pattern ) && phone.touched,
-                                     'form-control-success': !phone.errors?.required && !phone.errors?.pattern && phone.touched
-                                   }" required pattern="^[0-9 ]{0,20}$" minlength="6" maxlength="14">
-
+                    <ion-col size="7">
+                        <div class="input-group " [ngClass]="{
+                          'has-danger': (phone.errors?.required || phone.errors?.pattern) && phone.touched,
+                          'has-success': !phone.errors?.required && !phone.errors?.pattern && phone.touched
+                        }">
+                            <div class=" input-group-prepend ">
+                                <div class="input-group-text ">
+                                    <ion-icon slot="start" class="text-primary" name="call-outline"></ion-icon>&nbsp;
+                                    <small>
+                                        {{ bodyProfile.prefixPhone }}
+                                    </small>&nbsp;
                                 </div>
-                                <span *ngIf="phone.errors?.pattern && phone.touched">
-                                  <small class="text-danger">
-                                      *Solo n&uacute;;meros
-                                  </small>
-                              </span>
-                                <span *ngIf="phone.errors?.minlength && phone.touched">
-                                  <small class="text-danger">
-                                      *M&iacute;mino 6 caracteres
-                                  </small>
-                              </span>
-                                <span *ngIf="phone.errors?.maxlength && phone.touched">
-                                  <small class="text-danger">
-                                      *M&aacute;ximo 14 caracteres
-                                  </small>
-                              </span>
-                            </ion-col>
-                        </ion-row>
+                            </div>
 
-                        <ion-row>
-                            <ion-col size="12">
-                                <div class="input-group " [ngClass]="{
-                                  'has-danger': (email.errors?.required || email.errors?.pattern) && email.touched,
-                                  'has-success': !email.errors?.required && !email.errors?.pattern && email.touched
-                                }">
-                                    <div class=" input-group-prepend ">
-                                        <div class="input-group-text ">
-                                            <ion-icon slot="start" class="text-primary" name="mail-outline"></ion-icon>&nbsp;&nbsp;
-                                        </div>
-                                    </div>
+                            <input type="tel" class="form-control " name="phone" #phone="ngModel" [(ngModel)]="bodyProfile.phone" placeholder="Teléfono" [ngClass]="{
+                             'form-control-danger': (phone.errors?.required || phone.errors?.pattern ) && phone.touched,
+                             'form-control-success': !phone.errors?.required && !phone.errors?.pattern && phone.touched
+                           }" required pattern="^[0-9 ]{0,20}$" minlength="6" maxlength="14">
 
-                                    <input type="text" class="form-control " name="email" #email="ngModel" [(ngModel)]="bodyProfile.email" placeholder="Email" [ngClass]="{
-                                     'form-control-danger': (email.errors?.required || email.errors?.pattern ) && email.touched,
-                                     'form-control-success': !email.errors?.required && !email.errors?.pattern && email.touched
-                                   }" required pattern="^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$" minlength="10" maxlength="100">
+                        </div>
+                        <span *ngIf="phone.errors?.pattern && phone.touched">
+                          <small class="text-danger">
+                              *Solo n&uacute;;meros
+                          </small>
+                      </span>
+                        <span *ngIf="phone.errors?.minlength && phone.touched">
+                          <small class="text-danger">
+                              *M&iacute;mino 6 caracteres
+                          </small>
+                      </span>
+                        <span *ngIf="phone.errors?.maxlength && phone.touched">
+                          <small class="text-danger">
+                              *M&aacute;ximo 14 caracteres
+                          </small>
+                      </span>
+                    </ion-col>
+                </ion-row>
 
+                <ion-row>
+                    <ion-col size="12">
+                        <div class="input-group " [ngClass]="{
+                          'has-danger': (email.errors?.required || email.errors?.pattern) && email.touched,
+                          'has-success': !email.errors?.required && !email.errors?.pattern && email.touched
+                        }">
+                            <div class=" input-group-prepend ">
+                                <div class="input-group-text ">
+                                    <ion-icon slot="start" class="text-primary" name="mail-outline"></ion-icon>&nbsp;&nbsp;
                                 </div>
-                                <span *ngIf="email.errors?.pattern && email.touched">
-                                  <small class="text-danger">
-                                      *Email inv&aacute;lido
-                                  </small>
-                              </span>
-                                <span *ngIf="email.errors?.minlength && email.touched">
-                                  <small class="text-danger">
-                                      *M&iacute;mino 10 caracteres
-                                  </small>
-                              </span>
-                                <span *ngIf="email.errors?.maxlength && email.touched">
-                                  <small class="text-danger">
-                                      *M&aacute;ximo 100 caracteres
-                                  </small>
-                              </span>
-                            </ion-col>
-                        </ion-row>
+                            </div>
 
-                        <ion-row>
-                            <ion-col size="12">
-                                <div class="input-group">
-                                    <textarea class="form-control" name="aboutMe" [(ngModel)]="bodyProfile.aboutMe" pattern="^[a-zA-ZáéíóúñüÁÉÍÓÚÑÜ \,\.\;]{0,100}$" rows="2" placeholder="Acerca de mi..." maxlength="100"></textarea>
+                            <input type="text" class="form-control " name="email" #email="ngModel" [(ngModel)]="bodyProfile.email" placeholder="Email" [ngClass]="{
+                             'form-control-danger': (email.errors?.required || email.errors?.pattern ) && email.touched,
+                             'form-control-success': !email.errors?.required && !email.errors?.pattern && email.touched
+                           }" required pattern="^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$" minlength="10" maxlength="100">
+
+                        </div>
+                        <span *ngIf="email.errors?.pattern && email.touched">
+                          <small class="text-danger">
+                              *Email inv&aacute;lido
+                          </small>
+                      </span>
+                        <span *ngIf="email.errors?.minlength && email.touched">
+                          <small class="text-danger">
+                              *M&iacute;mino 10 caracteres
+                          </small>
+                      </span>
+                        <span *ngIf="email.errors?.maxlength && email.touched">
+                          <small class="text-danger">
+                              *M&aacute;ximo 100 caracteres
+                          </small>
+                      </span>
+                    </ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col size="12">
+                        <div class="input-group">
+                            <textarea class="form-control" name="aboutMe" [(ngModel)]="bodyProfile.aboutMe" pattern="^[a-zA-ZáéíóúñüÁÉÍÓÚÑÜ \,\.\;]{0,100}$" rows="2" placeholder="Acerca de mi..." maxlength="100"></textarea>
+                        </div>
+                    </ion-col>
+                </ion-row>
+
+            </ion-grid>
+
+            <ion-grid fixed>
+                <ion-row>
+                    <ion-col size="12">
+                        <h1>Datos del conductor</h1>
+                    </ion-col>
+                </ion-row>
+
+                <ion-row>
+                    <ion-col size="12" class="text-center">
+                        <ion-text color="medium">
+                            <h4>Licencia de conducir</h4>
+                        </ion-text>
+                        <div class="container text-center">
+                            <div class="photo-driver" style=" height:170px;" (click)="onShowSheetImg( typeFile.license )">
+                                <img [src]=" driverFiles.onGetSrc( 'LICENSE' )  | imgDriver: 'LICENSE' " style="width: 100%; height: 100%; " class="rounded img-raised" />
+                                <ion-icon class="iconHoriz" color="primary" name="ellipsis-vertical"></ion-icon>
+                            </div>
+                        </div>
+
+                    </ion-col>
+                </ion-row>
+
+                <ion-row style="margin-left: 25px; margin-right: 25px; margin-top: 10px;">
+                    <ion-col size="12">
+                        <ion-item class="ionitemCreative form-control" [ngClass]="{
+                            'has-danger': 
+                                expLicense.errors?.required  && expLicense.touched,
+                            'has-success': 
+                                !expLicense.errors?.required && expLicense.touched      
+                            }">
+                            <ion-icon slot="start" class="text-primary" name="calendar-outline" style="padding-bottom: 7px !important;"></ion-icon>
+
+                            <ion-label>Expira</ion-label>
+
+                            <ion-datetime [pickerOptions]="pickerLicense" [monthNames]="monthNames" [monthShortNames]="monthNames" [min]="minYearLic" [max]="maxYearLic" placeholder="D&iacute;a/Mes/A&ntilde;o" name="License" #expLicense="ngModel" [(ngModel)]="bodyProfile.dateLicenseExpiration"
+                                required="true"></ion-datetime>
+                        </ion-item>
+                    </ion-col>
+                </ion-row>
+
+                <ion-row style="margin-left: 25px; margin-right: 25px;">
+                    <ion-col size="12">
+                        <div class="input-group">
+
+                            <label for="" style="margin-top: 12px;">
+                                Taxista formal
+                            </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <div class=" text-right text-capitalize">
+
+                                <div class="form-check form-check-radio form-check-inline">
+                                    <label class="form-check-label">
+                                      <input class="form-check-input" type="radio" name="rbtEmp" id="rbtY" [(ngModel)]="bodyProfile.isEmployee" [value]="1">Sí
+                                      <span class="form-check-sign" (click)="onChangeIsEmployee()"></span>
+                                    </label>
                                 </div>
-                            </ion-col>
-                        </ion-row>
-                        <!--  -->
-                        <ion-button expand="block" fill="clear" shape="round" color="primary" [disabled]="frmProfile.invalid" (click)="onNext()">
-                            Siguiente
+                                <div class="form-check form-check-radio form-check-inline">
+                                    <label class="form-check-label">
+                                      <input class="form-check-input" type="radio" name="rbtEmp" id="rbtN" [(ngModel)]="bodyProfile.isEmployee" [value]="0">No
+                                      <span class="form-check-sign" (click)="onChangeIsEmployee()"></span>
+                                    </label>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </ion-col>
+                </ion-row>
+
+                <ion-row *ngIf="bodyProfile.isEmployee">
+                    <ion-col size="12" class="text-center">
+                        <ion-text color="medium">
+                            <h3>Foto check</h3>
+                        </ion-text>
+                        <div class="container text-center">
+                            <div class="photo-driver" style=" height:170px;" (click)="onShowSheetpDF( typeFile.photoCheck )">
+                                <img [src]=" driverFiles.onGetSrc( 'PHOTO_CHECK' )  | imgDriver: 'PHOTO_CHECK' " style="width: 100%; height: 100%;" class="rounded img-raised" />
+                                <ion-icon class="iconHoriz" color="primary" name="ellipsis-vertical"></ion-icon>
+                            </div>
+                            <span *ngIf="!validPhotoChk" class="text-danger">
+                                <small>*Requerido</small>
+                            </span>
+                        </div>
+
+                    </ion-col>
+                </ion-row>
+
+                <ion-row *ngIf="!bodyProfile.isEmployee" style="margin-left: 10px; margin-right: 10px;">
+                    <ion-col size="6">
+                        <ion-text color="medium">
+                            <h4>Antc. penales</h4>
+                        </ion-text>
+                        <div class="container text-center">
+
+                            <div class="photo-driver" style="  height:250px;" (click)="onShowSheetpDF( typeFile.criminalRecord )">
+
+                                <img [src]=" driverFiles.onGetSrc( 'CRIMINAL_RECORD' )  | imgDriver: 'CRIMINAL_RECORD' " style="width: 100%; height: 100%; " class="rounded img-raised" />
+
+                                <ion-icon class="iconFile" color="primary" name="ellipsis-vertical"></ion-icon>
+                            </div>
+
+                            <span *ngIf="!validCriRecord" class="text-danger">
+                                <small>*Requerido</small>
+                            </span>
+                        </div>
+
+                    </ion-col>
+
+                    <ion-col size="6">
+                        <ion-text color="medium">
+                            <h4>Antc. policiales</h4>
+                        </ion-text>
+                        <div class="container text-center">
+                            <div class="photo-driver" style="  height:250px;" (click)="onShowSheetpDF( typeFile.policialRecord )">
+
+                                <img [src]=" driverFiles.onGetSrc( 'POLICIAL_RECORD' )  | imgDriver: 'POLICIAL_RECORD' " style="width: 100%; height: 100%; " class="rounded img-raised" />
+
+                                <ion-icon class="iconFile" color="primary" name="ellipsis-vertical"></ion-icon>
+                            </div>
+                            <span *ngIf="!validPolRecord" class="text-danger">
+                                <small>*Requerido</small>
+                            </span>
+                        </div>
+
+                    </ion-col>
+                </ion-row>
+
+                <ion-row style="margin-top: 35px;">
+                    <ion-col size="12">
+                        <ion-button expand="block" fill="clear" shape="round" [disabled]="frmProfile.invalid || !validLicense || !validPhotoChk || !validCriRecord || !validPolRecord" (click)="onSubmit( frmProfile )">
+                            Guardar cambios
                         </ion-button>
+                    </ion-col>
+                </ion-row>
 
-                    </ion-grid>
+            </ion-grid>
 
-                </form>
-            </ion-slide>
-
-            <ion-slide>
-                <form #frmDriver="ngForm">
-                    <ion-grid fixed>
-                        <ion-row>
-                            <ion-col size="12">
-                                <h1>Datos del conductor</h1>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="12" class="text-center">
-                                <ion-text color="medium">
-                                    <h4>Licencia de conducir</h4>
-                                </ion-text>
-                                <div class="container text-center">
-                                    <div class="photo-driver" style=" height:170px;" (click)="onShowSheetImg( typeFile.license )">
-                                        <img [src]=" driverFiles.onGetSrc( 'LICENSE' )  | imgDriver: 'LICENSE' " style="width: 100%; height: 100%; " class="rounded img-raised" />
-                                        <ion-icon class="iconHoriz" color="primary" name="ellipsis-vertical"></ion-icon>
-                                    </div>
-                                </div>
-
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row style="margin-left: 25px; margin-right: 25px; margin-top: 10px;">
-                            <ion-col size="12">
-                                <ion-item class="ionitemCreative form-control" [ngClass]="{
-                                    'has-danger': 
-                                        expLicense.errors?.required  && expLicense.touched,
-                                    'has-success': 
-                                        !expLicense.errors?.required && expLicense.touched      
-                                    }">
-                                    <ion-icon slot="start" class="text-primary" name="calendar-outline" style="padding-bottom: 7px !important;"></ion-icon>
-
-                                    <ion-label>Expira</ion-label>
-
-                                    <ion-datetime [pickerOptions]="pickerLicense" [monthNames]="monthNames" [monthShortNames]="monthNames" [min]="minYearLic" [max]="maxYearLic" placeholder="D&iacute;a/Mes/A&ntilde;o" name="License" #expLicense="ngModel" [(ngModel)]="bodyProfile.dateLicenseExpiration"
-                                        required="true"></ion-datetime>
-                                </ion-item>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row style="margin-left: 25px; margin-right: 25px;">
-                            <ion-col size="12">
-                                <div class="input-group">
-
-                                    <label for="" style="margin-top: 12px;">
-                                        Taxista formal
-                                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <div class=" text-right text-capitalize">
-
-                                        <div class="form-check form-check-radio form-check-inline">
-                                            <label class="form-check-label">
-                                              <input class="form-check-input" type="radio" name="rbtEmp" id="rbtY" [(ngModel)]="bodyProfile.isEmployee" [value]="1">Sí
-                                              <span class="form-check-sign" (click)="onChangeIsEmployee()"></span>
-                                            </label>
-                                        </div>
-                                        <div class="form-check form-check-radio form-check-inline">
-                                            <label class="form-check-label">
-                                              <input class="form-check-input" type="radio" name="rbtEmp" id="rbtN" [(ngModel)]="bodyProfile.isEmployee" [value]="0">No
-                                              <span class="form-check-sign" (click)="onChangeIsEmployee()"></span>
-                                            </label>
-                                        </div>
-
-                                    </div>
-
-                                </div>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row *ngIf="bodyProfile.isEmployee">
-                            <ion-col size="12" class="text-center">
-                                <ion-text color="medium">
-                                    <h3>Foto check</h3>
-                                </ion-text>
-                                <div class="container text-center">
-                                    <div class="photo-driver" style=" height:170px;" (click)="onShowSheetpDF( typeFile.photoCheck )">
-                                        <img [src]=" driverFiles.onGetSrc( 'PHOTO_CHECK' )  | imgDriver: 'PHOTO_CHECK' " style="width: 100%; height: 100%;" class="rounded img-raised" />
-                                        <ion-icon class="iconHoriz" color="primary" name="ellipsis-vertical"></ion-icon>
-                                    </div>
-                                    <span *ngIf="!validPhotoChk" class="text-danger">
-                                        <small>*Requerido</small>
-                                    </span>
-                                </div>
-
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row *ngIf="!bodyProfile.isEmployee" style="margin-left: 10px; margin-right: 10px;">
-                            <ion-col size="6">
-                                <ion-text color="medium">
-                                    <h4>Antc. penales</h4>
-                                </ion-text>
-                                <div class="container text-center">
-
-                                    <div class="photo-driver" style="  height:250px;" (click)="onShowSheetpDF( typeFile.criminalRecord )">
-
-                                        <img [src]=" driverFiles.onGetSrc( 'CRIMINAL_RECORD' )  | imgDriver: 'CRIMINAL_RECORD' " style="width: 100%; height: 100%; " class="rounded img-raised" />
-
-                                        <ion-icon class="iconFile" color="primary" name="ellipsis-vertical"></ion-icon>
-                                    </div>
-
-                                    <span *ngIf="!validCriRecord" class="text-danger">
-                                        <small>*Requerido</small>
-                                    </span>
-                                </div>
-
-                            </ion-col>
-
-                            <ion-col size="6">
-                                <ion-text color="medium">
-                                    <h4>Antc. policiales</h4>
-                                </ion-text>
-                                <div class="container text-center">
-                                    <div class="photo-driver" style="  height:250px;" (click)="onShowSheetpDF( typeFile.policialRecord )">
-
-                                        <img [src]=" driverFiles.onGetSrc( 'POLICIAL_RECORD' )  | imgDriver: 'POLICIAL_RECORD' " style="width: 100%; height: 100%; " class="rounded img-raised" />
-
-                                        <ion-icon class="iconFile" color="primary" name="ellipsis-vertical"></ion-icon>
-                                    </div>
-                                    <span *ngIf="!validPolRecord" class="text-danger">
-                                        <small>*Requerido</small>
-                                    </span>
-                                </div>
-
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row style="margin-top: 35px;">
-                            <ion-col size="6">
-                                <ion-button expand="block" fill="clear" shape="round" (click)="onBack()">
-                                    Atrás
-                                </ion-button>
-                            </ion-col>
-                            <ion-col size="6">
-                                <ion-button expand="block" fill="clear" shape="round" [disabled]="frmDriver.invalid || !validLicense || !validPhotoChk || !validCriRecord || !validPolRecord" (click)="onSubmit( frmDriver )">
-                                    Guardar cambios
-                                </ion-button>
-                            </ion-col>
-                        </ion-row>
-
-                    </ion-grid>
-                </form>
-            </ion-slide>
-
-        </ion-slides>
+        </form>
 
 
     </ion-list>

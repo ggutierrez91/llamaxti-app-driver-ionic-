@@ -5,13 +5,14 @@ import { DriverModel } from '../../models/user-driver.model';
 import { DriverFilesModel, EEntity, ETypeFile } from '../../models/user-driver-files.model';
 import { NgForm } from '@angular/forms';
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
-import { UploadService } from '../../services/upload.service';
 import { IResApi } from '../../interfaces/response-api.interface';
 import { StorageService } from '../../services/storage.service';
 import { SocketService } from '../../services/socket.service';
 import { Subscription } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { ModalConditionsPage } from '../modal-conditions/modal-conditions.page';
+import { Upload21Service } from '../../services/upload21.service';
+import { File, FileEntry } from '@ionic-native/file/ngx';
 
 @Component({
   selector: 'app-singin',
@@ -40,8 +41,13 @@ export class SinginPage implements OnInit, OnDestroy {
     },
   };
 
+  resJson: IResApi = {
+    ok: false,
+    data: [{nameFile: ''}]
+  };
+
   // tslint:disable-next-line: max-line-length
-  constructor(private authSvc: AuthService, private uiSvc: UiUtilitiesService, private uploadSvc: UploadService, private navCtrl: NavController, private st: StorageService, private io: SocketService, private menuCtrl: MenuController, private modalCtrl: ModalController) { }
+  constructor(private authSvc: AuthService, private uiSvc: UiUtilitiesService, private navCtrl: NavController, private st: StorageService, private io: SocketService, private menuCtrl: MenuController, private modalCtrl: ModalController, private upload21: Upload21Service, private file: File) { }
 
   ngOnInit() {
     /**
@@ -162,14 +168,8 @@ export class SinginPage implements OnInit, OnDestroy {
 
         this.st.token = tokenApi || '';
         await this.st.onSaveCredentials( tokenApi, resSingin.data );
-        this.uploadSvc.onUploadImg( this.bodyDriver.img, pkUser, tokenApi ).then( (resUp) => {
-
-          const resJson: IResApi = JSON.parse( resUp.response );
-          if (!resJson.ok) {
-            console.log('Error al subir img perfil', resJson.error);
-          }
-          resSingin.data.img = resJson.data[0].nameFile || 'xd.png';
-        }).catch( (e) => console.log(e));
+        await this.onSendUpload( this.bodyDriver.img, pkUser, tokenApi );
+        resSingin.data.img = this.resJson.data[0].nameFile || 'xd.png';
 
         const arrFilesUploaded: any[] = [];
         await Promise.all( this.driverFiles.filesDriver.map( async (item) => {
@@ -178,15 +178,13 @@ export class SinginPage implements OnInit, OnDestroy {
 
             const idEntity = item.entity === 'DRIVER' ? pkDriver : pkVehicle;
 
-            const resUpDocs = await this.uploadSvc.onUploadDocuments( item.pathFile
+            const resUpDocs = await this.onSendDocument( item.pathFile
                                             , item.entity
-                                            , idEntity
                                             , item.typeFile
-                                            , tokenApi
-                                            , item.isPdf );
-            const resDocsJson: IResApi = JSON.parse( resUpDocs.response );
+                                            , idEntity
+                                            , tokenApi );
             let msgUpload = `Se subio archivo ${ item.typeFile }`;
-            if (!resDocsJson.ok) {
+            if (!resUpDocs.ok) {
               msgUpload = `Error al subir archivo archivo ${ item.typeFile }`;
             }
             arrFilesUploaded.push( msgUpload );
@@ -197,6 +195,59 @@ export class SinginPage implements OnInit, OnDestroy {
       });
     }
 
+  }
+
+  onSendUpload( uriFile: string, pkUser: number, token = '' ): Promise<any> {
+
+    return new Promise( (resolve) => {
+
+      this.file.resolveLocalFilesystemUrl( uriFile ).then( (entry) => {
+  
+        (<FileEntry>entry).file( async (file) => {
+          // this.readFile(file);
+          const resUpload = await this.upload21.uploadImage( file, pkUser, token );
+
+          console.log('response upload', resUpload);
+          this.resJson = resUpload;
+          
+
+          resolve(true);
+          
+        });
+  
+      }).catch( (e) => {
+  
+        resolve(false);
+  
+      });
+    });
+  }
+
+  onSendDocument( uriFile: string, entity: EEntity, doc: ETypeFile, pkEntity: number, token = '' ): Promise<IResApi> {
+
+    return new Promise( (resolve) => {
+
+      this.file.resolveLocalFilesystemUrl( uriFile ).then( (entry) => {
+  
+        (<FileEntry>entry).file( async (file) => {
+          // this.readFile(file);
+          const resUpload = await this.upload21.uploadDocument( file, entity, pkEntity, doc, token );
+
+          resolve(resUpload);
+          
+        });
+  
+      }).catch( (e) => {
+  
+        resolve({
+          ok: false,
+          error: {
+            message: 'Error al subir documento'
+          }
+        });
+  
+      });
+    });
   }
 
   async onRedirecHome( resSingin: IResApi ) {

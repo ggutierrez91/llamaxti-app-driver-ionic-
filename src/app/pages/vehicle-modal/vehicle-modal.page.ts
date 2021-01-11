@@ -10,9 +10,10 @@ import { StorageService } from '../../services/storage.service';
 import IVehicle from '../../interfaces/vehicle.interface';
 import { environment } from '../../../environments/environment';
 import { IResApi } from '../../interfaces/response-api.interface';
-import { UploadService } from '../../services/upload.service';
 import { EEntity } from 'src/app/models/user-driver-files.model';
 import { Subscription } from 'rxjs';
+import { File, FileEntry } from '@ionic-native/file/ngx';
+import { Upload21Service } from 'src/app/services/upload21.service';
 
 const URI_SERVER = environment.URL_SERVER;
 declare var window: any;
@@ -24,7 +25,7 @@ declare var window: any;
 })
 export class VehicleModalPage implements OnInit, OnDestroy {
 
-  @ViewChild('slideVehicle', {static: true}) slideVehicle: IonSlides;
+  // @ViewChild('slideVehicle', {static: true}) slideVehicle: IonSlides;
   @ViewChild('driverContent', {static: true}) content: IonContent;
   @Input() loadData: boolean;
   @Input() data: IVehicle;
@@ -88,13 +89,13 @@ export class VehicleModalPage implements OnInit, OnDestroy {
   pathDriver = URI_SERVER + `/Driver/Img/Get/vehicle/`;
 
   // tslint:disable-next-line: max-line-length
-  constructor(private modalCtrl: ModalController, private pickerCtrl: PickerController, private sheetCtrl: ActionSheetController, private camera: Camera, private uiSvc: UiUtilitiesService, private vehicleSvc: VehicleService, public st: StorageService, private uploadSvc: UploadService) { }
+  constructor(private modalCtrl: ModalController, private pickerCtrl: PickerController, private sheetCtrl: ActionSheetController, private camera: Camera, private uiSvc: UiUtilitiesService, private vehicleSvc: VehicleService, public st: StorageService, private upload21: Upload21Service, private file: File) { }
 
   ngOnInit() {
 
     // this.slideProperty.lockSwipes(true);
     // this.slideSoat.lockSwipes(true);
-    this.slideVehicle.lockSwipes(true);
+    // this.slideVehicle.lockSwipes(true);
 
     this.bodyVehicle = new VehicleModel();
     this.filesVehicle = new VehicleFilesModel();
@@ -332,26 +333,26 @@ export class VehicleModalPage implements OnInit, OnDestroy {
     });
   }
 
-  onNextVehicleTwo() {
-    this.loading = true;
-    this.slideVehicle.lockSwipes(false);
-    this.slideVehicle.slideNext().then( async () => {
-      await this.slideVehicle.lockSwipes(true);
-      await this.content.scrollToTop(50);
-      this.loading = false;
-    });
+  // onNextVehicleTwo() {
+  //   this.loading = true;
+  //   this.slideVehicle.lockSwipes(false);
+  //   this.slideVehicle.slideNext().then( async () => {
+  //     await this.slideVehicle.lockSwipes(true);
+  //     await this.content.scrollToTop(50);
+  //     this.loading = false;
+  //   });
 
-  }
+  // }
 
-  onBackSlide() {
-    this.loading = true;
-    this.slideVehicle.lockSwipes(false);
-    this.slideVehicle.slidePrev().then( async () => {
-      await this.content.scrollToTop(50);
-      await this.slideVehicle.lockSwipes(true);
-      this.loading = false;
-    });
-  }
+  // onBackSlide() {
+  //   this.loading = true;
+  //   this.slideVehicle.lockSwipes(false);
+  //   this.slideVehicle.slidePrev().then( async () => {
+  //     await this.content.scrollToTop(50);
+  //     await this.slideVehicle.lockSwipes(true);
+  //     this.loading = false;
+  //   });
+  // }
 
   onSubmit() {
     let verifyFiles = false;
@@ -389,6 +390,33 @@ export class VehicleModalPage implements OnInit, OnDestroy {
 
   }
 
+  onSendDocument( uriFile: string, entity: EEntity, doc: ETypeFile, pkEntity: number, token = '' ): Promise<IResApi> {
+
+    return new Promise( (resolve) => {
+
+      this.file.resolveLocalFilesystemUrl( uriFile ).then( (entry) => {
+  
+        (<FileEntry>entry).file( async (file) => {
+          // this.readFile(file);
+          const resUpload = await this.upload21.uploadDocument( file, entity, pkEntity, doc, token );
+
+          resolve(resUpload);
+          
+        });
+  
+      }).catch( (e) => {
+  
+        resolve({
+          ok: false,
+          error: {
+            message: 'Error al subir documento'
+          }
+        });
+  
+      });
+    });
+  }
+
   onAddVehicle() {
     this.vhSbc = this.vehicleSvc.onAddVehicle( this.bodyVehicle )
     // .pipe( retry() )
@@ -397,22 +425,19 @@ export class VehicleModalPage implements OnInit, OnDestroy {
           throw new Error( res.error );
         }
         if (res.showError === 0) {
-          let resDocsJson: IResApi;
           const arrFilesUploaded: any[] = [];
 
           await Promise.all( this.filesVehicle.filesVehicle.map( async (item) => {
 
             if (item.pathFile !== '') {
 
-              const resUpDocs = await this.uploadSvc.onUploadDocuments( item.pathFile
+              const resUpDocs = await this.onSendDocument( item.pathFile
                                               , EEntity.vehicle
-                                              , res.data.pkVehicleDriver
                                               , item.typeFile
-                                              , this.token
-                                              , false );
-              resDocsJson = JSON.parse( resUpDocs.response );
-              if (!resDocsJson.ok) {
-                throw new Error( resDocsJson.error );
+                                              , res.data.pkVehicleDriver
+                                              , this.token );
+              if (!resUpDocs.ok) {
+                throw new Error( resUpDocs.error );
               }
               arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
             }
@@ -452,15 +477,13 @@ export class VehicleModalPage implements OnInit, OnDestroy {
           // console.log('file vehicle', item);
           if (item.changed) {
   
-            const resUpDocs = await this.uploadSvc.onUploadDocuments( item.pathFile
+            const resUpDocs = await this.onSendDocument( item.pathFile
                                             , EEntity.vehicle
-                                            , this.bodyVehicle.pkVehicle
                                             , item.typeFile
-                                            , this.st.token
-                                            , false );
-            const resDocsJson: IResApi = JSON.parse( resUpDocs.response );
-            if (!resDocsJson.ok) {
-              throw new Error( resDocsJson.error );
+                                            , this.bodyVehicle.pkVehicle
+                                            , this.st.token );
+            if (!resUpDocs.ok) {
+              throw new Error( resUpDocs.error );
             }
             arrFilesUploaded.push( `Se subio archivo ${ item.typeFile }` );
           }

@@ -58,7 +58,7 @@
                                   <small class="text-danger">*Formato inv&aacute;lido</small>
                               </span>
 
-                                <ion-input name="ccAccount" #cc="ngModel" [(ngModel)]="body.ccAccount" inputmode="tel" type="text" placeholder="N° cuenta" required="true" [minlength]="16" [maxlength]="20" pattern="^[0-9]{3,4}-[0-9\-]{4,16}"></ion-input>
+                                <ion-input name="ccAccount" #cc="ngModel" [(ngModel)]="body.ccAccount" inputmode="tel" type="text" placeholder="N° cuenta" required="true" [minlength]="14" [maxlength]="20" pattern="^[0-9]{3,4}-[0-9\-]{4,16}"></ion-input>
 
                                 <ion-button slot="end" expand="block" fill="clear" shape="round" color="primary" (click)="onAddAccount( frmAccount )" [disabled]="frmAccount.invalid">
                                     Guardar
@@ -80,7 +80,7 @@
                                   <small class="text-danger">*Formato inv&aacute;lido</small>
                               </span>
 
-                                <ion-input name="cciAccount" #cci="ngModel" [(ngModel)]="body.cciAccount" inputmode="tel" type="text" placeholder="N° cuenta interbancaria" required="true" [minlength]="19" [maxlength]="30" pattern="^[0-9]{3,4}-[0-9\-]{4,19}"></ion-input>
+                                <ion-input name="cciAccount" #cci="ngModel" [(ngModel)]="body.cciAccount" inputmode="tel" type="text" placeholder="N° cuenta interbancaria" required="true" [minlength]="19" [maxlength]="30" pattern="^[0-9]{3,4}-[0-9\-]{4,20}$"></ion-input>
 
                             </ion-item>
 
@@ -101,7 +101,7 @@
         <ion-slides style="width: 100%; height: fit-content;">
             <ion-slide>
 
-                <ion-list *ngIf="dataAccount.length > 0">
+                <ion-list *ngIf="!loadingList && dataAccount.length > 0">
 
                     <ion-card class="cardcoupon" mode="ios" *ngFor="let account of dataAccount">
 
@@ -131,12 +131,14 @@
 
                 </ion-list>
 
-                <ion-list *ngIf="dataAccount.length === 0">
+                <ion-list *ngIf="!loadingList && dataAccount.length === 0">
                     <img src="./assets/img/spaceman.png" alt="Not found" style="width: 120px; height: 160px;">
                     <p style="font-size: 13px;">
                         <b>Cero cuentas</b> <br> No tienes cuentas registradas en este momento
                     </p>
                 </ion-list>
+
+                <ion-spinner style="margin-top: 80px;" name="bubbles" color="primary" *ngIf="loadingList"></ion-spinner>
 
             </ion-slide>
 

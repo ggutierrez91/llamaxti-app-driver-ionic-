@@ -31,6 +31,7 @@ export class AccountsPage implements OnInit, OnDestroy {
   msgConfirm = 'eliminar';
   action = 'creó';
   loading = false;
+  loadingList = false;
   // tslint:disable-next-line: max-line-length
   constructor( private st: StorageService, private ui: UiUtilitiesService, private accountSvc: AccountsService, private alertCtrl: AlertController ) { }
 
@@ -59,6 +60,7 @@ export class AccountsPage implements OnInit, OnDestroy {
   }
 
   onGetAccount() {
+    this.loadingList = true;
     this.listSbc = this.accountSvc.onGetAccount().subscribe( (res) => {
 
       if (!res.ok) {
@@ -66,7 +68,7 @@ export class AccountsPage implements OnInit, OnDestroy {
       }
 
       this.dataAccount = res.data;
-
+      this.loadingList = false;
     });
   }
 
@@ -146,7 +148,6 @@ export class AccountsPage implements OnInit, OnDestroy {
         }
 
         if( res.showError === 0 ) {
-          this.body.onReset();
           const finded = this.dataBank.find( bank => bank.pkBank === this.body.fkBank );
           if ( finded ) {
             this.dataAccount.unshift({
@@ -159,6 +160,7 @@ export class AccountsPage implements OnInit, OnDestroy {
               dateRegister: moment().format( 'YYYY-MM-DD' )
             });
           }
+          this.body.onReset();
         }
 
         await this.ui.onShowToast( this.onGetError( res.showError ), 4500 );

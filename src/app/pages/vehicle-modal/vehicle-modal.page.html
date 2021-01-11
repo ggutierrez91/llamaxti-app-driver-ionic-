@@ -14,247 +14,223 @@
 <ion-content slot="fixed" fullscreen="true" #driverContent>
 
     <ion-list class="animated fadeIn">
-        <ion-slides #slideVehicle style="width: 100%; height: 100%;" [options]="optSlider">
 
-            <ion-slide>
+        <form #frmVehicle="ngForm" style="margin-left: 10px; margin-right: 10px;">
 
-                <!-- <ion-item style="margin-right: 15px;" lines="none"> -->
-                <form #frmVehicle="ngForm" style="margin-left: 10px; margin-right: 10px;">
+            <div class="table">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <h1>Datos del veh&iacute;culo</h1>
+                    </div>
+                </div>
 
-                    <div class="table">
-                        <div class="row">
-                            <div class="col-12 text-center">
-                                <h1>Datos del veh&iacute;culo</h1>
+                <div class="row ">
+                    <div class="col-6">
+                        <div class="input-group " [ngClass]="{
+                                'has-danger': (plate.errors?.required || plate.errors?.pattern) && plate.touched,
+                                'has-success': !plate.errors?.required && !plate.errors?.pattern && plate.touched
+                                }">
+                            <div class="input-group-prepend ">
+                                <div class="input-group-text ">
+                                    <small><b>Placa</b> <span class="text-danger">*</span> </small>
+                                </div>
                             </div>
+
+                            <input type="text" class="form-control toUpper" name="plate" #plate="ngModel" [(ngModel)]="bodyVehicle.numberPlate" placeholder="ABC-123" required pattern="^([a-zA-Z0-9]{2,3}-+\d{3,4})$" [ngClass]="{
+                                    'form-control-danger': (plate.errors?.required || plate.errors?.pattern ) && plate.touched,
+                                    'form-control-success': !plate.errors?.required && !plate.errors?.pattern && plate.touched
+                                    }">
+
+                        </div>
+                        <span *ngIf="plate.errors?.pattern && plate.touched">
+                                <small class="text-danger">
+                                    *inv&aacute;lido example: ABC-123</small>
+                            </span>
+                    </div>
+
+                    <div class="col-6 ">
+
+                        <div class="input-group " [ngClass]="{
+                                    'has-danger': (year.errors?.required || year.errors?.pattern) && year.touched,
+                                    'has-success': !year.errors?.required && !year.errors?.pattern && year.touched
+                                }">
+                            <div class="input-group-prepend ">
+                                <div class="input-group-text ">
+                                    <small><b>A&ntilde;o</b> <span class="text-danger">*</span> </small>
+                                </div>
+                            </div>
+
+                            <input type="text" name="year" [(ngModel)]="bodyVehicle.year" class="form-control " #year="ngModel" required [ngClass]="{
+                                        'form-control-danger': (year.errors?.required || year.errors?.pattern ) && year.touched,
+                                        'form-control-success': !year.errors?.required && !year.errors?.pattern && year.touched
+                                    }" readonly (click)="onShowPickerYear()">
+
                         </div>
 
-                        <div class="row ">
-                            <div class="col-6">
-                                <div class="input-group " [ngClass]="{
-                                        'has-danger': (plate.errors?.required || plate.errors?.pattern) && plate.touched,
-                                        'has-success': !plate.errors?.required && !plate.errors?.pattern && plate.touched
-                                        }">
-                                    <div class="input-group-prepend ">
-                                        <div class="input-group-text ">
-                                            <small><b>Placa</b> <span class="text-danger">*</span> </small>
-                                        </div>
-                                    </div>
+                    </div>
+                </div>
 
-                                    <input type="text" class="form-control toUpper" name="plate" #plate="ngModel" [(ngModel)]="bodyVehicle.numberPlate" placeholder="ABC-123" required pattern="^([a-zA-Z0-9]{2,3}-+\d{3,4})$" [ngClass]="{
-                                            'form-control-danger': (plate.errors?.required || plate.errors?.pattern ) && plate.touched,
-                                            'form-control-success': !plate.errors?.required && !plate.errors?.pattern && plate.touched
-                                            }">
+                <div class="row">
+                    <div class="col-6">
 
+                        <div class="input-group " [ngClass]="{
+                                    'has-danger': (color.errors?.required || color.errors?.pattern) && color.touched,
+                                    'has-success': !color.errors?.required && !color.errors?.pattern && color.touched
+                                }">
+                            <div class="input-group-prepend ">
+                                <div class="input-group-text ">
+                                    <small><b>Color</b> <span class="text-danger">*</span> </small>
                                 </div>
-                                <span *ngIf="plate.errors?.pattern && plate.touched">
-                                        <small class="text-danger">
-                                            *inv&aacute;lido example: ABC-123</small>
-                                    </span>
                             </div>
 
-                            <div class="col-6 ">
+                            <input type="text" name="color" [(ngModel)]="bodyVehicle.colorEs" class="form-control " #color="ngModel" required [ngClass]="{
+                                        'form-control-danger': (color.errors?.required || color.errors?.pattern ) && color.touched,
+                                        'form-control-success': !color.errors?.required && !color.errors?.pattern && color.touched
+                                    }" readonly (click)="onShowPickerColor()">
 
-                                <div class="input-group " [ngClass]="{
-                                            'has-danger': (year.errors?.required || year.errors?.pattern) && year.touched,
-                                            'has-success': !year.errors?.required && !year.errors?.pattern && year.touched
-                                        }">
-                                    <div class="input-group-prepend ">
-                                        <div class="input-group-text ">
-                                            <small><b>A&ntilde;o</b> <span class="text-danger">*</span> </small>
-                                        </div>
-                                    </div>
-
-                                    <input type="text" name="year" [(ngModel)]="bodyVehicle.year" class="form-control " #year="ngModel" required [ngClass]="{
-                                                'form-control-danger': (year.errors?.required || year.errors?.pattern ) && year.touched,
-                                                'form-control-success': !year.errors?.required && !year.errors?.pattern && year.touched
-                                            }" readonly (click)="onShowPickerYear()">
-
-                                </div>
-
-                            </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-6">
+                    </div>
+                    <div class="col-6">
+                        <label for="">
+                                    <small>Veh&iacute;culo propio</small>
+                                </label>
+                        <div class="form-group">
 
-                                <div class="input-group " [ngClass]="{
-                                            'has-danger': (color.errors?.required || color.errors?.pattern) && color.touched,
-                                            'has-success': !color.errors?.required && !color.errors?.pattern && color.touched
-                                        }">
-                                    <div class="input-group-prepend ">
-                                        <div class="input-group-text ">
-                                            <small><b>Color</b> <span class="text-danger">*</span> </small>
-                                        </div>
-                                    </div>
-
-                                    <input type="text" name="color" [(ngModel)]="bodyVehicle.colorEs" class="form-control " #color="ngModel" required [ngClass]="{
-                                                'form-control-danger': (color.errors?.required || color.errors?.pattern ) && color.touched,
-                                                'form-control-success': !color.errors?.required && !color.errors?.pattern && color.touched
-                                            }" readonly (click)="onShowPickerColor()">
-
-                                </div>
-
-                            </div>
-                            <div class="col-6">
-                                <label for="">
-                                            <small>Veh&iacute;culo propio</small>
+                            <div class="form-check form-check-radio form-check-inline">
+                                <label class="form-check-label">
+                                        <input class="form-check-input" type="radio" name="rbtProper" [(ngModel)]="bodyVehicle.isProper" id="rbtYesProper" [value]="true">S&iacute;
+                                        <span class="form-check-sign"></span>
                                         </label>
-                                <div class="form-group">
-
-                                    <div class="form-check form-check-radio form-check-inline">
-                                        <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="rbtProper" [(ngModel)]="bodyVehicle.isProper" id="rbtYesProper" [value]="true">S&iacute;
-                                                <span class="form-check-sign"></span>
-                                                </label>
-                                    </div>
-                                    <div class="form-check form-check-radio form-check-inline">
-                                        <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="rbtProper" [(ngModel)]="bodyVehicle.isProper" id="inlineRadio2" [value]="false">No
-                                                <span class="form-check-sign"></span>
-                                                </label>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-12 text-center">
-                                <ion-text color="medium">
-                                    <h3>Tarjeta de propiedad</h3>
-                                </ion-text>
-
-                                <div class="container text-center">
-                                    <div class="photo-driver" style=" width: 95%; height:180px;" (click)="onShowSheetImg( typeFile.propertyCard )">
-                                        <img [src]=" filesVehicle.onGetSrc( 'PROPERTY_CARD' )  | imgDriver: 'PROPERTY_CARD' " style="width: 100%; height: 100%; " class="rounded img-raised" />
-                                    </div>
-                                    <ion-icon class="iconInternal" color="primary" name="ellipsis-vertical"></ion-icon>
-                                </div>
-
+                            <div class="form-check form-check-radio form-check-inline">
+                                <label class="form-check-label">
+                                        <input class="form-check-input" type="radio" name="rbtProper" [(ngModel)]="bodyVehicle.isProper" id="inlineRadio2" [value]="false">No
+                                        <span class="form-check-sign"></span>
+                                        </label>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12 text-center">
-                                <ion-text color="medium">
-                                    <h3>SOAT</h3>
-                                </ion-text>
-                                <div class="container text-center">
-                                    <div class="photo-driver" style=" width: 95%; height:180px;" (click)="onShowSheetImg( typeFile.soat )">
-                                        <img [src]=" filesVehicle.onGetSrc( 'SOAT' )  | imgDriver: 'SOAT' " style="width: 100%; height: 100%; " class="rounded img-raised" />
-                                    </div>
-                                    <ion-icon class="iconInternal" color="primary" name="ellipsis-vertical"></ion-icon>
-                                </div>
-
-                            </div>
-                            <div class="col-12">
-
-                                <ion-item class="ionitem " [ngClass]="{
-                                            'is-invalid': 
-                                                expSoat.errors?.required  && expSoat.touched
-                                                  
-                                            }">
-                                    <ion-icon slot="start" name="calendar-outline"></ion-icon>
-
-                                    <span class="msgValidation" *ngIf="expSoat.errors?.required && expSoat.touched">
-                                                <small class="text-danger">*Requerido</small>
-                                            </span>
-
-                                    <ion-label>Expiraci&oacute;n</ion-label>
-                                    <ion-datetime slot="end" [pickerOptions]="pickerOptLicense" [monthNames]="monthNames" [monthShortNames]="monthNames" [min]="minYear" [max]="maxValue" placeholder="D&iacute;a/Mes/A&ntilde;o" name="expSoat" #expSoat="ngModel" [(ngModel)]="bodyVehicle.dateSoatExpiration"
-                                        required="true"></ion-datetime>
-                                </ion-item>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-12">
-                                <ion-button (click)="onNextVehicleTwo()" [disabled]="frmVehicle.invalid" color="primary">
-                                    SIGUIENTE
-                                    <ion-spinner *ngIf="loading" name="bubbles"></ion-spinner>
-
-                                </ion-button>
-                            </div>
-                        </div>
-                    </div>
-
-                </form>
-
-            </ion-slide>
-
-            <ion-slide>
-
-                <div class="table">
-                    <div class="row">
-                        <div class="col-12 text-center">
-                            <br>
-                            <h1>Fotos del veh&iacute;culo</h1>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6 text-center">
-
-                            <ion-text color="medium">
-                                <h3>Frontal</h3>
-                            </ion-text>
-                            <div class="container text-center">
-                                <div class="photo-driver" style=" width: 95%; height:250px;" (click)="onShowSheetImg( typeFile.taxiFrontal )">
-                                    <img [src]=" filesVehicle.onGetSrc( 'TAXI_FRONTAL' )  | imgDriver: 'TAXI_FRONTAL' " style="width: 100%; height: 100%; " class="rounded img-raised" />
-                                </div>
-                                <ion-icon class="iconVehicle" color="primary" name="ellipsis-vertical"></ion-icon>
-                            </div>
-
-                        </div>
-                        <div class="col-6 text-center">
-
-                            <ion-text color="medium">
-                                <h3>Espalda</h3>
-                            </ion-text>
-                            <div class="container text-center">
-                                <div class="photo-driver" style=" width: 95%; height:250px;" (click)="onShowSheetImg( typeFile.taxiBack )">
-                                    <img [src]=" filesVehicle.onGetSrc( 'TAXI_BACK' )  | imgDriver: 'TAXI_BACK' " style="width: 100%; height: 100%; " class="rounded img-raised" />
-                                </div>
-                                <ion-icon class="iconVehicle" color="primary" name="ellipsis-vertical"></ion-icon>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12 text-center">
-
-                            <ion-text color="medium">
-                                <h3>Interior</h3>
-                            </ion-text>
-                            <div class="container text-center">
-                                <div class="photo-driver" style=" width: 95%; height:180px;" (click)="onShowSheetImg( typeFile.taxiInterior )">
-                                    <img [src]=" filesVehicle.onGetSrc( 'TAXI_INTERIOR' )  | imgDriver: 'TAXI_INTERIOR' " style="width: 100%; height: 100%; " class="rounded img-raised" />
-                                </div>
-                                <ion-icon class="iconInternal" color="primary" name="ellipsis-vertical"></ion-icon>
-                            </div>
-
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row">
-                        <div class="col-6">
-
-                            <ion-button color="primary" shape="round" (click)="onBackSlide()">
-                                ATRÁS
-                                <ion-spinner *ngIf="loading" name="bubbles"></ion-spinner>
-                            </ion-button>
-                        </div>
-                        <div class="col-6">
-                            <ion-button color="primary" shape="round" (click)="onSubmit()">
-                                GUARDAR
-                            </ion-button>
                         </div>
                     </div>
                 </div>
 
-                <!-- </ion-item> -->
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <ion-text color="medium">
+                            <h3>Tarjeta de propiedad</h3>
+                        </ion-text>
 
-            </ion-slide>
+                        <div class="container text-center">
+                            <div class="photo-driver" style=" width: 95%; height:180px;" (click)="onShowSheetImg( typeFile.propertyCard )">
+                                <img [src]=" filesVehicle.onGetSrc( 'PROPERTY_CARD' )  | imgDriver: 'PROPERTY_CARD' " style="width: 100%; height: 100%; " class="rounded img-raised" />
+                            </div>
+                            <ion-icon class="iconInternal" color="primary" name="ellipsis-vertical"></ion-icon>
+                        </div>
 
-        </ion-slides>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <ion-text color="medium">
+                            <h3>SOAT</h3>
+                        </ion-text>
+                        <div class="container text-center">
+                            <div class="photo-driver" style=" width: 95%; height:180px;" (click)="onShowSheetImg( typeFile.soat )">
+                                <img [src]=" filesVehicle.onGetSrc( 'SOAT' )  | imgDriver: 'SOAT' " style="width: 100%; height: 100%; " class="rounded img-raised" />
+                            </div>
+                            <ion-icon class="iconInternal" color="primary" name="ellipsis-vertical"></ion-icon>
+                        </div>
+
+                    </div>
+                    <div class="col-12">
+
+                        <ion-item class="ionitem " [ngClass]="{
+                                    'is-invalid': 
+                                        expSoat.errors?.required  && expSoat.touched
+                                          
+                                    }">
+                            <ion-icon slot="start" name="calendar-outline"></ion-icon>
+
+                            <span class="msgValidation" *ngIf="expSoat.errors?.required && expSoat.touched">
+                                        <small class="text-danger">*Requerido</small>
+                                    </span>
+
+                            <ion-label>Expiraci&oacute;n</ion-label>
+                            <ion-datetime slot="end" [pickerOptions]="pickerOptLicense" [monthNames]="monthNames" [monthShortNames]="monthNames" [min]="minYear" [max]="maxValue" placeholder="D&iacute;a/Mes/A&ntilde;o" name="expSoat" #expSoat="ngModel" [(ngModel)]="bodyVehicle.dateSoatExpiration"
+                                required="true"></ion-datetime>
+                        </ion-item>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="table">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <br>
+                        <h1>Fotos del veh&iacute;culo</h1>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 text-center">
+
+                        <ion-text color="medium">
+                            <h3>Frontal</h3>
+                        </ion-text>
+                        <div class="container text-center">
+                            <div class="photo-driver" style=" width: 95%; height:250px;" (click)="onShowSheetImg( typeFile.taxiFrontal )">
+                                <img [src]=" filesVehicle.onGetSrc( 'TAXI_FRONTAL' )  | imgDriver: 'TAXI_FRONTAL' " style="width: 100%; height: 100%; " class="rounded img-raised" />
+                            </div>
+                            <ion-icon class="iconVehicle" color="primary" name="ellipsis-vertical"></ion-icon>
+                        </div>
+
+                    </div>
+                    <div class="col-6 text-center">
+
+                        <ion-text color="medium">
+                            <h3>Espalda</h3>
+                        </ion-text>
+                        <div class="container text-center">
+                            <div class="photo-driver" style=" width: 95%; height:250px;" (click)="onShowSheetImg( typeFile.taxiBack )">
+                                <img [src]=" filesVehicle.onGetSrc( 'TAXI_BACK' )  | imgDriver: 'TAXI_BACK' " style="width: 100%; height: 100%; " class="rounded img-raised" />
+                            </div>
+                            <ion-icon class="iconVehicle" color="primary" name="ellipsis-vertical"></ion-icon>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 text-center">
+
+                        <ion-text color="medium">
+                            <h3>Interior</h3>
+                        </ion-text>
+                        <div class="container text-center">
+                            <div class="photo-driver" style=" width: 95%; height:180px;" (click)="onShowSheetImg( typeFile.taxiInterior )">
+                                <img [src]=" filesVehicle.onGetSrc( 'TAXI_INTERIOR' )  | imgDriver: 'TAXI_INTERIOR' " style="width: 100%; height: 100%; " class="rounded img-raised" />
+                            </div>
+                            <ion-icon class="iconInternal" color="primary" name="ellipsis-vertical"></ion-icon>
+                        </div>
+
+                    </div>
+                </div>
+                <br>
+
+            </div>
+
+            <ion-grid fixed>
+                <ion-row>
+                    <ion-col size="12">
+                        <ion-button (click)="onSubmit()" expand="block" fill="clear" shape="round" [disabled]="frmVehicle.invalid">
+                            Guardar
+                        </ion-button>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+
+        </form>
+
+
     </ion-list>
 
 </ion-content>

@@ -10,7 +10,6 @@ import { DriverFilesModel, EEntity, ETypeFile } from '../../models/user-driver-f
 import { UiUtilitiesService } from '../../services/ui-utilities.service';
 import { NgForm } from '@angular/forms';
 import { UserService } from '../../services/user.service';
-import { UploadService } from '../../services/upload.service';
 import { Upload21Service } from '../../services/upload21.service';
 import { IResApi } from '../../interfaces/response-api.interface';
 import { File, FileEntry } from '@ionic-native/file/ngx';
@@ -26,7 +25,6 @@ declare var window: any;
 export class ModalProfilePage implements OnInit, OnDestroy {
   @Input() bodyProfile: IProfile;
   @Input() token: string;
-  @ViewChild('slideProfile', {static: true}) slideProfile: IonSlides;
   @ViewChild('driverContent', {static: true}) content: IonContent;
 
   tdSbc: Subscription;
@@ -84,14 +82,7 @@ export class ModalProfilePage implements OnInit, OnDestroy {
   maxYearLic = moment().year() + 5;
 
   optSlider = {
-    initialSlide: 0,
-    direction: 'horizontal',
-    speed: 900,
-    effect: 'fade',
-    pagination: {
-      el: '.swiper-pagination',
-      type: 'progressbar',
-    },
+    initialSlide: 0
   };
 
   optSlideRecords = {
@@ -113,10 +104,11 @@ export class ModalProfilePage implements OnInit, OnDestroy {
   };
 
   // tslint:disable-next-line: max-line-length
-  constructor( private camera: Camera, private modalCtrl: ModalController, private pickerCtrl: PickerController, private authSvc: AuthService, private sheetCtrl: ActionSheetController, private ui: UiUtilitiesService, private userSvc: UserService, private upload: UploadService, private upload21: Upload21Service, private file: File ) { }
-
+  constructor( private camera: Camera, private modalCtrl: ModalController, private pickerCtrl: PickerController, private authSvc: AuthService, private sheetCtrl: ActionSheetController, private ui: UiUtilitiesService, private userSvc: UserService, private upload21: Upload21Service, private file: File ) { }
+  
   ngOnInit() {
-
+    // this.slideProfile.lockSwipes(true);
+    
     // this.st.onLoadData();
 
     this.driverFiles = new DriverFilesModel();
@@ -137,7 +129,6 @@ export class ModalProfilePage implements OnInit, OnDestroy {
     this.driverFiles.onAddFile( EEntity.driver, ETypeFile.criminalRecord, false, this.pathCri, this.pathCri );
     this.driverFiles.onAddFile( EEntity.driver, ETypeFile.policialRecord, false, this.pathPo, this.pathPo );
 
-    this.slideProfile.lockSwipes(true);
     this.validLicense = imgLic === '' ? false : true;
 
     if (this.bodyProfile.isEmployee) {
@@ -228,20 +219,6 @@ export class ModalProfilePage implements OnInit, OnDestroy {
 
       this.dataNationality = res.data;
     });
-  }
-
-  onNext() {
-    this.slideProfile.lockSwipes(false);
-    this.slideProfile.slideNext();
-    this.slideProfile.lockSwipes(true);
-    this.content.scrollToTop(50);
-  }
-
-  onBack() {
-    this.slideProfile.lockSwipes(false);
-    this.slideProfile.slidePrev();
-    this.slideProfile.lockSwipes(true);
-    this.content.scrollToTop(50);
   }
 
   async onShowTypeDoc() {

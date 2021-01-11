@@ -16,7 +16,6 @@ import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { IonicStorageModule } from '@ionic/storage';
 
 import { Camera } from '@ionic-native/camera/ngx';
-import { FileTransfer } from '@ionic-native/file-transfer/ngx';
 import { FilePath } from '@ionic-native/file-path/ngx';
 import { OneSignal } from '@ionic-native/onesignal/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
@@ -60,8 +59,6 @@ const configIO: SocketIoConfig = { url: environment.URL_SERVER, options: {} };
     SplashScreen,
     Camera,
     FilePath,
-    // tslint:disable-next-line: deprecation
-    FileTransfer,
     File,
     Geolocation,
     NativeGeocoder,

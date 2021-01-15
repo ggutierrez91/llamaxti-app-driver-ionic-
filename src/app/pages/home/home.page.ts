@@ -195,7 +195,7 @@ export class HomePage implements OnInit, OnDestroy {
 
       if (res.showError === 0) {
 
-        const dateStart = moment( res.data.dateStart );
+        const dateStart = moment( res.data.dateStart ).set('hour', 23).set('minute', 59);
         const dataJournal = {
           pkJournalDriver : Number( res.data.pkJournal ),
           codeJournal : res.data.codeJournal,
@@ -203,7 +203,7 @@ export class HomePage implements OnInit, OnDestroy {
           rateJournal : res.data.rateConf,
           modeJournal : res.data.modeConf,
           dateStart: res.data.dateStart,
-          dateExpired: dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm'),
+          dateExpired: dateStart.format('YYYY/MM/DD HH:mm'),
           expired: false
         };
         this.st.dataJournal = dataJournal;
@@ -229,6 +229,8 @@ export class HomePage implements OnInit, OnDestroy {
 
     // tslint:disable-next-line: no-bitwise
     if (showError & 2) {
+      const current = moment();
+      const dateStart = moment( data.dateStart ).set('hour', 23).set('minute', 59);
 
       const dataJournal = {
         pkJournalDriver: data.pkJournalAux,
@@ -237,7 +239,7 @@ export class HomePage implements OnInit, OnDestroy {
         rateJournal: data.rateAux,
         modeJournal: data.modeAux,
         dateStart: data.dateStartAux,
-        expired: false
+        expired: dateStart.diff( current, 'minutes' ) > 0 ? false : true
       };
       this.st.dataJournal = dataJournal;
 

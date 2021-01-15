@@ -112,14 +112,19 @@ export class StorageService {
       this.dataJournal.rateJournal = data.rateJournal;
       this.dataJournal.dateStart = data.dateStart;
 
-      const startDate = moment( data.dateStart ).add(24, 'hours');
+      let startDate = moment( data.dateStart ).add(24, 'hours');
       const current = moment();
 
       if (this.dataJournal.modeJournal === 'FORTODAY') {
-        console.log('diferencia horas', startDate.diff( current, 'minutes' ));
+        // console.log('diferencia horas', startDate.diff( current, 'minutes' ));
         this.dataJournal.expired = startDate.diff( current, 'minutes' ) > 0 ? false : true;
       } else {
-        this.dataJournal.expired = false;
+        const auxStar = moment( data.dateStart );
+        startDate = moment( `${ auxStar.format('yyyy/MM/DD') } 23:59` );
+        
+        console.log('f exp', startDate);
+        console.log('diferencia minutos', startDate.diff( current, 'minutes' ));
+        this.dataJournal.expired = startDate.diff( current, 'minutes' ) > 0 ? false : true;
       }
 
     }

@@ -102,7 +102,9 @@ export class JournalPage implements OnInit, OnDestroy {
       const finded = this.dataJournal.find( conf => conf.pkJournalDriver === this.st.dataJournal.pkJournalDriver );
       if (finded) {
 
-        this.st.dataJournal.dateStart = finded.dateStart;
+        console.log('jornada finded', moment( finded.dateStart ).format('yyyy/MM/DD HH:mm:ss'));
+
+        this.st.dataJournal.dateStart = moment( finded.dateStart ).format('yyyy/MM/DD HH:mm');
         this.st.dataJournal.expired = finded.expired;
 
         this.st.onSetItem('dataJournal', this.st.dataJournal, true);
@@ -175,6 +177,11 @@ export class JournalPage implements OnInit, OnDestroy {
       if (res.showError === 0) {
 
         const dateStart = moment( res.data.dateStart );
+        let dateExpired = dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm');
+        if (res.data.modeConf !== 'FORTODAY') {
+          dateExpired = moment( `${ dateStart.format( 'YYYY/MM/DD' ) } 23:59:59` ).format('YYYY/MM/DD hh:mm')
+        }
+
         const dataJournal = {
           pkJournalDriver : Number( res.data.pkJournal ),
           codeJournal : res.data.codeJournal,
@@ -182,7 +189,7 @@ export class JournalPage implements OnInit, OnDestroy {
           rateJournal : this.bodyJournal.rateJournal,
           modeJournal : this.bodyJournal.modeJournal,
           dateStart: res.data.dateStart,
-          dateExpired: dateStart.add( 24, 'hours' ).format('YYYY/MM/DD hh:mm'),
+          dateExpired,
           expired: false
         };
         this.st.dataJournal = dataJournal;

@@ -28,7 +28,7 @@
         <div class="row">
             <div class="col-12">
 
-                <ion-item class="ionitem " [ngClass]="{
+                <!-- <ion-item class="ionitem " [ngClass]="{
               'is-invalid': 
               (document.errors?.required || document.errors?.minlength) && document.touched,
               'is-valid': 
@@ -56,13 +56,13 @@
 
                     </ion-select>
 
-                    <!-- (ionChange)="onVerifyDni($event)" debounce="750" -->
+                     (ionChange)="onVerifyDni($event)" debounce="750"
                     <ion-input type="text" placeholder="# documento" class="ion-text-right" clearInput="true" inputmode="tel" name="document" #document="ngModel" [(ngModel)]="bodyDriver.document" required="true" [minlength]="longTypeDoc" pattern="[0-9]{0,15}">
 
                     </ion-input>
 
-                    <!-- <ion-spinner color="primary" slot="end" name="bubbles" *ngIf="loadingReniec"></ion-spinner> -->
-                </ion-item>
+                     <ion-spinner color="primary" slot="end" name="bubbles" *ngIf="loadingReniec"></ion-spinner>
+                </ion-item> -->
 
                 <ion-item class="ionitem" [ngClass]="{
               'is-invalid': 
@@ -156,12 +156,12 @@
                     <ion-icon slot="start" name="mail-outline"></ion-icon>
 
                     <span class="msgValidation" *ngIf="email.errors?.required && email.touched">
-                  <small class="text-danger">*Requerido</small>
-              </span>
+                        <small class="text-danger">*Requerido</small>
+                    </span>
 
                     <span class="msgValidation" *ngIf="email.errors?.pattern && email.touched">
-                  <small class="text-danger">*Email inv&aacute;lido</small>
-              </span>
+                        <small class="text-danger">*Email inv&aacute;lido</small>
+                    </span>
 
                     <ion-input mode="ios" type="email" placeholder="example@dominio.com" class="ion-text-right" clearInput="true" inputmode="email" name="email" #email="ngModel" [(ngModel)]="bodyDriver.email" pattern="^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$"
                         required="true"></ion-input>
@@ -176,15 +176,15 @@
                     <ion-icon slot="start" name="calendar-outline"></ion-icon>
 
                     <span class="msgValidation" *ngIf="birthDate.errors?.required && birthDate.touched">
-                  <small class="text-danger">*Requerido</small>
-              </span>
+                        <small class="text-danger">*Requerido</small>
+                    </span>
 
                     <!-- <ion-label>Fecha nacimiento</ion-label> -->
                     <ion-datetime slot="end" [pickerOptions]="pickerOptions" [monthNames]="monthNames" [monthShortNames]="monthNames" [min]="minYear" [max]="maxValue" placeholder="D&iacute;a/Mes/A&ntilde;o" name="birthDate" #birthDate="ngModel" [(ngModel)]="bodyDriver.brithDate"
                         required="true"></ion-datetime>
                 </ion-item>
 
-                <ion-item class="itemSex">
+                <!-- <ion-item class="itemSex">
                     <ion-icon name="man-outline"></ion-icon>
                     <ion-icon name="woman-outline"></ion-icon>
 
@@ -194,7 +194,7 @@
                         <ion-select-option value="F"> Femenino </ion-select-option>
                         <ion-select-option value="O"> Otro </ion-select-option>
                     </ion-select>
-                </ion-item>
+                </ion-item> -->
             </div>
         </div>
 

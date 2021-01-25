@@ -230,7 +230,11 @@ export class HomePage implements OnInit, OnDestroy {
     // tslint:disable-next-line: no-bitwise
     if (showError & 2) {
       const current = moment();
-      const dateStart = moment( data.dateStart ).set('hour', 23).set('minute', 59);
+      let dateStart = moment( data.dateStart ).set('hour', 23).set('minute', 59);
+
+      if (data.modeAu === 'FORTODAY') {
+        dateStart = moment( data.dateStart ).add(24, 'hours');
+      }
 
       const dataJournal = {
         pkJournalDriver: data.pkJournalAux,
